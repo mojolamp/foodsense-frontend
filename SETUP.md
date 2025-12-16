@@ -30,8 +30,13 @@ cp .env.example .env.local
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
 
-# 後端 API URL
+# 後端 API URL（Review Workbench 會打 /api/v1/admin/review/*）
 NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+
+# （選用 / 僅開發用途）服務端 API key
+# - 後端需設定 SERVICE_API_KEYS=["your_dev_key"]
+# - ⚠️ 不要在 production 前端暴露任何 service key
+# NEXT_PUBLIC_FOODSENSE_DEV_X_API_KEY=your_dev_key
 
 # 應用程式名稱
 NEXT_PUBLIC_APP_NAME=FoodSense Review Workbench
@@ -79,27 +84,40 @@ npm run dev
 在開始前端開發之前，確保後端 API 已啟動:
 
 ```bash
-# 在後端專案目錄
-cd backend
+# 進入 foodsense-bacend/backend
+cd /path/to/foodsense-bacend/backend
+
+# 啟動 FastAPI
 uvicorn app.main:app --reload --port 8000
 ```
 
 測試 API:
+
 ```bash
 curl http://localhost:8000/api/v1/admin/review/stats
 ```
 
+### 認證（AuthMiddleware）說明
+
+- 後端預設 `AUTH_MODE=optional`：**有/沒有 token 都可呼叫**（方便本機開發）
+- 若後端設為 `AUTH_MODE=required`：
+  - 前端登入後會自動在每次 API 呼叫帶上 `Authorization: Bearer <supabase_access_token>`
+  - 後端需設定 `SUPABASE_JWT_SECRET`（Supabase 專案 JWT secret）才能驗證 token
+  - 或在開發/內部工具情境，用 `SERVICE_API_KEYS` + `X-API-Key`（不建議暴露到前端，僅 dev）
+
 ### 平行運行前後端
 
 **Terminal 1** (後端):
+
 ```bash
-cd backend
+cd /path/to/foodsense-bacend/backend
 uvicorn app.main:app --reload --port 8000
 ```
 
 **Terminal 2** (前端):
+
 ```bash
-cd foodsense-frontend
+cd /path/to/foodsense-frontend
 npm run dev
 ```
 
@@ -129,6 +147,7 @@ npm run dev
 ### 1. "Cannot find module '@supabase/ssr'"
 
 **解決方案:**
+
 ```bash
 npm install @supabase/ssr
 ```
@@ -136,10 +155,12 @@ npm install @supabase/ssr
 ### 2. "API Error: 404" 或連線錯誤
 
 **可能原因:**
+
 - 後端 API 未啟動
 - API URL 設定錯誤
 
 **解決方案:**
+
 ```bash
 # 確認後端正在運行
 curl http://localhost:8000/api/v1/admin/review/stats
@@ -150,10 +171,12 @@ curl http://localhost:8000/api/v1/admin/review/stats
 ### 3. Supabase 登入失敗
 
 **可能原因:**
+
 - Supabase 憑證錯誤
 - 使用者未建立
 
 **解決方案:**
+
 1. 檢查 `.env.local` 中的 Supabase URL 和 Key
 2. 確認在 Supabase Dashboard 中已建立測試使用者
 3. 確認 Email 確認設定:
@@ -163,10 +186,12 @@ curl http://localhost:8000/api/v1/admin/review/stats
 ### 4. Middleware 重定向循環
 
 **可能原因:**
+
 - Cookie 設定問題
 - Session 刷新失敗
 
 **解決方案:**
+
 ```bash
 # 清除瀏覽器 Cookie 和 Local Storage
 # 重新登入
@@ -182,16 +207,15 @@ npm run build
 npm run start
 ```
 
-## 🎯 下一步
-
-1. 設定生產環境 Supabase 專案
-2. 部署到 Vercel 或其他平台
-3. 設定正式環境變數
-4. 建立真實使用者帳號
-5. 設定 RLS (Row Level Security) 政策
-
 ## 📚 相關文件
 
+### 專案文件
+- [README](./README.md) - 專案概述
+- [操作使用手冊](./USER_MANUAL.md) - 完整的功能操作指南
+- [整合測試指南](./INTEGRATION_TEST.md) - API 整合測試說明
+- [驗證報告](./VERIFICATION_SUMMARY.md) - 整合驗證結果
+
+### 外部文件
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Supabase Documentation](https://supabase.com/docs)
 - [TanStack Query Documentation](https://tanstack.com/query)
@@ -202,6 +226,7 @@ npm run start
 ### Hot Reload
 
 前端會自動重載，但如果遇到問題:
+
 ```bash
 # 停止開發伺服器 (Ctrl+C)
 # 清除 .next 快取
@@ -220,10 +245,3 @@ npx tsc --noEmit
 ### Tailwind CSS 自動完成
 
 確保在 VSCode 中安裝 "Tailwind CSS IntelliSense" 擴充套件。
-
-## 🤝 支援
-
-如有問題，請參考:
-- README.md
-- 專案文件
-- 後端 API 文件
