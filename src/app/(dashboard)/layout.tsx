@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import Header from '@/components/layout/Header'
+import CommandPalette from '@/components/CommandPalette'
+import { useGlobalShortcuts } from '@/hooks/useGlobalShortcuts'
 import type { User } from '@supabase/supabase-js'
 
 export default function DashboardLayout({
@@ -14,8 +16,12 @@ export default function DashboardLayout({
 }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  // 全域快捷鍵
+  const { isCommandPaletteOpen, setIsCommandPaletteOpen } = useGlobalShortcuts()
 
   useEffect(() => {
     const getUser = async () => {
@@ -32,8 +38,11 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-600">載入中...</div>
+      <div className="min-h-screen flex items-center justify-center bg-muted/20">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-sm text-muted-foreground">載入中...</div>
+        </div>
       </div>
     )
   }
@@ -43,14 +52,27 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Sidebar user={user} />
-      <div className="lg:pl-64">
-        <Header user={user} />
-        <main className="py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-muted/20">
+      <Sidebar
+        user={user}
+        mobileOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      <div className="lg:pl-72">
+        <Header
+          user={user}
+          onMenuClick={() => setSidebarOpen(true)}
+        />
+        <main className="py-8 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
           {children}
         </main>
       </div>
+
+      {/* Command Palette (Cmd+K) */}
+      <CommandPalette
+        open={isCommandPaletteOpen}
+        onOpenChange={setIsCommandPaletteOpen}
+      />
     </div>
   )
 }

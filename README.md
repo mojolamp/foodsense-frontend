@@ -24,7 +24,13 @@ FoodSense OCR 記錄審核管理系統的前端應用程式。
 - ✅ 統計儀表板
 - ✅ 審核歷史記錄
 - ✅ 黃金樣本管理
-- ✅ 響應式設計
+- ✅ 產品總覽（分頁/篩選/詳情 Drawer）
+- ✅ 成分字典（Token 排行 + 詳情 + 批次校正）
+- ✅ 規則管理（列表/詳情/建立/啟停/刪除/測試）
+- ✅ 資料品質儀表板（KPI / 時序 / 來源貢獻 / 覆蓋率）
+- ✅ 產品聚類管理（演算法分群 / 人工合併 / 拆分）
+- ✅ 端對端資料流驗證（Gold Sample 測試通過）
+- 🚀 生產數據準備就緒（v0.4.0-pre）
 
 ## 環境設定
 
@@ -64,7 +70,7 @@ npm install
 npm run dev
 ```
 
-應用程式將在 http://localhost:3000 啟動。
+應用程式預設在 http://localhost:3000 啟動（若 3000 被占用，Next.js 會自動改用其他可用埠）。
 
 ## Supabase 設定
 
@@ -99,14 +105,15 @@ src/
 
 ## API 端點
 
-後端 API 位於 `http://localhost:8000/api/v1/admin/review`:
+- Review Workbench (目前 `NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1`)  
+  - `GET /admin/review/queue` - 獲取待審核佇列  
+  - `POST /admin/review/submit` - 提交審核結果  
+  - `GET /admin/review/stats` - 獲取統計資料  
+  - `GET /admin/review/history` - 獲取審核歷史  
+  - `GET /admin/review/gold-samples` - 獲取黃金樣本  
+  - `POST /admin/review/gold-samples` - 標記為黃金樣本  
 
-- `GET /queue` - 獲取待審核佇列
-- `POST /submit` - 提交審核結果
-- `GET /stats` - 獲取統計資料
-- `GET /history` - 獲取審核歷史
-- `GET /gold-samples` - 獲取黃金樣本
-- `POST /gold-samples` - 標記為黃金樣本
+- 產品/字典/規則/資料品質（依後端部署路徑調整；目前後端 v2 模組位於 `/api`，若採分流可將 products 相關 base 設為 `http://localhost:8000/api`）
 
 ## 建置
 

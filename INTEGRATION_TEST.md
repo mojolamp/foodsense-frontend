@@ -101,22 +101,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
 ```
 
-3. **（推薦）確認後端 Supabase 可寫入（service_role）**：
-
-> 這一步是為了確保「提交審核 / 標記 gold sample / idempotency」等寫入路徑不會被 RLS 擋住。
-
-```bash
-cd /Users/changchris/Desktop/foodsense-bacend
-./.venv/bin/python scripts/supabase_smoke_test.py
-```
-
-期望看到：
-- `select(idempotency_keys.id): OK`
-- `write(idempotency_keys): OK (insert+delete)`
-- `RESULT: PASS`
-
-
-4. **啟動前端**:
+3. **啟動前端**:
 ```bash
 cd /path/to/foodsense-frontend
 npm run dev
@@ -156,19 +141,6 @@ npm run dev
 - [ ] 認證失敗時顯示錯誤訊息
 - [ ] API 錯誤回應正確解析
 
-
----
-
-## 🧪 後端 Review Workbench API 整合測試（推薦）
-
-```bash
-cd /Users/changchris/Desktop/foodsense-bacend
-./.venv/bin/python test_review_api.py
-```
-
-說明：
-- 若 Supabase 當下 queue/history 沒資料，`POST /submit`、`POST /gold-samples` 會被標記為 **SKIPPED**（不算失敗）
-
 ## 🔍 已知問題與注意事項
 
 1. **類型擴展建議**:
@@ -197,4 +169,6 @@ cd /Users/changchris/Desktop/foodsense-bacend
 2. 根據實際 API 回應調整 TypeScript 類型（特別是嵌套資料）
 3. 設定生產環境配置（CORS、AUTH_MODE 等）
 4. 實作錯誤監控與日誌記錄
+
+
 

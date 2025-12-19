@@ -1,10 +1,71 @@
 'use client'
 
-import { useState } from 'react'
-import { Dialog } from '@headlessui/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useHotkeys } from 'react-hotkeys-hook'
 import type { OCRRecord } from '@/types/review'
 import { useReviewSubmit } from '@/hooks/useReviewQueue'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
+import { Keyboard } from 'lucide-react'
+
+// Zod 驗證 Schema
+const reviewFormSchema = z.object({
+  data_quality_score: z.number()
+    .int('品質分數必須是整數')
+    .min(1, '品質分數最低為 1')
+    .max(10, '品質分數最高為 10'),
+  confidence_score: z.number()
+    .min(0, '信心分數最低為 0')
+    .max(1, '信心分數最高為 1'),
+  review_notes: z.string().optional(),
+  is_gold: z.boolean(),
+}).refine((data) => {
+  // 黃金樣本驗證規則
+  if (data.is_gold) {
+    return data.data_quality_score >= 8 &&
+           data.confidence_score >= 0.85 &&
+           data.review_notes &&
+           data.review_notes.length >= 10
+  }
+  return true
+}, {
+  message: "黃金樣本需要：品質分數≥8、信心度≥0.85、且備註至少10個字",
+  path: ['is_gold']
+}).refine((data) => {
+  // 邏輯一致性驗證：高品質應該有高信心度
+  if (data.data_quality_score >= 8 && data.confidence_score < 0.7) {
+    return false
+  }
+  return true
+}, {
+  message: "高品質評分(≥8)應該搭配較高的信心度(≥0.7)",
+  path: ['confidence_score']
+}).refine((data) => {
+  // 邏輯一致性驗證：低品質不應該有過高信心度
+  if (data.data_quality_score <= 4 && data.confidence_score > 0.7) {
+    return false
+  }
+  return true
+}, {
+  message: "低品質評分(≤4)不應搭配過高的信心度(>0.7)",
+  path: ['confidence_score']
+})
+
+type ReviewFormData = z.infer<typeof reviewFormSchema>
 
 interface Props {
   record: OCRRecord
@@ -12,16 +73,50 @@ interface Props {
 }
 
 export default function ReviewModal({ record, onClose }: Props) {
-  const [qualityScore, setQualityScore] = useState(8)
-  const [confidenceScore, setConfidenceScore] = useState(0.9)
-  const [notes, setNotes] = useState('')
-  const [isGold, setIsGold] = useState(false)
-
   const { mutate: submitReview, isPending } = useReviewSubmit()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors }
+  } = useForm<ReviewFormData>({
+    resolver: zodResolver(reviewFormSchema),
+    defaultValues: {
+      data_quality_score: 8,
+      confidence_score: 0.9,
+      review_notes: '',
+      is_gold: false
+    }
+  })
 
+  const qualityScore = watch('data_quality_score')
+  const confidenceScore = watch('confidence_score')
+  const isGold = watch('is_gold')
+
+  // 快捷鍵: 1-9, 0 設定品質分數
+  useHotkeys('1', () => setValue('data_quality_score', 1), { enableOnFormTags: false })
+  useHotkeys('2', () => setValue('data_quality_score', 2), { enableOnFormTags: false })
+  useHotkeys('3', () => setValue('data_quality_score', 3), { enableOnFormTags: false })
+  useHotkeys('4', () => setValue('data_quality_score', 4), { enableOnFormTags: false })
+  useHotkeys('5', () => setValue('data_quality_score', 5), { enableOnFormTags: false })
+  useHotkeys('6', () => setValue('data_quality_score', 6), { enableOnFormTags: false })
+  useHotkeys('7', () => setValue('data_quality_score', 7), { enableOnFormTags: false })
+  useHotkeys('8', () => setValue('data_quality_score', 8), { enableOnFormTags: false })
+  useHotkeys('9', () => setValue('data_quality_score', 9), { enableOnFormTags: false })
+  useHotkeys('0', () => setValue('data_quality_score', 10), { enableOnFormTags: false })
+
+  // 快捷鍵: g 切換黃金樣本
+  useHotkeys('g', () => setValue('is_gold', !isGold), { enableOnFormTags: false })
+
+  // 快捷鍵: Cmd/Ctrl+Enter 快速提交
+  useHotkeys('mod+enter', (e) => {
+    e.preventDefault()
+    handleSubmit(onSubmit)()
+  }, { enableOnFormTags: true })
+
+  const onSubmit = (data: ReviewFormData) => {
     submitReview({
       ocr_record_id: record.id,
       product_id: record.product_id,
@@ -30,10 +125,10 @@ export default function ReviewModal({ record, onClose }: Props) {
         verified_at: new Date().toISOString(),
         ocr_raw_text: record.ocr_raw_text,
       },
-      data_quality_score: qualityScore,
-      confidence_score: confidenceScore,
-      review_notes: notes,
-      is_gold: isGold,
+      data_quality_score: data.data_quality_score,
+      confidence_score: data.confidence_score,
+      review_notes: data.review_notes,
+      is_gold: data.is_gold,
     }, {
       onSuccess: () => {
         onClose()
@@ -42,135 +137,172 @@ export default function ReviewModal({ record, onClose }: Props) {
   }
 
   return (
-    <Dialog open={true} onClose={onClose} className="relative z-50">
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="mx-auto max-w-2xl w-full bg-white rounded-xl shadow-xl">
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b">
-            <Dialog.Title className="text-xl font-semibold">
-              審核記錄
-            </Dialog.Title>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <XMarkIcon className="h-6 w-6" />
-            </button>
+    <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col p-0 gap-0">
+        <DialogHeader className="p-6 pb-2 border-b">
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle>Review Workbench</DialogTitle>
+              <DialogDescription className="mt-1">
+                使用鍵盤快捷鍵快速審核
+              </DialogDescription>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Keyboard className="w-4 h-4" />
+              <div className="flex gap-1">
+                <kbd className="px-1.5 py-0.5 bg-muted rounded border">1-9</kbd>
+                <span>評分</span>
+                <kbd className="px-1.5 py-0.5 bg-muted rounded border ml-2">G</kbd>
+                <span>黃金</span>
+                <kbd className="px-1.5 py-0.5 bg-muted rounded border ml-2">⌘↵</kbd>
+                <span>提交</span>
+              </div>
+            </div>
           </div>
+        </DialogHeader>
 
-          {/* Content */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            {/* Record Info */}
-            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="flex flex-1 min-h-0 divide-x">
+          {/* Left Panel: Source Data / Image */}
+          <div className="flex-1 p-6 overflow-y-auto bg-muted/30">
+            <h4 className="text-sm font-medium mb-4 text-muted-foreground uppercase tracking-wider">Source Analysis</h4>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm bg-card p-4 rounded-lg border">
                 <div>
-                  <span className="text-gray-600">記錄 ID:</span>
-                  <span className="ml-2 font-mono">{record.id.slice(0, 12)}...</span>
+                  <span className="text-muted-foreground">Record ID</span>
+                  <div className="font-mono text-xs mt-1">{record.id.slice(0, 12)}...</div>
                 </div>
                 <div>
-                  <span className="text-gray-600">產品 ID:</span>
-                  <span className="ml-2 font-semibold">{record.product_id}</span>
+                  <span className="text-muted-foreground">Product ID</span>
+                  <div className="font-medium mt-1">{record.product_id}</div>
                 </div>
                 <div>
-                  <span className="text-gray-600">驗證狀態:</span>
-                  <span className="ml-2 font-semibold">{record.logic_validation_status}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">信心水平:</span>
-                  <span className="ml-2 font-semibold">{record.confidence_level}</span>
+                  <span className="text-muted-foreground">Status</span>
+                  <div className="mt-1 font-semibold text-xs px-2 py-0.5 rounded-full bg-accent inline-block">{record.logic_validation_status}</div>
                 </div>
               </div>
 
               {record.ocr_raw_text && (
-                <div className="mt-4">
-                  <p className="text-sm text-gray-600 mb-2">OCR 原始文字:</p>
-                  <div className="bg-white p-3 rounded border text-sm">
+                <div>
+                  <span className="text-xs font-medium text-muted-foreground mb-2 block">Raw Text Content</span>
+                  <pre className="bg-card p-3 rounded-lg border text-xs whitespace-pre-wrap overflow-auto max-h-[300px] text-muted-foreground">
                     {record.ocr_raw_text}
-                  </div>
+                  </pre>
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Quality Score */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                資料品質分數 (1-10): {qualityScore}
-              </label>
-              <input
-                type="range"
-                min="1"
-                max="10"
-                value={qualityScore}
-                onChange={(e) => setQualityScore(parseInt(e.target.value))}
-                className="w-full"
-              />
-            </div>
+          {/* Right Panel: Review Form */}
+          <div className="w-[400px] p-6 flex flex-col overflow-y-auto bg-background">
+            <h4 className="text-sm font-medium mb-4 text-muted-foreground uppercase tracking-wider">Validation & Correction</h4>
 
-            {/* Confidence Score */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                信心分數 (0-1): {confidenceScore.toFixed(2)}
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={confidenceScore}
-                onChange={(e) => setConfidenceScore(parseFloat(e.target.value))}
-                className="w-full"
-              />
-            </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="quality">Data Quality Score (1-10)</Label>
+                    <div className="flex gap-1 text-xs text-muted-foreground">
+                      <kbd className="px-1 py-0.5 bg-muted rounded text-[10px]">1-9</kbd>
+                      <span className="text-[10px]">快速設定</span>
+                      <kbd className="px-1 py-0.5 bg-muted rounded text-[10px]">0</kbd>
+                      <span className="text-[10px]">=10分</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="quality"
+                      type="number"
+                      min="1"
+                      max="10"
+                      {...register('data_quality_score', { valueAsNumber: true })}
+                    />
+                    <span className="text-2xl font-bold tabular-nums text-muted-foreground">{qualityScore}</span>
+                  </div>
+                  {errors.data_quality_score && (
+                    <p className="text-xs text-red-600">{errors.data_quality_score.message}</p>
+                  )}
+                </div>
 
-            {/* Notes */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                審核備註
-              </label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="輸入審核備註..."
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confidence">Confidence Score (0-100%)</Label>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="confidence"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="1"
+                      {...register('confidence_score', { valueAsNumber: true })}
+                    />
+                    <span className="text-sm text-muted-foreground whitespace-nowrap">{(confidenceScore * 100).toFixed(0)}%</span>
+                  </div>
+                  {errors.confidence_score && (
+                    <p className="text-xs text-red-600">{errors.confidence_score.message}</p>
+                  )}
+                </div>
 
-            {/* Is Gold */}
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                checked={isGold}
-                onChange={(e) => setIsGold(e.target.checked)}
-                className="h-4 w-4 text-blue-600 rounded"
-              />
-              <label className="ml-2 text-sm text-gray-700">
-                標記為黃金樣本
-              </label>
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Review Notes</Label>
+                  <Textarea
+                    id="notes"
+                    {...register('review_notes')}
+                    placeholder="Add comments regarding this validation..."
+                    className="min-h-[100px]"
+                  />
+                  {errors.review_notes && (
+                    <p className="text-xs text-red-600">{errors.review_notes.message}</p>
+                  )}
+                </div>
 
-            {/* Actions */}
-            <div className="flex gap-3 pt-4 border-t">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-              >
-                取消
-              </button>
-              <button
-                type="submit"
-                disabled={isPending}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-              >
-                {isPending ? '提交中...' : '提交審核'}
-              </button>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between space-x-2 pt-2 p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="gold"
+                        {...register('is_gold')}
+                        className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
+                      />
+                      <Label htmlFor="gold" className="font-normal cursor-pointer">Mark as Gold Sample (Training Data)</Label>
+                    </div>
+                    <div className="flex gap-1 text-xs text-muted-foreground">
+                      <span className="text-[10px]">快捷鍵:</span>
+                      <kbd className="px-1 py-0.5 bg-background rounded text-[10px] border">G</kbd>
+                    </div>
+                  </div>
+                  {errors.is_gold && (
+                    <p className="text-xs text-red-600">{errors.is_gold.message}</p>
+                  )}
+                  {isGold && (
+                    <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 p-2 rounded">
+                      <Badge className="bg-amber-500">⭐ 黃金樣本</Badge>
+                      <span>需要品質≥8、信心≥0.85、備註≥10字</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <DialogFooter className="p-6 border-t bg-muted/10">
+          <div className="flex items-center justify-between w-full">
+            <div className="text-xs text-muted-foreground flex items-center gap-2">
+              <Keyboard className="w-3 h-3" />
+              <span>按 <kbd className="px-1 py-0.5 bg-muted rounded text-[10px] border">Cmd/Ctrl+↵</kbd> 快速提交</span>
             </div>
-          </form>
-        </Dialog.Panel>
-      </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={onClose} disabled={isPending}>
+                Cancel
+              </Button>
+              <Button onClick={handleSubmit(onSubmit)} disabled={isPending} type="submit">
+                {isPending ? 'Submitting...' : 'Approve & Create Ground Truth'}
+              </Button>
+            </div>
+          </div>
+        </DialogFooter>
+      </DialogContent>
     </Dialog>
   )
 }

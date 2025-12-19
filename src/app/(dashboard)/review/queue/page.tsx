@@ -1,24 +1,44 @@
 'use client'
 
 import { useState } from 'react'
-import { useReviewQueue } from '@/hooks/useReviewQueue'
+import { useReviewQueue, useBatchReviewSubmit } from '@/hooks/useReviewQueue'
 import ReviewQueueTable from '@/components/review/ReviewQueueTable'
 import ReviewModal from '@/components/review/ReviewModal'
+import BatchReviewModal from '@/components/review/BatchReviewModal'
+import { TableSkeleton } from '@/components/layout/LoadingStates'
 import type { OCRRecord } from '@/types/review'
 
 export default function ReviewQueuePage() {
   const [selectedRecord, setSelectedRecord] = useState<OCRRecord | null>(null)
+  const [batchRecords, setBatchRecords] = useState<OCRRecord[]>([])
   const [filters, setFilters] = useState<{
     validation_status?: string
     confidence_level?: string
   }>({})
 
   const { data: queue, isLoading, error } = useReviewQueue(filters)
+  const batchSubmit = useBatchReviewSubmit()
+
+  const handleBatchReview = (records: OCRRecord[]) => {
+    setBatchRecords(records)
+  }
+
+  const handleBatchSubmit = async (template: any) => {
+    await batchSubmit.mutateAsync({
+      records: batchRecords,
+      template
+    })
+    setBatchRecords([])
+  }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-gray-600">載入中...</div>
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <div className="h-9 w-32 bg-muted animate-pulse rounded"></div>
+          <div className="h-5 w-48 bg-muted animate-pulse rounded"></div>
+        </div>
+        <TableSkeleton rows={10} />
       </div>
     )
   }
@@ -35,17 +55,17 @@ export default function ReviewQueuePage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">審核佇列</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">審核佇列</h1>
+        <p className="mt-2 text-muted-foreground">
           待審核記錄: {queue?.length || 0} 筆
         </p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4">
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               驗證狀態
             </label>
             <select
@@ -54,7 +74,7 @@ export default function ReviewQueuePage() {
                 ...filters,
                 validation_status: e.target.value || undefined
               })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="">全部</option>
               <option value="FAIL">FAIL</option>
@@ -64,7 +84,7 @@ export default function ReviewQueuePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               信心水平
             </label>
             <select
@@ -73,7 +93,7 @@ export default function ReviewQueuePage() {
                 ...filters,
                 confidence_level: e.target.value || undefined
               })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="">全部</option>
               <option value="HIGH">HIGH</option>
@@ -85,7 +105,7 @@ export default function ReviewQueuePage() {
           <div className="flex items-end">
             <button
               onClick={() => setFilters({})}
-              className="px-4 py-2 text-gray-600 hover:text-gray-900"
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               清除篩選
             </button>
@@ -97,6 +117,7 @@ export default function ReviewQueuePage() {
       <ReviewQueueTable
         data={queue || []}
         onReview={(record) => setSelectedRecord(record)}
+        onBatchReview={handleBatchReview}
       />
 
       {/* Review Modal */}
@@ -104,6 +125,16 @@ export default function ReviewQueuePage() {
         <ReviewModal
           record={selectedRecord}
           onClose={() => setSelectedRecord(null)}
+        />
+      )}
+
+      {/* Batch Review Modal */}
+      {batchRecords.length > 0 && (
+        <BatchReviewModal
+          records={batchRecords}
+          onClose={() => setBatchRecords([])}
+          onSubmit={handleBatchSubmit}
+          isSubmitting={batchSubmit.isPending}
         />
       )}
     </div>

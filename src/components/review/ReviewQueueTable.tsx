@@ -1,101 +1,228 @@
 'use client'
 
-import type { OCRRecord } from '@/types/review'
+import { useState } from 'react'
+import type { OCRRecord, PrioritySortStrategy } from '@/types/review'
 import { formatDistanceToNow } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { ArrowRight, Clock, CheckSquare, Square, ArrowUpDown } from 'lucide-react'
+import { sortByPriority, getPriorityColor, getPriorityLabel } from '@/lib/priorityCalculator'
+import { cn } from '@/lib/utils'
 
 interface Props {
   data: OCRRecord[]
   onReview: (record: OCRRecord) => void
+  onBatchReview?: (records: OCRRecord[]) => void
 }
 
-const statusColors: Record<string, string> = {
-  FAIL: 'bg-red-100 text-red-800',
-  WARN: 'bg-yellow-100 text-yellow-800',
-  PASS: 'bg-green-100 text-green-800',
-}
+export default function ReviewQueueTable({ data, onReview, onBatchReview }: Props) {
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [sortStrategy, setSortStrategy] = useState<PrioritySortStrategy | null>(null)
 
-const confidenceColors: Record<string, string> = {
-  HIGH: 'bg-blue-100 text-blue-800',
-  MEDIUM: 'bg-purple-100 text-purple-800',
-  LOW: 'bg-gray-100 text-gray-800',
-}
+  // 根據排序策略處理數據
+  const sortedData = sortStrategy ? sortByPriority(data, sortStrategy) : data
 
-export default function ReviewQueueTable({ data, onReview }: Props) {
+  const toggleSelection = (id: string) => {
+    const newSelected = new Set(selectedIds)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedIds(newSelected)
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === data.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(data.map(r => r.id)))
+    }
+  }
+
+  const getSelectedRecords = () => {
+    return data.filter(r => selectedIds.has(r.id))
+  }
+
+  const handleBatchReview = () => {
+    if (onBatchReview && selectedIds.size > 0) {
+      onBatchReview(getSelectedRecords())
+      setSelectedIds(new Set())
+    }
+  }
   if (data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-8 text-center">
-        <p className="text-gray-500">目前沒有待審核記錄</p>
+      <div className="flex flex-col items-center justify-center p-10 border border-dashed rounded-lg bg-gray-50/50">
+        <div className="rounded-full bg-gray-100 p-3 mb-4">
+          <Clock className="w-6 h-6 text-gray-400" />
+        </div>
+        <p className="text-muted-foreground text-sm">目前沒有待審核記錄</p>
       </div>
     )
   }
 
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case 'PASS': return 'success'
+      case 'WARN': return 'warning'
+      case 'FAIL': return 'failure'
+      default: return 'secondary'
+    }
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              記錄 ID
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              產品 ID
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              驗證狀態
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              信心水平
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              建立時間
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              操作
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {data.map((record) => (
-            <tr key={record.id} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
-                {record.id.slice(0, 8)}...
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {record.product_id}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                  statusColors[record.logic_validation_status] || 'bg-gray-100 text-gray-800'
-                }`}>
-                  {record.logic_validation_status}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                  confidenceColors[record.confidence_level] || 'bg-gray-100 text-gray-800'
-                }`}>
-                  {record.confidence_level}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {formatDistanceToNow(new Date(record.created_at), {
-                  addSuffix: true,
-                  locale: zhTW,
-                })}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm">
-                <button
-                  onClick={() => onReview(record)}
-                  className="text-blue-600 hover:text-blue-900 font-medium"
-                >
-                  開始審核
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="space-y-4">
+      {/* 優先級排序選擇器 */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">優先級排序:</span>
+          <select
+            value={sortStrategy || ''}
+            onChange={(e) => setSortStrategy((e.target.value as PrioritySortStrategy) || null)}
+            className="px-3 py-1.5 text-sm border border-input bg-background rounded-md ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <option value="">無排序 (預設)</option>
+            <option value="quick_wins">快速處理 (簡單優先)</option>
+            <option value="urgent_first">緊急優先 (等待時間)</option>
+            <option value="quality_impact">品質優先 (影響度)</option>
+            <option value="balanced">綜合平衡</option>
+          </select>
+        </div>
+        {sortStrategy && (
+          <Badge variant="outline" className="text-xs">
+            已啟用智能排序
+          </Badge>
+        )}
+      </div>
+
+      {onBatchReview && selectedIds.size > 0 && (
+        <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg px-4 py-3">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <CheckSquare className="w-4 h-4 text-primary" />
+            已選擇 {selectedIds.size} 筆記錄
+          </div>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setSelectedIds(new Set())}
+            >
+              取消選擇
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleBatchReview}
+              className="bg-primary hover:bg-primary/90"
+            >
+              批次審核
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div className="rounded-md border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {onBatchReview && (
+                <TableHead className="w-12">
+                  <button
+                    onClick={toggleSelectAll}
+                    className="flex items-center justify-center w-full h-full hover:bg-accent rounded p-1"
+                    aria-label={selectedIds.size === data.length ? "取消全選" : "全選"}
+                  >
+                    {selectedIds.size === data.length ? (
+                      <CheckSquare className="w-4 h-4 text-primary" />
+                    ) : (
+                      <Square className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </button>
+                </TableHead>
+              )}
+              <TableHead>記錄 ID</TableHead>
+              <TableHead>產品 ID</TableHead>
+              {sortStrategy && <TableHead>優先級</TableHead>}
+              <TableHead>驗證狀態</TableHead>
+              <TableHead>信心度</TableHead>
+              <TableHead>建立時間</TableHead>
+              <TableHead className="text-right">操作</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedData.map((record) => (
+              <TableRow
+                key={record.id}
+                className={selectedIds.has(record.id) ? 'bg-primary/5' : ''}
+              >
+                {onBatchReview && (
+                  <TableCell>
+                    <button
+                      onClick={() => toggleSelection(record.id)}
+                      className="flex items-center justify-center w-full h-full hover:bg-accent rounded p-1"
+                      aria-label={selectedIds.has(record.id) ? "取消選擇" : "選擇"}
+                    >
+                      {selectedIds.has(record.id) ? (
+                        <CheckSquare className="w-4 h-4 text-primary" />
+                      ) : (
+                        <Square className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </button>
+                  </TableCell>
+                )}
+                <TableCell className="font-mono text-xs text-muted-foreground">
+                  {record.id.slice(0, 8)}...
+                </TableCell>
+                <TableCell className="font-medium">
+                  {record.product_id}
+                </TableCell>
+                {sortStrategy && record.priority_score !== undefined && (
+                  <TableCell>
+                    <Badge className={cn("font-mono text-xs", getPriorityColor(record.priority_score))}>
+                      {getPriorityLabel(record.priority_score)} ({record.priority_score.toFixed(0)})
+                    </Badge>
+                  </TableCell>
+                )}
+                <TableCell>
+                  <Badge variant={getStatusVariant(record.logic_validation_status)}>
+                    {record.logic_validation_status}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="font-mono">
+                    {record.confidence_level}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-muted-foreground text-xs">
+                  {formatDistanceToNow(new Date(record.created_at), {
+                    addSuffix: true,
+                    locale: zhTW,
+                  })}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onReview(record)}
+                    className="text-primary hover:text-primary hover:bg-primary/5"
+                  >
+                    審核 <ArrowRight className="w-3 h-3 ml-1" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }

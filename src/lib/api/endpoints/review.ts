@@ -1,5 +1,5 @@
 import { apiClient } from '../client'
-import type { OCRRecord, GroundTruthCreate, GroundTruth, ReviewStats } from '@/types/review'
+import type { OCRRecord, GroundTruthCreate, GroundTruth, ReviewStats, ReviewerMetrics, TeamMetrics } from '@/types/review'
 
 export const reviewAPI = {
   // GET /admin/review/queue
@@ -52,5 +52,15 @@ export const reviewAPI = {
   // POST /admin/review/gold-samples
   markAsGold: (gt_id: string) => {
     return apiClient.post<any>(`/admin/review/gold-samples?gt_id=${gt_id}`, {})
+  },
+
+  // GET /admin/review/metrics/personal
+  getPersonalMetrics: () => {
+    return apiClient.get<ReviewerMetrics>('/admin/review/metrics/personal')
+  },
+
+  // GET /admin/review/metrics/team
+  getTeamMetrics: () => {
+    return apiClient.get<TeamMetrics>('/admin/review/metrics/team')
   },
 }
