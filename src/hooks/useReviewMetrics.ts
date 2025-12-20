@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { reviewAPI } from '@/lib/api/endpoints/review'
-import type { ReviewerMetrics, TeamMetrics, GroundTruth } from '@/types/review'
+import type { ReviewerMetrics, GroundTruth } from '@/types/review'
 
 // 個人績效指標
 export function usePersonalMetrics() {

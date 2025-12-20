@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
@@ -18,23 +18,38 @@ export default function DashboardLayout({
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
+
+  // 使用 useMemo 確保 supabase client 不會在每次渲染時重新創建
+  const supabase = useMemo(() => createClient(), [])
 
   // 全域快捷鍵
   const { isCommandPaletteOpen, setIsCommandPaletteOpen } = useGlobalShortcuts()
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+  // 使用 useCallback 避免不必要的重新渲染
+  const fetchUser = useCallback(async () => {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      if (error) {
+        console.error('Failed to fetch user:', error.message)
+        router.push('/login')
+        return
+      }
       if (user) {
         setUser(user)
       } else {
         router.push('/login')
       }
+    } catch (error) {
+      console.error('Auth error:', error)
+      router.push('/login')
+    } finally {
       setLoading(false)
     }
-    getUser()
-  }, [router, supabase])
+  }, [supabase, router])
+
+  useEffect(() => {
+    fetchUser()
+  }, [fetchUser])
 
   if (loading) {
     return (

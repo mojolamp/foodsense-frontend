@@ -2,9 +2,42 @@
 
 import { useState } from 'react'
 import { useCalculatedPersonalMetrics } from '@/hooks/useReviewMetrics'
-import { TrendingUp, TrendingDown, Award, Target, Clock, Star, Activity } from 'lucide-react'
+import { TrendingUp, TrendingDown, Award, Target, Star, Activity } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import EfficiencyAnalysis from '@/components/review/EfficiencyAnalysis'
+import type { ReviewerMetrics } from '@/types/review'
+
+// 組件 Props 類型定義
+type TrendType = 'up' | 'down' | 'stable'
+type InsightColorType = 'green' | 'blue' | 'amber' | 'purple'
+
+interface PersonalPerformanceProps {
+  metrics: ReviewerMetrics
+  qualityTrend: TrendType
+  confidenceTrend: TrendType
+}
+
+interface MetricCardProps {
+  title: string
+  value: string | number
+  icon: LucideIcon
+  subtitle: string
+  trend?: TrendType
+  highlight?: boolean
+}
+
+interface ActivityCardProps {
+  title: string
+  value: number
+  total: number
+}
+
+interface InsightCardProps {
+  title: string
+  insight: string
+  color: InsightColorType
+}
 
 export default function ReviewAnalyticsPage() {
   const { data: metrics, isLoading } = useCalculatedPersonalMetrics()
@@ -90,7 +123,7 @@ export default function ReviewAnalyticsPage() {
 }
 
 // 個人績效組件
-function PersonalPerformance({ metrics, qualityTrend, confidenceTrend }: any) {
+function PersonalPerformance({ metrics, qualityTrend, confidenceTrend }: PersonalPerformanceProps) {
   return (
     <div className="space-y-6">
 
@@ -250,7 +283,7 @@ function PersonalPerformance({ metrics, qualityTrend, confidenceTrend }: any) {
 }
 
 // Metric Card Component
-function MetricCard({ title, value, icon: Icon, subtitle, trend, highlight }: any) {
+function MetricCard({ title, value, icon: Icon, subtitle, trend, highlight }: MetricCardProps) {
   return (
     <div className={cn(
       "rounded-xl border border-border bg-card text-card-foreground shadow-sm p-6",
@@ -276,7 +309,7 @@ function MetricCard({ title, value, icon: Icon, subtitle, trend, highlight }: an
 }
 
 // Activity Card Component
-function ActivityCard({ title, value, total }: any) {
+function ActivityCard({ title, value, total }: ActivityCardProps) {
   const percentage = total > 0 ? (value / total) * 100 : 0
 
   return (
@@ -297,7 +330,7 @@ function ActivityCard({ title, value, total }: any) {
 }
 
 // Insight Card Component
-function InsightCard({ title, insight, color }: any) {
+function InsightCard({ title, insight, color }: InsightCardProps) {
   const colorClasses = {
     green: "border-green-200 bg-green-50 dark:bg-green-950/20",
     blue: "border-blue-200 bg-blue-50 dark:bg-blue-950/20",

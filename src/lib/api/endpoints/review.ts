@@ -51,7 +51,7 @@ export const reviewAPI = {
 
   // POST /admin/review/gold-samples
   markAsGold: (gt_id: string) => {
-    return apiClient.post<any>(`/admin/review/gold-samples?gt_id=${gt_id}`, {})
+    return apiClient.post<{ success: boolean; message?: string }>(`/admin/review/gold-samples?gt_id=${gt_id}`, {})
   },
 
   // GET /admin/review/metrics/personal

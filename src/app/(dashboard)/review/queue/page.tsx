@@ -7,6 +7,7 @@ import ReviewModal from '@/components/review/ReviewModal'
 import BatchReviewModal from '@/components/review/BatchReviewModal'
 import { TableSkeleton } from '@/components/layout/LoadingStates'
 import type { OCRRecord } from '@/types/review'
+import type { BatchReviewTemplate } from '@/types/api'
 
 export default function ReviewQueuePage() {
   const [selectedRecord, setSelectedRecord] = useState<OCRRecord | null>(null)
@@ -23,7 +24,7 @@ export default function ReviewQueuePage() {
     setBatchRecords(records)
   }
 
-  const handleBatchSubmit = async (template: any) => {
+  const handleBatchSubmit = async (template: BatchReviewTemplate) => {
     await batchSubmit.mutateAsync({
       records: batchRecords,
       template

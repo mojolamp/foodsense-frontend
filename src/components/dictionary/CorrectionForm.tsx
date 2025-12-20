@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { dictionaryAPI } from '@/lib/api/endpoints/dictionary'
 import toast from 'react-hot-toast'
+import { getErrorMessage } from '@/types/api'
 
 interface Props {
   token: string
@@ -22,8 +23,8 @@ export default function CorrectionForm({ token }: Props) {
       queryClient.invalidateQueries({ queryKey: ['tokenDetail', token] })
       setStandardName('')
     },
-    onError: (error: any) => {
-      toast.error(error.message || '建立失敗')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error) || '建立失敗')
     },
   })
 

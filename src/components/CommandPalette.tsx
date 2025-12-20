@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Command } from 'cmdk'
-import { Search, FileText, CheckSquare, Star, Package, BookOpen, AlertCircle, BarChart3, Clock, Loader2, Box } from 'lucide-react'
+import { Search, FileText, CheckSquare, Star, Package, BookOpen, AlertCircle, BarChart3, Clock, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useCommandSearch, useSearchHistory } from '@/hooks/useCommandSearch'
 

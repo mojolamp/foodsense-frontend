@@ -1,7 +1,7 @@
 'use client'
 
 import { CoverageStats as CoverageStatsType } from '@/types/quality'
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
+import { LazyPieChart } from '@/components/charts/LazyCharts'
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
 
@@ -17,16 +17,7 @@ export default function CoverageStats({ data }: Props) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <ResponsiveContainer width="100%" height={260}>
-        <PieChart>
-          <Pie dataKey="value" data={pieData} cx="50%" cy="50%" outerRadius={90} label>
-            {pieData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
-      </ResponsiveContainer>
+      <LazyPieChart data={pieData} colors={COLORS} height={260} />
       <div className="space-y-2">
         {data.map((item, idx) => (
           <div
@@ -49,5 +40,3 @@ export default function CoverageStats({ data }: Props) {
     </div>
   )
 }
-
-

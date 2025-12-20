@@ -67,7 +67,7 @@ export default function Sidebar({ user, mobileOpen = false, onClose }: SidebarPr
       toast.success('Logged out successfully')
       router.push('/login')
       router.refresh()
-    } catch (error) {
+    } catch (_error) {
       toast.error('Logout failed')
     }
   }

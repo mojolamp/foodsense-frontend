@@ -26,10 +26,18 @@ export interface PriorityWeights {
   complexity: number   // 複雜度權重 (負向)
 }
 
+// 修正後的 payload 資料結構
+export interface CorrectedPayload {
+  verified: boolean
+  verified_at: string
+  ocr_raw_text?: string
+  corrections?: Record<string, string | number | boolean>
+}
+
 export interface GroundTruthCreate {
   ocr_record_id: string
   product_id: number
-  corrected_payload: any
+  corrected_payload: CorrectedPayload
   data_quality_score: number
   confidence_score: number
   review_notes?: string

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { getErrorMessage } from '@/types/api'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -17,7 +18,7 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
@@ -27,8 +28,8 @@ export default function LoginPage() {
       toast.success('登入成功!')
       router.push('/dashboard')
       router.refresh()
-    } catch (error: any) {
-      toast.error(error.message || '登入失敗')
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error) || '登入失敗')
     } finally {
       setLoading(false)
     }
@@ -80,10 +81,14 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <p>測試帳號: admin@foodsense.test</p>
-          <p>密碼: test123456</p>
-        </div>
+        {/* 僅在開發環境顯示測試憑證 */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-6 text-center text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+            <p className="font-medium text-gray-600 mb-1">開發模式</p>
+            <p>測試帳號: admin@foodsense.test</p>
+            <p>密碼: test123456</p>
+          </div>
+        )}
       </div>
     </div>
   )

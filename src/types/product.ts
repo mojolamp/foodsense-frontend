@@ -25,9 +25,19 @@ export interface GoldenRecord {
   tier: 'A' | 'B' | 'C'
 }
 
-export interface IngredientsStructure {
-  [key: string]: any
+// 符合 react-tree-graph 的 Data 介面
+export interface TreeNode {
+  name: string
+  children?: TreeNode[]
 }
+
+export interface IngredientNode extends TreeNode {
+  percentage?: number
+  origin?: string
+}
+
+// IngredientsStructure 必須是 TreeNode 類型以供 AnimatedTree 使用
+export type IngredientsStructure = TreeNode
 
 export interface AdditiveMarker {
   name: string
@@ -37,7 +47,15 @@ export interface AdditiveMarker {
 }
 
 export interface NutritionData {
-  [key: string]: any
+  energy_kcal?: number
+  protein_g?: number
+  carbohydrate_g?: number
+  sugar_g?: number
+  fat_g?: number
+  saturated_fat_g?: number
+  fiber_g?: number
+  sodium_mg?: number
+  [key: string]: number | string | undefined
 }
 
 export interface ProductVariant {

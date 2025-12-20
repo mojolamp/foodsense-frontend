@@ -11,6 +11,17 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import type { LucideIcon } from 'lucide-react'
+
+// StatsCard Props 類型定義
+interface StatsCardProps {
+  title: string
+  value: string | number
+  sub: string
+  icon: LucideIcon
+  alert?: boolean
+  trend?: 'up' | 'down'
+}
 
 // Mock Stats Data
 const mockStats = {
@@ -105,7 +116,7 @@ export default function DashboardPage() {
   )
 }
 
-function StatsCard({ title, value, sub, icon: Icon, alert, trend }: any) {
+function StatsCard({ title, value, sub, icon: Icon, alert, trend }: StatsCardProps) {
   return (
     <div className={cn("rounded-xl border border-border bg-card text-card-foreground shadow-sm p-6", alert && "border-red-200 bg-red-50 dark:bg-red-950/20")}>
       <div className="flex flex-row items-center justify-between space-y-0 pb-2">

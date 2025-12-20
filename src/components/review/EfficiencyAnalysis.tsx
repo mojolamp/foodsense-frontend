@@ -2,7 +2,35 @@
 
 import { useReviewQueue, useReviewStats } from '@/hooks/useReviewQueue'
 import { Activity, TrendingUp, AlertTriangle, CheckCircle2, Clock } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+// 顏色類型
+type ColorType = 'red' | 'amber' | 'green'
+
+// 組件 Props 類型定義
+interface FunnelBarProps {
+  label: string
+  count: number
+  total: number
+  color: ColorType
+  icon: LucideIcon
+}
+
+interface ConfidenceBarProps {
+  label: string
+  count: number
+  total: number
+  color: ColorType
+}
+
+interface MetricCardProps {
+  title: string
+  value: number
+  total: number
+  color: ColorType
+  icon: LucideIcon
+}
 
 export default function EfficiencyAnalysis() {
   const { data: queue } = useReviewQueue()
@@ -161,7 +189,7 @@ export default function EfficiencyAnalysis() {
 }
 
 // 漏斗條形圖組件
-function FunnelBar({ label, count, total, color, icon: Icon }: any) {
+function FunnelBar({ label, count, total, color, icon: Icon }: FunnelBarProps) {
   const percentage = total > 0 ? (count / total) * 100 : 0
 
   const colorClasses = {
@@ -193,7 +221,7 @@ function FunnelBar({ label, count, total, color, icon: Icon }: any) {
 }
 
 // 信心度條形圖組件
-function ConfidenceBar({ label, count, total, color }: any) {
+function ConfidenceBar({ label, count, total, color }: ConfidenceBarProps) {
   const percentage = total > 0 ? (count / total) * 100 : 0
 
   const colorClasses = {
@@ -219,7 +247,7 @@ function ConfidenceBar({ label, count, total, color }: any) {
 }
 
 // 效率指標卡片
-function MetricCard({ title, value, total, color, icon: Icon }: any) {
+function MetricCard({ title, value, total, color, icon: Icon }: MetricCardProps) {
   const percentage = total > 0 ? (value / total) * 100 : 0
 
   const bgClasses = {

@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { reviewAPI } from '@/lib/api/endpoints/review'
 import type { GroundTruthCreate, OCRRecord } from '@/types/review'
+import type { BatchReviewTemplate } from '@/types/api'
+import { getErrorMessage } from '@/types/api'
 import toast from 'react-hot-toast'
 
 export function useReviewQueue(filters?: {
@@ -25,8 +27,8 @@ export function useReviewSubmit() {
       queryClient.invalidateQueries({ queryKey: ['reviewStats'] })
       toast.success('審核提交成功!')
     },
-    onError: (error: any) => {
-      toast.error(error.message || '審核提交失敗')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error) || '審核提交失敗')
     },
   })
 }
@@ -56,7 +58,7 @@ export function useGoldSamples(limit = 50) {
 // 批次審核 Hook
 export function useBatchReviewSubmit() {
   const queryClient = useQueryClient()
-  const [progress, setProgress] = useState({ completed: 0, total: 0, failed: 0 })
+  const [_progress, setProgress] = useState({ completed: 0, total: 0, failed: 0 })
 
   return useMutation({
     mutationFn: async ({
@@ -64,12 +66,7 @@ export function useBatchReviewSubmit() {
       template
     }: {
       records: OCRRecord[]
-      template: {
-        data_quality_score: number
-        confidence_score: number
-        is_gold: boolean
-        review_notes?: string
-      }
+      template: BatchReviewTemplate
     }) => {
       setProgress({ completed: 0, total: records.length, failed: 0 })
 
@@ -116,8 +113,8 @@ export function useBatchReviewSubmit() {
 
       setProgress({ completed: 0, total: 0, failed: 0 })
     },
-    onError: (error: any) => {
-      toast.error(error.message || '批次審核失敗')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error) || '批次審核失敗')
       setProgress({ completed: 0, total: 0, failed: 0 })
     },
   })
