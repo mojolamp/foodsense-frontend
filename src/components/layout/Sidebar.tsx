@@ -14,7 +14,13 @@ import {
   Boxes,
   LogOut,
   ScanLine,
-  Activity
+  Activity,
+  Scale,
+  Search,
+  Shield,
+  LineChart,
+  Server,
+  AlertTriangle
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
@@ -44,6 +50,23 @@ const navGroups = [
     items: [
       { name: 'Rules Engine', href: '/rules', icon: Settings },
       { name: 'Data Quality', href: '/data-quality', icon: Activity },
+    ]
+  },
+  {
+    title: 'LawCore',
+    items: [
+      { name: 'Overview', href: '/lawcore', icon: Scale },
+      { name: 'Presence Check', href: '/lawcore/check', icon: Search },
+      { name: 'Rules Browser', href: '/lawcore/rules', icon: BookOpen },
+      { name: 'Admin', href: '/lawcore/admin', icon: Shield },
+    ]
+  },
+  {
+    title: 'Monitoring',
+    items: [
+      { name: 'Business Health', href: '/monitoring/business', icon: LineChart },
+      { name: 'Application', href: '/monitoring/app', icon: Activity },
+      { name: 'Infrastructure', href: '/monitoring/infra', icon: Server },
     ]
   }
 ]

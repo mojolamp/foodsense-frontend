@@ -17,6 +17,7 @@ FoodSense OCR 記錄審核管理系統的前端應用程式。
 
 ## 功能特性
 
+### Review Workbench
 - ✅ 使用者登入/登出 (Supabase Auth)
 - ✅ 審核佇列管理
 - ✅ 篩選功能 (驗證狀態、信心水平)
@@ -30,7 +31,22 @@ FoodSense OCR 記錄審核管理系統的前端應用程式。
 - ✅ 資料品質儀表板（KPI / 時序 / 來源貢獻 / 覆蓋率）
 - ✅ 產品聚類管理（演算法分群 / 人工合併 / 拆分）
 - ✅ 端對端資料流驗證（Gold Sample 測試通過）
-- 🚀 生產數據準備就緒（v0.4.0-pre）
+
+### LawCore (v1.0 - Presence Gate Only)
+- ✅ 法規資料庫總覽（活動規則統計、待審法規、DB 狀態）
+- ✅ 添加物合規查詢工具（單筆/批次查詢、CSV 匯出）
+- ✅ 活動規則瀏覽器（搜尋、分頁、詳情 Drawer）
+- ✅ 管理面板（待審法規驗證、規則晉升、Admin only）
+- 🔒 Scope Lock：禁止 limit/dosage/unit/food_category/fuzzy/compliance
+
+### Monitoring (Three-Layer Defense)
+- ✅ L1: Business Health（總請求量、LawCore 採用率、健康評分、成本、流量圖）
+- ✅ L2: Application Performance（SLA 狀態、端點效能、錯誤分布、Incident 範本）
+- ✅ L3: Infrastructure（DB 大小、慢查詢、表膨脹、未使用索引、維護建議）
+- ✅ 鑽取互動（L1→L2→L3 導覽、異常點可點擊）
+
+### 生產準備
+- 🚀 生產數據準備就緒（v3.0.0）
 
 ## 環境設定
 
@@ -47,8 +63,13 @@ cp .env.example .env.local
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Backend API
-NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+# Backend API Base URLs (DO NOT CHANGE - Hardcoded contract)
+NEXT_PUBLIC_API_V1_BASE=http://localhost:8000/api/v1
+NEXT_PUBLIC_API_V2_BASE=http://localhost:8000/api
+NEXT_PUBLIC_LAWCORE_BASE=http://localhost:8000/api/lawcore
+
+# Feature Flags
+NEXT_PUBLIC_FEATURE_LAWCORE_ENABLED=true
 
 # （選用 / 僅開發用途）服務端 API key
 # - 後端需設定 SERVICE_API_KEYS=["your_dev_key"]
@@ -105,15 +126,38 @@ src/
 
 ## API 端點
 
-- Review Workbench (目前 `NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1`)  
-  - `GET /admin/review/queue` - 獲取待審核佇列  
-  - `POST /admin/review/submit` - 提交審核結果  
-  - `GET /admin/review/stats` - 獲取統計資料  
-  - `GET /admin/review/history` - 獲取審核歷史  
-  - `GET /admin/review/gold-samples` - 獲取黃金樣本  
-  - `POST /admin/review/gold-samples` - 標記為黃金樣本  
+### Review Workbench (v1)
+- `GET /api/v1/admin/review/queue` - 獲取待審核佇列
+- `POST /api/v1/admin/review/submit` - 提交審核結果
+- `GET /api/v1/admin/review/stats` - 獲取統計資料
+- `GET /api/v1/admin/review/history` - 獲取審核歷史
+- `GET /api/v1/admin/review/gold-samples` - 獲取黃金樣本
+- `POST /api/v1/admin/review/gold-samples` - 標記為黃金樣本
 
-- 產品/字典/規則/資料品質（依後端部署路徑調整；目前後端 v2 模組位於 `/api`，若採分流可將 products 相關 base 設為 `http://localhost:8000/api`）
+### Core Data (v2)
+- Products list/detail
+- Dictionary ranking/detail/batch correct
+- Rules CRUD & testing
+- Data Quality KPIs
+- Clustering operations
+- E2E verification
+
+### LawCore (Presence Gate ONLY)
+- `POST /api/lawcore/check-presence` - 檢查添加物合規狀態
+- `GET /api/lawcore/check-presence/{name}` - 依名稱查詢
+- `GET /api/lawcore/rules` - 獲取活動規則列表
+- `GET /api/lawcore/rules/stats` - 獲取規則統計
+- `GET /api/lawcore/admin/pending-raw-laws` - 獲取待審法規 (Admin only)
+- `POST /api/lawcore/admin/verify-raw-law` - 驗證法規 (Admin only)
+- `POST /api/lawcore/admin/promote-rule` - 晉升規則 (Admin only)
+
+### Monitoring
+- `GET /api/monitoring/business?range=1h|24h|7d` - Business Health (L1)
+- `GET /api/monitoring/app?range=...` - Application Performance (L2)
+- `GET /api/monitoring/infra?range=...` - Infrastructure (L3)
+- `GET /api/monitoring/errors?endpoint=...` - 端點錯誤詳情
+
+**完整契約:** 請參閱 `docs/LAWCORE_MONITORING_IMPLEMENTATION.md`
 
 ## 建置
 
@@ -160,6 +204,11 @@ npm run lint
 
 - [整合測試指南](./INTEGRATION_TEST.md) - API 整合測試說明
 - [驗證報告](./VERIFICATION_SUMMARY.md) - 整合驗證結果報告
+
+### 🆕 LawCore & Monitoring (v3.0)
+
+- [實作指南](./docs/LAWCORE_MONITORING_IMPLEMENTATION.md) - 完整的後端整合指南 ⭐ **必讀**
+- [CTO 快速參考](./docs/CTO_QUICK_REFERENCE.md) - 30 秒總覽、部署檢查清單
 
 ## 授權
 

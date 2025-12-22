@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "scope-guard": "./scripts/scope-lock-guard.sh",
+    "prebuild": "npm run scope-guard",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",

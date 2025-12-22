@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
+import { API_BASES, type APIBase } from './baseUrls'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 const DEV_X_API_KEY = process.env.NEXT_PUBLIC_FOODSENSE_DEV_X_API_KEY
 
 // API 配置
@@ -29,8 +29,8 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 export class APIClient {
   private baseURL: string
 
-  constructor() {
-    this.baseURL = API_BASE_URL
+  constructor(base: APIBase = 'V1') {
+    this.baseURL = API_BASES[base]
   }
 
   private async buildAuthHeaders(): Promise<Record<string, string>> {
@@ -162,4 +162,10 @@ export class APIClient {
   }
 }
 
-export const apiClient = new APIClient()
+// Default clients for each API base
+export const apiClient = new APIClient('V1') // Legacy Review Workbench
+export const apiClientV2 = new APIClient('V2') // Products, Dictionary, Rules, Data Quality
+export const apiClientLawCore = new APIClient('LAWCORE') // LawCore Presence Gate
+
+// Backward compatibility: default export uses V1
+export default apiClient
