@@ -32,6 +32,7 @@ cat .env.production
 - [ ] ✅ NEXT_PUBLIC_API_V2_BASE 已設定
 - [ ] ✅ NEXT_PUBLIC_LAWCORE_BASE 已設定
 - [ ] ✅ NEXT_PUBLIC_FEATURE_LAWCORE_ENABLED=true
+- [ ] ✅ （選用）NEXT_PUBLIC_FEATURE_REVIEW_QUEUE_SHORTCUTS=true（若要在 Review Queue 啟用 n/p/r/x/a 快捷鍵）
 - [ ] ✅ Supabase URL/KEY 已設定
 
 ---

@@ -69,9 +69,10 @@ type ReviewFormData = z.infer<typeof reviewFormSchema>
 interface Props {
   record: OCRRecord
   onClose: () => void
+  onSubmitted?: () => void
 }
 
-export default function ReviewModal({ record, onClose }: Props) {
+export default function ReviewModal({ record, onClose, onSubmitted }: Props) {
   const { mutate: submitReview, isPending } = useReviewSubmit()
 
   const {
@@ -130,6 +131,7 @@ export default function ReviewModal({ record, onClose }: Props) {
       is_gold: data.is_gold,
     }, {
       onSuccess: () => {
+        onSubmitted?.()
         onClose()
       },
     })

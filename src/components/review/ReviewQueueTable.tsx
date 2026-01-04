@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef } from 'react'
 import type { OCRRecord, PrioritySortStrategy } from '@/types/review'
 import { formatDistanceToNow } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
@@ -15,21 +15,49 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Clock, CheckSquare, Square, ArrowUpDown } from 'lucide-react'
-import { sortByPriority, getPriorityColor, getPriorityLabel } from '@/lib/priorityCalculator'
+import { getPriorityColor, getPriorityLabel } from '@/lib/priorityCalculator'
 import { cn } from '@/lib/utils'
 
 interface Props {
   data: OCRRecord[]
   onReview: (record: OCRRecord) => void
   onBatchReview?: (records: OCRRecord[]) => void
+  activeId: string | null
+  onActiveIdChange: (id: string | null) => void
+  selectedIds: Set<string>
+  onSelectedIdsChange: (ids: Set<string>) => void
+  sortStrategy: PrioritySortStrategy | null
+  onSortStrategyChange: (strategy: PrioritySortStrategy | null) => void
 }
 
-export default function ReviewQueueTable({ data, onReview, onBatchReview }: Props) {
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [sortStrategy, setSortStrategy] = useState<PrioritySortStrategy | null>(null)
+export default function ReviewQueueTable({
+  data,
+  onReview,
+  onBatchReview,
+  activeId,
+  onActiveIdChange,
+  selectedIds,
+  onSelectedIdsChange,
+  sortStrategy,
+  onSortStrategyChange,
+}: Props) {
+  const rowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map())
 
-  // 根據排序策略處理數據
-  const sortedData = sortStrategy ? sortByPriority(data, sortStrategy) : data
+  const setSelectedIds = (next: Set<string>) => onSelectedIdsChange(next)
+
+  const activeRecordId = activeId
+  const setActive = (id: string) => {
+    onActiveIdChange(id)
+    const row = rowRefs.current.get(id)
+    row?.scrollIntoView?.({ block: 'nearest' })
+  }
+
+  // 當 activeId 由外部（快捷鍵）變更時，將 active row 捲動到可視範圍
+  useEffect(() => {
+    if (!activeRecordId) return
+    const row = rowRefs.current.get(activeRecordId)
+    row?.scrollIntoView?.({ block: 'nearest' })
+  }, [activeRecordId])
 
   const toggleSelection = (id: string) => {
     const newSelected = new Set(selectedIds)
@@ -42,11 +70,17 @@ export default function ReviewQueueTable({ data, onReview, onBatchReview }: Prop
   }
 
   const toggleSelectAll = () => {
-    if (selectedIds.size === data.length) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(data.map(r => r.id)))
+    const ids = data.map(r => r.id)
+    const isAllSelected = ids.length > 0 && ids.every(id => selectedIds.has(id))
+    if (isAllSelected) {
+      const next = new Set(selectedIds)
+      for (const id of ids) next.delete(id)
+      setSelectedIds(next)
+      return
     }
+    const next = new Set(selectedIds)
+    for (const id of ids) next.add(id)
+    setSelectedIds(next)
   }
 
   const getSelectedRecords = () => {
@@ -88,7 +122,7 @@ export default function ReviewQueueTable({ data, onReview, onBatchReview }: Prop
           <span className="text-sm font-medium text-muted-foreground">優先級排序:</span>
           <select
             value={sortStrategy || ''}
-            onChange={(e) => setSortStrategy((e.target.value as PrioritySortStrategy) || null)}
+            onChange={(e) => onSortStrategyChange((e.target.value as PrioritySortStrategy) || null)}
             className="px-3 py-1.5 text-sm border border-input bg-background rounded-md ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <option value="">無排序 (預設)</option>
@@ -139,9 +173,9 @@ export default function ReviewQueueTable({ data, onReview, onBatchReview }: Prop
                   <button
                     onClick={toggleSelectAll}
                     className="flex items-center justify-center w-full h-full hover:bg-accent rounded p-1"
-                    aria-label={selectedIds.size === data.length ? "取消全選" : "全選"}
+                    aria-label={(data.length > 0 && data.every(r => selectedIds.has(r.id))) ? "取消全選" : "全選"}
                   >
-                    {selectedIds.size === data.length ? (
+                    {(data.length > 0 && data.every(r => selectedIds.has(r.id))) ? (
                       <CheckSquare className="w-4 h-4 text-primary" />
                     ) : (
                       <Square className="w-4 h-4 text-muted-foreground" />
@@ -159,19 +193,38 @@ export default function ReviewQueueTable({ data, onReview, onBatchReview }: Prop
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedData.map((record) => (
-              <TableRow
-                key={record.id}
-                className={selectedIds.has(record.id) ? 'bg-primary/5' : ''}
-              >
+            {data.map((record, idx) => {
+              const isSelected = selectedIds.has(record.id)
+              const isActive = !!activeRecordId && record.id === activeRecordId
+              return (
+                <TableRow
+                  key={record.id}
+                  ref={(el) => {
+                    if (!el) return
+                    rowRefs.current.set(record.id, el)
+                  }}
+                  data-testid={`review-queue-row-${idx}`}
+                  data-record-id={record.id}
+                  aria-selected={isActive}
+                  className={cn(
+                    'cursor-pointer',
+                    isSelected && 'bg-primary/5',
+                    isActive && 'ring-2 ring-primary/30 ring-inset'
+                  )}
+                  onClick={() => setActive(record.id)}
+                >
                 {onBatchReview && (
                   <TableCell>
                     <button
-                      onClick={() => toggleSelection(record.id)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActive(record.id)
+                        toggleSelection(record.id)
+                      }}
                       className="flex items-center justify-center w-full h-full hover:bg-accent rounded p-1"
-                      aria-label={selectedIds.has(record.id) ? "取消選擇" : "選擇"}
+                      aria-label={isSelected ? "取消選擇" : "選擇"}
                     >
-                      {selectedIds.has(record.id) ? (
+                      {isSelected ? (
                         <CheckSquare className="w-4 h-4 text-primary" />
                       ) : (
                         <Square className="w-4 h-4 text-muted-foreground" />
@@ -212,14 +265,19 @@ export default function ReviewQueueTable({ data, onReview, onBatchReview }: Prop
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => onReview(record)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setActive(record.id)
+                      onReview(record)
+                    }}
                     className="text-primary hover:text-primary hover:bg-primary/5"
                   >
                     審核 <ArrowRight className="w-3 h-3 ml-1" />
                   </Button>
                 </TableCell>
-              </TableRow>
-            ))}
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </div>

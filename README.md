@@ -70,6 +70,7 @@ NEXT_PUBLIC_LAWCORE_BASE=http://localhost:8000/api/lawcore
 
 # Feature Flags
 NEXT_PUBLIC_FEATURE_LAWCORE_ENABLED=true
+NEXT_PUBLIC_FEATURE_REVIEW_QUEUE_SHORTCUTS=false
 
 # （選用 / 僅開發用途）服務端 API key
 # - 後端需設定 SERVICE_API_KEYS=["your_dev_key"]
@@ -199,6 +200,7 @@ npm run lint
 - [快速設定指南](./SETUP.md) - 完整的安裝與設定步驟
 - [操作使用手冊](./USER_MANUAL.md) - 詳細的功能操作指南 ⭐ **推薦**
 - [文件索引](./DOCS_INDEX.md) - 所有文件的導覽索引
+- [鍵盤快捷鍵參考](./KEYBOARD_SHORTCUTS.md) - 全域/導航/審核工作流快捷鍵（Review Queue 快捷鍵需啟用 flag）
 
 ### 🔧 技術文件
 

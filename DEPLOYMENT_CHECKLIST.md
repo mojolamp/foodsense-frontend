@@ -31,6 +31,8 @@
   NEXT_PUBLIC_API_V2_BASE=<your_backend>/api
   NEXT_PUBLIC_LAWCORE_BASE=<your_backend>/api/lawcore
   NEXT_PUBLIC_FEATURE_LAWCORE_ENABLED=true
+  # （選用 / 內部體驗優化）Review Queue 鍵盤快捷鍵（預設建議 OFF）
+  NEXT_PUBLIC_FEATURE_REVIEW_QUEUE_SHORTCUTS=false
   ```
 
 - [ ] **Scope Lock Guard 通過**

@@ -1,17 +1,25 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useReviewQueue, useBatchReviewSubmit } from '@/hooks/useReviewQueue'
+import { useReviewQueueShortcuts } from '@/hooks/useReviewQueueShortcuts'
 import ReviewQueueTable from '@/components/review/ReviewQueueTable'
 import ReviewModal from '@/components/review/ReviewModal'
 import BatchReviewModal from '@/components/review/BatchReviewModal'
 import { TableSkeleton } from '@/components/layout/LoadingStates'
+import { getBooleanFeatureFlag } from '@/lib/featureFlags'
+import { sortByPriority } from '@/lib/priorityCalculator'
 import type { OCRRecord } from '@/types/review'
+import type { PrioritySortStrategy } from '@/types/review'
 import type { BatchReviewTemplate } from '@/types/api'
 
 export default function ReviewQueuePage() {
   const [selectedRecord, setSelectedRecord] = useState<OCRRecord | null>(null)
   const [batchRecords, setBatchRecords] = useState<OCRRecord[]>([])
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const [sortStrategy, setSortStrategy] = useState<PrioritySortStrategy | null>(null)
+  const [pendingAdvanceIndex, setPendingAdvanceIndex] = useState<number | null>(null)
   const [filters, setFilters] = useState<{
     validation_status?: string
     confidence_level?: string
@@ -20,8 +28,124 @@ export default function ReviewQueuePage() {
   const { data: queue, isLoading, error } = useReviewQueue(filters)
   const batchSubmit = useBatchReviewSubmit()
 
+  const shortcutsEnabled = getBooleanFeatureFlag('NEXT_PUBLIC_FEATURE_REVIEW_QUEUE_SHORTCUTS', false)
+  const isAnyModalOpen = !!selectedRecord || batchRecords.length > 0
+
+  const displayData = useMemo(() => {
+    const base = queue || []
+    return sortStrategy ? sortByPriority(base, sortStrategy) : base
+  }, [queue, sortStrategy])
+
+  const activeIndex = useMemo(() => {
+    if (!activeId) return displayData.length > 0 ? 0 : -1
+    const idx = displayData.findIndex((r) => r.id === activeId)
+    return idx >= 0 ? idx : (displayData.length > 0 ? 0 : -1)
+  }, [activeId, displayData])
+
+  const setActiveIndex = (nextIndex: number) => {
+    if (displayData.length === 0) {
+      setActiveId(null)
+      return
+    }
+    const idx = Math.max(0, Math.min(displayData.length - 1, nextIndex))
+    setActiveId(displayData[idx].id)
+  }
+
+  // 初始 active row / 資料變動時的 fallback
+  useEffect(() => {
+    if (displayData.length === 0) {
+      setActiveId(null)
+      return
+    }
+    if (!activeId) {
+      setActiveId(displayData[0].id)
+      return
+    }
+    if (!displayData.some((r) => r.id === activeId)) {
+      setActiveId(displayData[0].id)
+    }
+  }, [displayData, activeId])
+
+  // 資料變動（篩選/重載）時，清理不存在的選取項
+  useEffect(() => {
+    if (displayData.length === 0) {
+      setSelectedIds(new Set())
+      return
+    }
+    const valid = new Set(displayData.map(r => r.id))
+    setSelectedIds((prev) => {
+      let changed = false
+      const next = new Set<string>()
+      for (const id of prev) {
+        if (valid.has(id)) next.add(id)
+        else changed = true
+      }
+      return changed ? next : prev
+    })
+  }, [displayData])
+
+  // 提交成功後（queue refetch），自動選下一筆（以 index 為準）
+  useEffect(() => {
+    if (pendingAdvanceIndex === null) return
+    if (selectedRecord) return
+    if (displayData.length === 0) {
+      setPendingAdvanceIndex(null)
+      setActiveId(null)
+      return
+    }
+    const idx = Math.min(pendingAdvanceIndex, displayData.length - 1)
+    setActiveId(displayData[idx].id)
+    setPendingAdvanceIndex(null)
+  }, [pendingAdvanceIndex, displayData, selectedRecord])
+
+  const openActiveRecord = () => {
+    if (displayData.length === 0) return
+    const record = displayData[activeIndex]
+    if (!record) return
+    setSelectedRecord(record)
+  }
+
+  const toggleSelectActive = () => {
+    if (displayData.length === 0) return
+    const record = displayData[activeIndex]
+    if (!record) return
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(record.id)) next.delete(record.id)
+      else next.add(record.id)
+      return next
+    })
+  }
+
+  const toggleSelectAll = () => {
+    if (displayData.length === 0) return
+    setSelectedIds((prev) => {
+      const ids = displayData.map((r) => r.id)
+      const isAllSelected = ids.length > 0 && ids.every((id) => prev.has(id))
+      if (isAllSelected) {
+        const next = new Set(prev)
+        for (const id of ids) next.delete(id)
+        return next
+      }
+      const next = new Set(prev)
+      for (const id of ids) next.add(id)
+      return next
+    })
+  }
+
+  useReviewQueueShortcuts({
+    enabled: shortcutsEnabled && !isAnyModalOpen,
+    count: displayData.length,
+    activeIndex,
+    setActiveIndex,
+    openReviewModal: openActiveRecord,
+    toggleSelectActive,
+    toggleSelectAll,
+  })
+
   const handleBatchReview = (records: OCRRecord[]) => {
     setBatchRecords(records)
+    setSelectedIds(new Set())
   }
 
   const handleBatchSubmit = async (template: BatchReviewTemplate) => {
@@ -60,6 +184,13 @@ export default function ReviewQueuePage() {
         <p className="mt-2 text-muted-foreground">
           待審核記錄: {queue?.length || 0} 筆
         </p>
+        {shortcutsEnabled && (
+          <>
+            <p className="mt-2 text-xs text-muted-foreground" id="review-queue-shortcuts-hint">
+              快捷鍵：n/p（下一/上一）、r（開始審核）、x（選取/取消）、a（全選/取消）。輸入框內將自動停用。
+            </p>
+          </>
+        )}
       </div>
 
       {/* Filters */}
@@ -115,16 +246,30 @@ export default function ReviewQueuePage() {
       </div>
 
       {/* Queue Table */}
-      <ReviewQueueTable
-        data={queue || []}
-        onReview={(record) => setSelectedRecord(record)}
-        onBatchReview={handleBatchReview}
-      />
+      <div tabIndex={0} aria-describedby={shortcutsEnabled ? 'review-queue-shortcuts-hint' : undefined}>
+        <ReviewQueueTable
+          data={displayData}
+          sortStrategy={sortStrategy}
+          onSortStrategyChange={setSortStrategy}
+          activeId={activeId}
+          onActiveIdChange={setActiveId}
+          selectedIds={selectedIds}
+          onSelectedIdsChange={setSelectedIds}
+          onReview={(record) => {
+            setActiveId(record.id)
+            setSelectedRecord(record)
+          }}
+          onBatchReview={handleBatchReview}
+        />
+      </div>
 
       {/* Review Modal */}
       {selectedRecord && (
         <ReviewModal
           record={selectedRecord}
+          onSubmitted={() => {
+            setPendingAdvanceIndex(activeIndex)
+          }}
           onClose={() => setSelectedRecord(null)}
         />
       )}
