@@ -40,15 +40,17 @@ export default function LoginPage() {
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">FoodSense</h1>
-          <p className="text-gray-600 mt-2">Review Workbench</p>
+          <h2 className="text-xl font-semibold text-gray-800 mt-2">登入</h2>
+          <p className="text-gray-600 mt-1">Review Workbench</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
               Email
             </label>
             <input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -59,10 +61,11 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              密碼
             </label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
