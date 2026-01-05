@@ -6,9 +6,11 @@ import { useReviewQueueShortcuts } from '@/hooks/useReviewQueueShortcuts'
 import ReviewQueueTable from '@/components/review/ReviewQueueTable'
 import ReviewModal from '@/components/review/ReviewModal'
 import BatchReviewModal from '@/components/review/BatchReviewModal'
+import KeyboardShortcutsHelp from '@/components/shared/KeyboardShortcutsHelp'
 import { TableSkeleton } from '@/components/layout/LoadingStates'
-import { getBooleanFeatureFlag } from '@/lib/featureFlags'
+import { getBooleanFeatureFlag, isFeatureEnabled } from '@/lib/featureFlags'
 import { sortByPriority } from '@/lib/priorityCalculator'
+import { toast } from 'react-hot-toast'
 import type { OCRRecord } from '@/types/review'
 import type { PrioritySortStrategy } from '@/types/review'
 import type { BatchReviewTemplate } from '@/types/api'
@@ -20,6 +22,7 @@ export default function ReviewQueuePage() {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [sortStrategy, setSortStrategy] = useState<PrioritySortStrategy | null>(null)
   const [pendingAdvanceIndex, setPendingAdvanceIndex] = useState<number | null>(null)
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
   const [filters, setFilters] = useState<{
     validation_status?: string
     confidence_level?: string
@@ -29,7 +32,8 @@ export default function ReviewQueuePage() {
   const batchSubmit = useBatchReviewSubmit()
 
   const shortcutsEnabled = getBooleanFeatureFlag('NEXT_PUBLIC_FEATURE_REVIEW_QUEUE_SHORTCUTS', false)
-  const isAnyModalOpen = !!selectedRecord || batchRecords.length > 0
+  const enhancedHotkeysEnabled = isFeatureEnabled('review_queue_enhanced_hotkeys')
+  const isAnyModalOpen = !!selectedRecord || batchRecords.length > 0 || showShortcutsHelp
 
   const displayData = useMemo(() => {
     const base = queue || []
@@ -133,6 +137,56 @@ export default function ReviewQueuePage() {
     })
   }
 
+  // Enhanced hotkeys actions
+  const handleApprove = () => {
+    if (displayData.length === 0) return
+    const record = displayData[activeIndex]
+    if (!record) return
+    // TODO: Implement quick approve action
+    // For now, just show a toast notification
+    toast.success(`快速批准: ${record.product_id}`, {
+      duration: 2000,
+      icon: '✅',
+    })
+    console.log('[Enhanced Hotkey] Approve:', record)
+  }
+
+  const handleReject = () => {
+    if (displayData.length === 0) return
+    const record = displayData[activeIndex]
+    if (!record) return
+    // TODO: Implement quick reject action
+    toast.error(`快速拒絕: ${record.product_id}`, {
+      duration: 2000,
+      icon: '❌',
+    })
+    console.log('[Enhanced Hotkey] Reject:', record)
+  }
+
+  const handleInspect = () => {
+    if (displayData.length === 0) return
+    const record = displayData[activeIndex]
+    if (!record) return
+    // Open review modal to inspect product details
+    setSelectedRecord(record)
+  }
+
+  const handleFlag = () => {
+    if (displayData.length === 0) return
+    const record = displayData[activeIndex]
+    if (!record) return
+    // TODO: Implement flag for manual review
+    toast(`已標記為需人工審核: ${record.product_id}`, {
+      duration: 2000,
+      icon: '🚩',
+    })
+    console.log('[Enhanced Hotkey] Flag:', record)
+  }
+
+  const handleShowHelp = () => {
+    setShowShortcutsHelp(true)
+  }
+
   useReviewQueueShortcuts({
     enabled: shortcutsEnabled && !isAnyModalOpen,
     count: displayData.length,
@@ -141,6 +195,12 @@ export default function ReviewQueuePage() {
     openReviewModal: openActiveRecord,
     toggleSelectActive,
     toggleSelectAll,
+    // Enhanced actions (only used if feature flag enabled)
+    onApprove: enhancedHotkeysEnabled ? handleApprove : undefined,
+    onReject: enhancedHotkeysEnabled ? handleReject : undefined,
+    onInspect: enhancedHotkeysEnabled ? handleInspect : undefined,
+    onFlag: enhancedHotkeysEnabled ? handleFlag : undefined,
+    onShowHelp: enhancedHotkeysEnabled ? handleShowHelp : undefined,
   })
 
   const handleBatchReview = (records: OCRRecord[]) => {
@@ -185,11 +245,31 @@ export default function ReviewQueuePage() {
           待審核記錄: {queue?.length || 0} 筆
         </p>
         {shortcutsEnabled && (
-          <>
-            <p className="mt-2 text-xs text-muted-foreground" id="review-queue-shortcuts-hint">
-              快捷鍵：n/p（下一/上一）、r（開始審核）、x（選取/取消）、a（全選/取消）。輸入框內將自動停用。
+          <div className="mt-3 flex items-center gap-2">
+            <p className="text-xs text-muted-foreground" id="review-queue-shortcuts-hint">
+              {enhancedHotkeysEnabled ? (
+                <>
+                  快捷鍵：<kbd className="px-1.5 py-0.5 text-xs font-mono bg-gray-100 border border-gray-300 rounded">j</kbd>/<kbd className="px-1.5 py-0.5 text-xs font-mono bg-gray-100 border border-gray-300 rounded">k</kbd> 導航、
+                  <kbd className="px-1.5 py-0.5 text-xs font-mono bg-gray-100 border border-gray-300 rounded">Shift+A</kbd> 批准、
+                  <kbd className="px-1.5 py-0.5 text-xs font-mono bg-gray-100 border border-gray-300 rounded">Shift+R</kbd> 拒絕、
+                  <kbd className="px-1.5 py-0.5 text-xs font-mono bg-gray-100 border border-gray-300 rounded">i</kbd> 檢查、
+                  <kbd className="px-1.5 py-0.5 text-xs font-mono bg-gray-100 border border-gray-300 rounded">?</kbd> 說明
+                </>
+              ) : (
+                <>
+                  快捷鍵：n/p（下一/上一）、r（開始審核）、x（選取/取消）、a（全選/取消）
+                </>
+              )}
             </p>
-          </>
+            {enhancedHotkeysEnabled && (
+              <button
+                onClick={() => setShowShortcutsHelp(true)}
+                className="text-xs text-primary hover:text-primary/80 underline"
+              >
+                查看完整說明
+              </button>
+            )}
+          </div>
         )}
       </div>
 
@@ -283,6 +363,12 @@ export default function ReviewQueuePage() {
           isSubmitting={batchSubmit.isPending}
         />
       )}
+
+      {/* Keyboard Shortcuts Help Modal */}
+      <KeyboardShortcutsHelp
+        isOpen={showShortcutsHelp}
+        onClose={() => setShowShortcutsHelp(false)}
+      />
     </div>
   )
 }
