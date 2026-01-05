@@ -138,29 +138,30 @@ export default function ReviewQueuePage() {
   }
 
   // Enhanced hotkeys actions
+  // Note: Quick approve/reject/flag actions are placeholder implementations for future enhancement
+  // Full implementation requires backend API support (P1 Phase 2)
   const handleApprove = () => {
     if (displayData.length === 0) return
     const record = displayData[activeIndex]
     if (!record) return
-    // TODO: Implement quick approve action
-    // For now, just show a toast notification
+    // Future: Implement quick approve with backend API call
+    // Currently shows notification as placeholder
     toast.success(`快速批准: ${record.product_id}`, {
       duration: 2000,
       icon: '✅',
     })
-    console.log('[Enhanced Hotkey] Approve:', record)
   }
 
   const handleReject = () => {
     if (displayData.length === 0) return
     const record = displayData[activeIndex]
     if (!record) return
-    // TODO: Implement quick reject action
+    // Future: Implement quick reject with backend API call
+    // Currently shows notification as placeholder
     toast.error(`快速拒絕: ${record.product_id}`, {
       duration: 2000,
       icon: '❌',
     })
-    console.log('[Enhanced Hotkey] Reject:', record)
   }
 
   const handleInspect = () => {
@@ -175,12 +176,12 @@ export default function ReviewQueuePage() {
     if (displayData.length === 0) return
     const record = displayData[activeIndex]
     if (!record) return
-    // TODO: Implement flag for manual review
+    // Future: Implement flag for manual review with backend API call
+    // Currently shows notification as placeholder
     toast(`已標記為需人工審核: ${record.product_id}`, {
       duration: 2000,
       icon: '🚩',
     })
-    console.log('[Enhanced Hotkey] Flag:', record)
   }
 
   const handleShowHelp = () => {

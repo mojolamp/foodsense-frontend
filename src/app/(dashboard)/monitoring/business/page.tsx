@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { LineChart, TrendingUp, DollarSign, Activity, BarChart2 } from 'lucide-react'
 import { monitoringAPI, type TimeRange } from '@/lib/api/monitoring'
-import TimeRangePicker from '@/components/monitoring/TimeRangePicker'
+import TimeRangeSelector from '@/components/monitoring/TimeRangeSelector'
 import MetricCard from '@/components/monitoring/MetricCard'
 import HealthScoreCard from '@/components/monitoring/HealthScoreCard'
 import { Card } from '@/components/ui/card'
@@ -48,7 +48,7 @@ function BusinessHealthContent() {
             High-level business metrics and system health overview
           </p>
         </div>
-        <TimeRangePicker value={timeRange} onChange={setTimeRange} />
+        <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
       </div>
 
       {/* Metrics Cards */}

@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
 import { Server, Database, Zap, AlertTriangle, HardDrive } from 'lucide-react'
 import { monitoringAPI, type TimeRange } from '@/lib/api/monitoring'
-import TimeRangePicker from '@/components/monitoring/TimeRangePicker'
+import TimeRangeSelector from '@/components/monitoring/TimeRangeSelector'
 import MetricCard from '@/components/monitoring/MetricCard'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -52,7 +52,7 @@ function InfraContent() {
             Database performance, slow queries, and resource utilization
           </p>
         </div>
-        <TimeRangePicker value={timeRange} onChange={setTimeRange} />
+        <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
       </div>
 
       {/* Focus Alert */}

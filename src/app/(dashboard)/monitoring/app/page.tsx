@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
 import { Activity, AlertTriangle, Clock, XCircle } from 'lucide-react'
 import { monitoringAPI, type TimeRange, type EndpointMetrics } from '@/lib/api/monitoring'
-import TimeRangePicker from '@/components/monitoring/TimeRangePicker'
+import TimeRangeSelector from '@/components/monitoring/TimeRangeSelector'
 import MetricCard from '@/components/monitoring/MetricCard'
 import EndpointTable from '@/components/monitoring/EndpointTable'
 import IncidentCopyButton from '@/components/monitoring/IncidentCopyButton'
@@ -68,7 +68,7 @@ function AppPerformanceContent() {
           </p>
         </div>
         <div className="flex gap-2 items-center">
-          <TimeRangePicker value={timeRange} onChange={setTimeRange} />
+          <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
           {data && <IncidentCopyButton metrics={data} />}
         </div>
       </div>
