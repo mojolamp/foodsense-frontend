@@ -2,17 +2,66 @@
 
 import { Product } from '@/types/product'
 import TierBadge from './TierBadge'
+import EmptyStateV2 from '@/components/shared/EmptyStateV2'
+import { PackageOpen, Upload, Plus } from 'lucide-react'
 
 interface Props {
   products: Product[]
   onProductClick: (product: Product) => void
+  hasActiveFilters?: boolean
+  onClearFilters?: () => void
+  onImportProducts?: () => void
+  onAddManually?: () => void
 }
 
-export default function ProductsTable({ products, onProductClick }: Props) {
+export default function ProductsTable({
+  products,
+  onProductClick,
+  hasActiveFilters = false,
+  onClearFilters,
+  onImportProducts,
+  onAddManually
+}: Props) {
   if (products.length === 0) {
+    // Show different empty state based on whether filters are active
+    if (hasActiveFilters && onClearFilters) {
+      return (
+        <div className="bg-white rounded-lg shadow">
+          <EmptyStateV2
+            icon={PackageOpen}
+            iconBackgroundColor="gray"
+            title="沒有符合條件的產品"
+            description="嘗試調整您的搜尋條件或清除篩選器以查看更多結果"
+            primaryAction={{
+              label: '清除篩選器',
+              onClick: onClearFilters,
+            }}
+            variant="compact"
+          />
+        </div>
+      )
+    }
+
+    // No products at all (fresh database)
     return (
-      <div className="bg-white rounded-lg shadow p-8 text-center">
-        <p className="text-gray-500">沒有找到產品</p>
+      <div className="bg-white rounded-lg shadow">
+        <EmptyStateV2
+          icon={PackageOpen}
+          iconBackgroundColor="blue"
+          title="尚無產品"
+          description="開始建立您的產品資料庫以啟用成分分析和品質追蹤"
+          helpText="產品可以從 CSV 檔案匯入或手動新增。匯入後，它們會出現在這裡供審核和分析"
+          primaryAction={onImportProducts ? {
+            label: '匯入產品',
+            onClick: onImportProducts,
+            icon: Upload,
+          } : undefined}
+          secondaryAction={onAddManually ? {
+            label: '手動新增',
+            onClick: onAddManually,
+            icon: Plus,
+          } : undefined}
+        />
       </div>
     )
   }

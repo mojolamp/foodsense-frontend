@@ -58,6 +58,8 @@ export default function DictionaryPage() {
             isLoading={isLoading}
             onTokenClick={(token) => setSelectedToken(token)}
             selectedToken={selectedToken}
+            hasSearch={search.trim().length > 0}
+            onClearSearch={() => setSearch('')}
           />
         </div>
         <div>

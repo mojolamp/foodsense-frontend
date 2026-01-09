@@ -10,8 +10,10 @@ import MetricCard from '@/components/monitoring/MetricCard'
 import HealthScoreCard from '@/components/monitoring/HealthScoreCard'
 import { Card } from '@/components/ui/card'
 import ErrorState from '@/components/shared/ErrorState'
+import EmptyStateV2 from '@/components/shared/EmptyStateV2'
 import { Skeleton } from '@/components/ui/skeleton'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { Settings, RefreshCw } from 'lucide-react'
 
 function BusinessHealthContent() {
   const [timeRange, setTimeRange] = useState<TimeRange>('24h')
@@ -31,6 +33,51 @@ function BusinessHealthContent() {
           message={error instanceof Error ? error.message : 'Unknown error'}
           onRetry={() => refetch()}
         />
+      </div>
+    )
+  }
+
+  // Check for empty state (no data or zero requests)
+  const hasNoData = !isLoading && data && data.total_requests === 0
+
+  if (hasNoData) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <LineChart className="h-6 w-6 text-primary" />
+              <h1 className="text-2xl font-bold">Business Health (L1)</h1>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              High-level business metrics and system health overview
+            </p>
+          </div>
+          <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
+        </div>
+        <div className="bg-white rounded-lg shadow">
+          <EmptyStateV2
+            icon={LineChart}
+            iconBackgroundColor="blue"
+            title="等待業務數據"
+            description="系統開始處理請求後將顯示業務健康指標"
+            helpText="業務指標每分鐘更新一次。追蹤總請求量、LawCore 採用率、每日成本和系統健康分數。"
+            primaryAction={{
+              label: '配置監控',
+              onClick: () => {
+                console.log('Navigating to monitoring settings...')
+                // TODO: Add actual settings route when available
+                router.push('/settings')
+              },
+              icon: Settings,
+            }}
+            secondaryAction={{
+              label: '重新整理',
+              onClick: () => refetch(),
+              icon: RefreshCw,
+            }}
+          />
+        </div>
       </div>
     )
   }

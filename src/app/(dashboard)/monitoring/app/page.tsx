@@ -13,10 +13,14 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import Drawer from '@/components/shared/Drawer'
 import ErrorState from '@/components/shared/ErrorState'
+import EmptyStateV2 from '@/components/shared/EmptyStateV2'
 import { Skeleton } from '@/components/ui/skeleton'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { Settings, RefreshCw } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 function AppPerformanceContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const focusParam = searchParams.get('focus')
 
@@ -50,6 +54,51 @@ function AppPerformanceContent() {
           message={error instanceof Error ? error.message : 'Unknown error'}
           onRetry={() => refetch()}
         />
+      </div>
+    )
+  }
+
+  // Check for empty state (no endpoints data)
+  const hasNoData = !isLoading && data && data.endpoints.length === 0
+
+  if (hasNoData) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Activity className="h-6 w-6 text-primary" />
+              <h1 className="text-2xl font-bold">Application Performance (L2)</h1>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Per-endpoint latency, error rates, and SLA compliance
+            </p>
+          </div>
+          <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
+        </div>
+        <div className="bg-white rounded-lg shadow">
+          <EmptyStateV2
+            icon={Activity}
+            iconBackgroundColor="green"
+            title="等待效能數據"
+            description="記錄到流量後將顯示應用程式效能指標"
+            helpText="指標每 30 秒更新一次。如果您剛部署，請等待幾分鐘以開始數據收集。"
+            primaryAction={{
+              label: '配置監控',
+              onClick: () => {
+                console.log('Navigating to monitoring settings...')
+                // TODO: Add actual settings route when available
+                router.push('/settings')
+              },
+              icon: Settings,
+            }}
+            secondaryAction={{
+              label: '重新整理',
+              onClick: () => refetch(),
+              icon: RefreshCw,
+            }}
+          />
+        </div>
       </div>
     )
   }

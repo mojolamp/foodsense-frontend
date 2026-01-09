@@ -1,12 +1,17 @@
 'use client'
 
 import { TokenRanking } from '@/types/dictionary'
+import EmptyStateV2 from '@/components/shared/EmptyStateV2'
+import { BookOpen, Search, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface Props {
   tokens: TokenRanking[]
   isLoading: boolean
   onTokenClick: (token: string) => void
   selectedToken: string | null
+  hasSearch?: boolean
+  onClearSearch?: () => void
 }
 
 export default function TokenRankingTable({
@@ -14,7 +19,11 @@ export default function TokenRankingTable({
   isLoading,
   onTokenClick,
   selectedToken,
+  hasSearch = false,
+  onClearSearch,
 }: Props) {
+  const router = useRouter()
+
   if (isLoading) {
     return (
       <div className="bg-white rounded-lg shadow p-8 text-center">
@@ -24,9 +33,45 @@ export default function TokenRankingTable({
   }
 
   if (tokens.length === 0) {
+    // If user is searching and no results found
+    if (hasSearch) {
+      return (
+        <div className="bg-white rounded-lg shadow">
+          <EmptyStateV2
+            icon={Search}
+            iconBackgroundColor="gray"
+            title="沒有找到符合的 Tokens"
+            description="嘗試調整搜尋關鍵字以查看更多結果"
+            primaryAction={
+              onClearSearch
+                ? {
+                    label: '清除搜尋',
+                    onClick: onClearSearch,
+                    icon: X,
+                  }
+                : undefined
+            }
+            variant="compact"
+          />
+        </div>
+      )
+    }
+
+    // No tokens at all - need to import products first
     return (
-      <div className="bg-white rounded-lg shadow p-8 text-center">
-        <p className="text-gray-500">沒有找到 Tokens</p>
+      <div className="bg-white rounded-lg shadow">
+        <EmptyStateV2
+          icon={BookOpen}
+          iconBackgroundColor="purple"
+          title="字典尚未建立"
+          description="匯入產品資料後將自動建立成分 Token 字典"
+          helpText="字典會從成分列表自動建立。匯入並分析產品後，Tokens 將出現在此處供您校正和管理。"
+          primaryAction={{
+            label: '前往匯入產品',
+            onClick: () => router.push('/products'),
+            icon: BookOpen,
+          }}
+        />
       </div>
     )
   }

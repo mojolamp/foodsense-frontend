@@ -5,12 +5,69 @@ import QualityKPICards from '@/components/quality/QualityKPICards'
 import QualityTimeline from '@/components/quality/QualityTimeline'
 import SourceContribution from '@/components/quality/SourceContribution'
 import CoverageStats from '@/components/quality/CoverageStats'
+import EmptyStateV2 from '@/components/shared/EmptyStateV2'
+import { BarChart3, Upload, Book } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function DataQualityPage() {
-  const { data: overview } = useQualityOverview()
-  const { data: timeline } = useQualityTimeline(30)
-  const { data: sources } = useQualitySources()
-  const { data: coverage } = useQualityCoverage()
+  const router = useRouter()
+  const { data: overview, isLoading: overviewLoading } = useQualityOverview()
+  const { data: timeline, isLoading: timelineLoading } = useQualityTimeline(30)
+  const { data: sources, isLoading: sourcesLoading } = useQualitySources()
+  const { data: coverage, isLoading: coverageLoading } = useQualityCoverage()
+
+  // Check if we have any data at all
+  const hasNoData = !overviewLoading && !timelineLoading && !sourcesLoading && !coverageLoading &&
+    !overview && !timeline && !sources && !coverage
+
+  // Show loading state
+  if (overviewLoading || timelineLoading || sourcesLoading || coverageLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">資料品質</h1>
+          <p className="mt-2 text-gray-600">數據治理與品質監控</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-8 text-center">
+          <p className="text-gray-600">載入中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show empty state if no data
+  if (hasNoData) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">資料品質</h1>
+          <p className="mt-2 text-gray-600">數據治理與品質監控</p>
+        </div>
+        <div className="bg-white rounded-lg shadow">
+          <EmptyStateV2
+            icon={BarChart3}
+            iconBackgroundColor="orange"
+            title="尚未有品質數據"
+            description="匯入並處理產品後將顯示品質指標"
+            helpText="資料品質追蹤會監控 Golden Record 覆蓋率、來源貢獻度和欄位完整性。請先匯入產品以開始追蹤品質指標。"
+            primaryAction={{
+              label: '匯入產品',
+              onClick: () => router.push('/products'),
+              icon: Upload,
+            }}
+            secondaryAction={{
+              label: '查看說明文件',
+              onClick: () => {
+                console.log('Opening documentation...')
+                // TODO: Add actual documentation link when available
+              },
+              icon: Book,
+            }}
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

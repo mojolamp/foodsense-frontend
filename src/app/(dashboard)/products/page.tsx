@@ -16,6 +16,29 @@ export default function ProductsPage() {
 
   const { data, isLoading, error } = useProducts(page, pageSize, filters)
 
+  // Check if any filters are active
+  const hasActiveFilters = Object.keys(filters).some(
+    key => filters[key as keyof Filters] !== undefined && filters[key as keyof Filters] !== ''
+  )
+
+  // Handle clear filters
+  const handleClearFilters = () => {
+    setFilters({})
+    setPage(1)
+  }
+
+  // Handle import products (placeholder - would navigate to import page)
+  const handleImportProducts = () => {
+    // TODO: Navigate to import page or open import modal
+    console.log('Navigate to import page')
+  }
+
+  // Handle add manually (placeholder - would open create modal)
+  const handleAddManually = () => {
+    // TODO: Open product creation modal
+    console.log('Open product creation modal')
+  }
+
   if (isLoading) {
     return <ProductsLoadingSkeleton />
   }
@@ -42,6 +65,10 @@ export default function ProductsPage() {
       <ProductsTable
         products={data?.products || []}
         onProductClick={(product) => setSelectedProduct(product)}
+        hasActiveFilters={hasActiveFilters}
+        onClearFilters={handleClearFilters}
+        onImportProducts={handleImportProducts}
+        onAddManually={handleAddManually}
       />
 
       {data && data.total > pageSize && (

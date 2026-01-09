@@ -13,9 +13,13 @@ import ErrorState from '@/components/shared/ErrorState'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import EmptyState from '@/components/shared/EmptyState'
+import EmptyStateV2 from '@/components/shared/EmptyStateV2'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { Settings, RefreshCw } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 function InfraContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const focusParam = searchParams.get('focus')
 
@@ -35,6 +39,51 @@ function InfraContent() {
           message={error instanceof Error ? error.message : 'Unknown error'}
           onRetry={() => refetch()}
         />
+      </div>
+    )
+  }
+
+  // Check for empty state (no database stats available)
+  const hasNoData = !isLoading && data && data.db_stats.size_mb === 0
+
+  if (hasNoData) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Server className="h-6 w-6 text-primary" />
+              <h1 className="text-2xl font-bold">Infrastructure (L3)</h1>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Database performance, slow queries, and resource utilization
+            </p>
+          </div>
+          <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
+        </div>
+        <div className="bg-white rounded-lg shadow">
+          <EmptyStateV2
+            icon={Server}
+            iconBackgroundColor="purple"
+            title="等待基礎設施數據"
+            description="資料庫有活動後將顯示基礎設施指標"
+            helpText="基礎設施監控追蹤資料庫效能、慢查詢和資源使用情況。指標每分鐘更新一次。"
+            primaryAction={{
+              label: '配置監控',
+              onClick: () => {
+                console.log('Navigating to monitoring settings...')
+                // TODO: Add actual settings route when available
+                router.push('/settings')
+              },
+              icon: Settings,
+            }}
+            secondaryAction={{
+              label: '重新整理',
+              onClick: () => refetch(),
+              icon: RefreshCw,
+            }}
+          />
+        </div>
       </div>
     )
   }
