@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { dictionaryAPI } from '@/lib/api/endpoints/dictionary'
 import type { CorrectionRequest } from '@/types/dictionary'
 import toast from 'react-hot-toast'
-import { getErrorMessage } from '@/types/api'
 
 export function useTokenRankings(sortBy: 'occurrence' | 'products', search: string) {
   return useQuery({
@@ -33,8 +32,13 @@ export function useCreateCorrection(token: string) {
       queryClient.invalidateQueries({ queryKey: ['tokenRankings'] })
       queryClient.invalidateQueries({ queryKey: ['tokenDetail', token] })
     },
-    onError: (error: unknown) => {
-      toast.error(getErrorMessage(error) || '建立失敗')
+    onError: (error: any) => {
+      toast.error(error.message || '建立失敗')
     },
   })
 }
+
+
+
+
+

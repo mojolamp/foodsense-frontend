@@ -33,11 +33,12 @@ export async function POST(request: NextRequest) {
     // Check user role (admin or super-admin required)
     const { data: userData } = await supabase
       .from('users')
-      .select('role')
-      .eq('id', user.id)
+      .select('profile_json')
+      .eq('auth_id', user.id)
       .single();
 
-    if (!userData || !['admin', 'super-admin'].includes(userData.role)) {
+    const userRole = userData?.profile_json?.role;
+    if (!userData || !['admin', 'super-admin'].includes(userRole)) {
       return NextResponse.json(
         {
           error: ErrorCodes.FORBIDDEN,

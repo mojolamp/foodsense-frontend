@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { productsAPI } from '@/lib/api/endpoints/products'
 import type { ProductFilters } from '@/types/product'
 import toast from 'react-hot-toast'
-import { getErrorMessage } from '@/types/api'
 
 export function useProducts(
   page: number = 1,
@@ -34,8 +33,8 @@ export function useUpdateProductTier() {
       queryClient.invalidateQueries({ queryKey: ['product', variables.productId] })
       toast.success(`Tier 已更新為 ${variables.tier}`)
     },
-    onError: (error: unknown) => {
-      toast.error(getErrorMessage(error) || '更新失敗')
+    onError: (error: any) => {
+      toast.error(error.message || '更新失敗')
     },
   })
 }
@@ -47,3 +46,8 @@ export function useSimilarProducts(productId: string, limit: number = 5) {
     enabled: !!productId,
   })
 }
+
+
+
+
+

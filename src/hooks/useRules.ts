@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { rulesAPI } from '@/lib/api/endpoints/rules'
 import type { RuleCreate, RuleUpdate } from '@/types/rule'
 import toast from 'react-hot-toast'
-import { getErrorMessage } from '@/types/api'
 
 export function useRules(params?: {
   is_active?: boolean
@@ -31,8 +30,8 @@ export function useCreateRule() {
       queryClient.invalidateQueries({ queryKey: ['rules'] })
       toast.success('規則已建立!')
     },
-    onError: (error: unknown) => {
-      toast.error(getErrorMessage(error) || '建立失敗')
+    onError: (error: any) => {
+      toast.error(error.message || '建立失敗')
     },
   })
 }
@@ -48,8 +47,8 @@ export function useUpdateRule() {
       queryClient.invalidateQueries({ queryKey: ['rule', variables.ruleId] })
       toast.success('規則已更新!')
     },
-    onError: (error: unknown) => {
-      toast.error(getErrorMessage(error) || '更新失敗')
+    onError: (error: any) => {
+      toast.error(error.message || '更新失敗')
     },
   })
 }
@@ -63,8 +62,8 @@ export function useDeleteRule() {
       queryClient.invalidateQueries({ queryKey: ['rules'] })
       toast.success('規則已刪除!')
     },
-    onError: (error: unknown) => {
-      toast.error(getErrorMessage(error) || '刪除失敗')
+    onError: (error: any) => {
+      toast.error(error.message || '刪除失敗')
     },
   })
 }
@@ -78,10 +77,13 @@ export function useToggleRule() {
       queryClient.invalidateQueries({ queryKey: ['rules'] })
       toast.success('規則狀態已更新!')
     },
-    onError: (error: unknown) => {
-      toast.error(getErrorMessage(error) || '更新失敗')
+    onError: (error: any) => {
+      toast.error(error.message || '更新失敗')
     },
   })
 }
+
+
+
 
 

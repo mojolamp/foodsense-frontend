@@ -190,3 +190,6 @@ export default function RuleDetailPanel({ rule, onClose }: Props) {
 }
 
 
+
+
+

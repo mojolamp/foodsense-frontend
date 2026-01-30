@@ -13,14 +13,7 @@ import {
   BarChart2,
   Boxes,
   LogOut,
-  ScanLine,
-  Activity,
-  Scale,
-  Search,
-  Shield,
-  LineChart,
-  Server,
-  AlertTriangle
+  ScanLine
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
@@ -40,7 +33,6 @@ const navGroups = [
     title: 'Review Workbench',
     items: [
       { name: 'Review Queue', href: '/review/queue', icon: ClipboardList },
-      { name: 'Analytics', href: '/review/analytics', icon: BarChart2 },
       { name: 'History', href: '/review/history', icon: History },
       { name: 'Gold Samples', href: '/gold-samples', icon: Star },
     ]
@@ -49,24 +41,7 @@ const navGroups = [
     title: 'System & Analytics',
     items: [
       { name: 'Rules Engine', href: '/rules', icon: Settings },
-      { name: 'Data Quality', href: '/data-quality', icon: Activity },
-    ]
-  },
-  {
-    title: 'LawCore',
-    items: [
-      { name: 'Overview', href: '/lawcore', icon: Scale },
-      { name: 'Presence Check', href: '/lawcore/check', icon: Search },
-      { name: 'Rules Browser', href: '/lawcore/rules', icon: BookOpen },
-      { name: 'Admin', href: '/lawcore/admin', icon: Shield },
-    ]
-  },
-  {
-    title: 'Monitoring',
-    items: [
-      { name: 'Business Health', href: '/monitoring/business', icon: LineChart },
-      { name: 'Application', href: '/monitoring/app', icon: Activity },
-      { name: 'Infrastructure', href: '/monitoring/infra', icon: Server },
+      { name: 'Data Quality', href: '/data-quality', icon: BarChart2 },
     ]
   }
 ]
@@ -90,7 +65,7 @@ export default function Sidebar({ user, mobileOpen = false, onClose }: SidebarPr
       toast.success('Logged out successfully')
       router.push('/login')
       router.refresh()
-    } catch (_error) {
+    } catch (error) {
       toast.error('Logout failed')
     }
   }
@@ -145,6 +120,7 @@ export default function Sidebar({ user, mobileOpen = false, onClose }: SidebarPr
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">{user.email}</p>
             <p className="text-xs text-muted-foreground">Administrator</p>
+            <p className="text-[10px] text-muted-foreground/60 mt-1 font-mono">v0.4.0-pre</p>
           </div>
           <button
             onClick={handleLogout}

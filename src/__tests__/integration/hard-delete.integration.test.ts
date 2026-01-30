@@ -27,39 +27,66 @@ describe('E-T7 Hard Delete Integration Tests', () => {
   let superAdminUser2: any;
 
   beforeAll(async () => {
-    // Create test users
-    const { data: admin1 } = await supabase
+    // Create test users with profile_json structure
+    const { data: admin1, error: error1 } = await supabase
       .from('users')
       .insert({
-        email: 'test-admin-1@foodsense.test',
-        name: 'Test Admin 1',
-        role: 'super-admin',
+        profile_json: {
+          email: 'test-admin-1@foodsense.test',
+          name: 'Test Admin 1',
+          role: 'super-admin',
+        },
       })
       .select()
       .single();
 
-    const { data: admin2 } = await supabase
+    const { data: admin2, error: error2 } = await supabase
       .from('users')
       .insert({
-        email: 'test-admin-2@foodsense.test',
-        name: 'Test Admin 2',
-        role: 'super-admin',
+        profile_json: {
+          email: 'test-admin-2@foodsense.test',
+          name: 'Test Admin 2',
+          role: 'super-admin',
+        },
       })
       .select()
       .single();
 
-    superAdminUser1 = admin1;
-    superAdminUser2 = admin2;
+    if (error1 || error2 || !admin1 || !admin2) {
+      console.error('Failed to create test users:', error1, error2);
+      throw new Error('Test setup failed: Could not create test users');
+    }
 
-    // Create test product
-    const { data: product } = await supabase
+    superAdminUser1 = {
+      id: admin1.id,
+      email: admin1.profile_json.email,
+      name: admin1.profile_json.name,
+      role: admin1.profile_json.role,
+    };
+    superAdminUser2 = {
+      id: admin2.id,
+      email: admin2.profile_json.email,
+      name: admin2.profile_json.name,
+      role: admin2.profile_json.role,
+    };
+
+    // Create test product with required fields
+    const { data: product, error: productError } = await supabase
       .from('mcp_products')
       .insert({
         name: 'Test Product for E-T7',
         barcode: 'TEST-E-T7-001',
+        source: 'integration-test',
+        created_by: 'test-system',
+        updated_by: 'test-system',
       })
       .select()
       .single();
+
+    if (productError || !product) {
+      console.error('Failed to create test product:', productError);
+      throw new Error('Test setup failed: Could not create test product');
+    }
 
     testProductId = product.id;
   });
@@ -242,6 +269,9 @@ describe('E-T7 Hard Delete Integration Tests', () => {
         .insert({
           name: 'Test Product for Cooling Period',
           barcode: 'TEST-COOLING-001',
+          source: 'integration-test',
+          created_by: 'test-system',
+          updated_by: 'test-system',
         })
         .select()
         .single();
@@ -276,6 +306,9 @@ describe('E-T7 Hard Delete Integration Tests', () => {
         .insert({
           name: 'Test Product for Duplicate Check',
           barcode: 'TEST-DUPLICATE-001',
+          source: 'integration-test',
+          created_by: 'test-system',
+          updated_by: 'test-system',
         })
         .select()
         .single();
@@ -364,6 +397,9 @@ describe('E-T7 Hard Delete Integration Tests', () => {
         .insert({
           name: 'Test Product for Rejection',
           barcode: 'TEST-REJECT-001',
+          source: 'integration-test',
+          created_by: 'test-system',
+          updated_by: 'test-system',
         })
         .select()
         .single();

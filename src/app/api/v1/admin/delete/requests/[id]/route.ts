@@ -37,11 +37,12 @@ export async function GET(
     // Check user role (super-admin required)
     const { data: userData } = await supabase
       .from('users')
-      .select('role')
-      .eq('id', user.id)
+      .select('profile_json')
+      .eq('auth_id', user.id)
       .single();
 
-    if (!userData || userData.role !== 'super-admin') {
+    const userRole = userData?.profile_json?.role;
+    if (!userData || userRole !== 'super-admin') {
       return NextResponse.json(
         {
           error: ErrorCodes.FORBIDDEN,
@@ -66,7 +67,7 @@ export async function GET(
     // Get requester and approver details
     const { data: requester } = await supabase
       .from('users')
-      .select('id, email, name')
+      .select('id, profile_json')
       .eq('id', deleteRequest.requester_id)
       .single();
 
@@ -74,7 +75,7 @@ export async function GET(
     if (deleteRequest.approver_id) {
       const { data: approverData } = await supabase
         .from('users')
-        .select('id, email, name')
+        .select('id, profile_json')
         .eq('id', deleteRequest.approver_id)
         .single();
       approver = approverData;
@@ -88,15 +89,15 @@ export async function GET(
       requester: requester
         ? {
             id: requester.id,
-            email: requester.email,
-            name: requester.name,
+            email: requester.profile_json?.email || '',
+            name: requester.profile_json?.name || '',
           }
         : null,
       approver: approver
         ? {
             id: approver.id,
-            email: approver.email,
-            name: approver.name,
+            email: approver.profile_json?.email || '',
+            name: approver.profile_json?.name || '',
           }
         : null,
       status: deleteRequest.status,

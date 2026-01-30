@@ -43,9 +43,9 @@ export interface DeleteRequest {
   id: string;
   table_name: string;
   record_id: string;
-  requester_id: string;
+  requester_id: number; // BIGINT in database
   requester_email: string;
-  approver_id: string | null;
+  approver_id: number | null; // BIGINT in database
   approver_email: string | null;
   status: DeleteRequestStatus;
   reason: string;
@@ -68,9 +68,9 @@ export interface AuditLog {
   entity_type: string;
   entity_id: string;
   action: AuditAction;
-  requester_id: string | null;
+  requester_id: number | null; // BIGINT in database
   requester_email: string;
-  approver_id: string | null;
+  approver_id: number | null; // BIGINT in database
   approver_email: string | null;
   status: AuditStatus;
   reason: string;
@@ -214,9 +214,9 @@ export const ErrorCodes = {
  * Ensures requester and approver are different people
  */
 export function validateDualApproval(
-  requesterId: string,
+  requesterId: number,
   requesterEmail: string,
-  approverId: string,
+  approverId: number,
   approverEmail: string
 ): ValidationResult {
   // Email check (case-insensitive)
@@ -440,11 +440,11 @@ export async function createAuditLog(
   entityType: string,
   entityId: string,
   action: AuditAction,
-  requesterId: string,
+  requesterId: number,
   requesterEmail: string,
   status: AuditStatus,
   reason: string,
-  approverId?: string,
+  approverId?: number,
   approverEmail?: string,
   metadata?: Record<string, any>
 ): Promise<string> {

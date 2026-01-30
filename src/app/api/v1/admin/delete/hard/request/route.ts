@@ -34,11 +34,12 @@ export async function POST(request: NextRequest) {
     // Check user role (super-admin required for hard delete)
     const { data: userData } = await supabase
       .from('users')
-      .select('role')
-      .eq('id', user.id)
+      .select('profile_json')
+      .eq('auth_id', user.id)
       .single();
 
-    if (!userData || userData.role !== 'super-admin') {
+    const userRole = userData?.profile_json?.role;
+    if (!userData || userRole !== 'super-admin') {
       return NextResponse.json(
         {
           error: ErrorCodes.FORBIDDEN,

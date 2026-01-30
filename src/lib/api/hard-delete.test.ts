@@ -20,9 +20,9 @@ describe('Hard Delete API - Validation Functions', () => {
   describe('validateDualApproval', () => {
     it('should reject when requester email = approver email', () => {
       const result = validateDualApproval(
-        'user-123',
+        123,
         'admin@foodsense.com',
-        'user-456',
+        456,
         'admin@foodsense.com'
       );
 
@@ -33,9 +33,9 @@ describe('Hard Delete API - Validation Functions', () => {
 
     it('should reject when requester email = approver email (case insensitive)', () => {
       const result = validateDualApproval(
-        'user-123',
+        123,
         'admin@foodsense.com',
-        'user-456',
+        456,
         'ADMIN@FOODSENSE.COM'
       );
 
@@ -45,9 +45,9 @@ describe('Hard Delete API - Validation Functions', () => {
 
     it('should reject when requester ID = approver ID', () => {
       const result = validateDualApproval(
-        'user-123',
+        123,
         'admin1@foodsense.com',
-        'user-123',
+        123,
         'admin2@foodsense.com'
       );
 
@@ -58,9 +58,9 @@ describe('Hard Delete API - Validation Functions', () => {
 
     it('should accept when requester ≠ approver', () => {
       const result = validateDualApproval(
-        'user-123',
+        123,
         'admin1@foodsense.com',
-        'user-456',
+        456,
         'admin2@foodsense.com'
       );
 
@@ -96,7 +96,7 @@ describe('Hard Delete API - Validation Functions', () => {
       id: 'del-req-123',
       table_name: 'users',
       record_id: 'user-456',
-      requester_id: 'req-789',
+      requester_id: 789,
       requester_email: 'admin@foodsense.com',
       approver_id: null,
       approver_email: null,
