@@ -58,8 +58,9 @@ export default function DataQualityPage() {
             secondaryAction={{
               label: '查看說明文件',
               onClick: () => {
-                console.log('Opening documentation...')
-                // TODO: Add actual documentation link when available
+                // FUTURE(P3): Add documentation link when docs site is ready
+                // Placeholder: docs not yet available
+                window.open('https://docs.foodsense.app/data-quality', '_blank')
               },
               icon: Book,
             }}

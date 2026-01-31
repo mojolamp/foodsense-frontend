@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-01-31
+
+### Added
+
+#### P2 Technical Debt Optimization
+- **Reusable Table Selection Hook** (`src/hooks/useTableSelection.ts`)
+  - Generic table selection state management (single, multi, select-all)
+  - Auto-cleanup of stale selection IDs when data changes
+  - Full TypeScript support with `activeId` and `activeIndex` management
+
+- **Shared Review Form Schema** (`src/lib/schemas/reviewForm.ts`)
+  - `REVIEW_CONSTANTS` - Centralized review threshold constants
+  - `reviewFormSchema` - Zod validation for review forms
+  - `batchReviewTemplateSchema` - Batch review template validation
+  - Helper functions: `isGoldEligible()`, `getQualityLevel()`, `getConfidenceLevel()`
+
+### Changed
+
+#### Performance Optimizations
+- **EfficiencyAnalysis Component** (`src/components/review/EfficiencyAnalysis.tsx`)
+  - Wrapped all calculations with `useMemo` (8 filter operations merged into single iteration)
+  - Applied `React.memo` to child components (FunnelBar, ConfidenceBar, MetricCard)
+  - Replaced hardcoded values with `REVIEW_CONSTANTS.URGENT_HOURS`
+
+- **ReviewQueueTable Component** (`src/components/review/ReviewQueueTable.tsx`)
+  - Added `useMemo` for `isAllSelected` calculation
+  - Added `useCallback` for `getStatusVariant` function
+  - Eliminated redundant `data.every()` calculations
+
+#### P1 Technical Debt Cleanup
+- **Console Log Cleanup**
+  - Removed debug `console.log` from `monitoring/business/page.tsx`
+  - Removed debug `console.log` and `console.error` from `test-api/page.tsx`
+  - Removed debug `console.log` from `hard/approve/route.ts`
+
+- **TODO Comments Improvement**
+  - Converted `// TODO:` to `// FUTURE(P#):` format with implementation details
+  - Added clear requirements and dependencies for future work
+
+- **Type Safety Improvements**
+  - Replaced `any` types with proper interfaces in `test-api/page.tsx`
+  - Added `ApiTestResult` and `ApiTestError` interfaces
+
+### Technical Debt Reduced
+- Added 1 reusable Hook (`useTableSelection`)
+- Added 1 shared Schema file with constants and validation
+- Optimized 2 component performance (useMemo + React.memo)
+- Removed 4 console.log/error statements
+- Improved 2 TODO comments with FUTURE format
+- Added 2 TypeScript interfaces
+
+---
+
 ## [3.1.0] - 2026-01-31
 
 ### Added

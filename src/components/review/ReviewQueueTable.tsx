@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, memo, useMemo } from 'react'
 import type { OCRRecord, PrioritySortStrategy } from '@/types/review'
 import { formatDistanceToNow } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
@@ -126,14 +126,20 @@ export default function ReviewQueueTable({
     )
   }
 
-  const getStatusVariant = (status: string) => {
+  // 使用 useCallback 優化回調函數
+  const getStatusVariant = useCallback((status: string) => {
     switch (status) {
       case 'PASS': return 'success'
       case 'WARN': return 'warning'
       case 'FAIL': return 'failure'
       default: return 'secondary'
     }
-  }
+  }, [])
+
+  // 使用 useMemo 計算是否全選
+  const isAllSelected = useMemo(() => {
+    return data.length > 0 && data.every(r => selectedIds.has(r.id))
+  }, [data, selectedIds])
 
   return (
     <div className="space-y-4">
@@ -195,9 +201,9 @@ export default function ReviewQueueTable({
                   <button
                     onClick={toggleSelectAll}
                     className="flex items-center justify-center w-full h-full hover:bg-accent rounded p-1"
-                    aria-label={(data.length > 0 && data.every(r => selectedIds.has(r.id))) ? "取消全選" : "全選"}
+                    aria-label={isAllSelected ? "取消全選" : "全選"}
                   >
-                    {(data.length > 0 && data.every(r => selectedIds.has(r.id))) ? (
+                    {isAllSelected ? (
                       <CheckSquare className="w-4 h-4 text-primary" />
                     ) : (
                       <Square className="w-4 h-4 text-muted-foreground" />

@@ -75,11 +75,11 @@ export async function POST(request: NextRequest) {
 
     // If approved, schedule execution (30 seconds delay)
     if (body.approved && result.status === 'approved') {
-      // TODO: Trigger background job to execute hard delete after 30 seconds
-      // Example: await scheduleHardDeleteExecution(result.delete_request_id);
-      console.log(
-        `Hard delete approved. Will execute in 30 seconds: ${result.delete_request_id}`
-      );
+      // FUTURE(P1): Trigger background job to execute hard delete after 30 seconds
+      // Implementation requires:
+      // 1. Queue system (e.g., BullMQ, Vercel Cron)
+      // 2. scheduleHardDeleteExecution(result.delete_request_id) function
+      // For now, hard delete is executed immediately by the approveHardDelete function
     }
 
     return NextResponse.json(result, { status: 200 });

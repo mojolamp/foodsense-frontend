@@ -27,16 +27,18 @@ export default function ProductsPage() {
     setPage(1)
   }
 
-  // Handle import products (placeholder - would navigate to import page)
+  // Handle import products
+  // FUTURE(P2): Implement product import modal/page when backend API is ready
+  // Currently a placeholder - will navigate to import workflow in future release
   const handleImportProducts = () => {
-    // TODO: Navigate to import page or open import modal
-    console.log('Navigate to import page')
+    // Placeholder: navigation target not yet implemented
   }
 
-  // Handle add manually (placeholder - would open create modal)
+  // Handle add manually
+  // FUTURE(P2): Implement product creation modal when backend API is ready
+  // Currently a placeholder - will open creation form in future release
   const handleAddManually = () => {
-    // TODO: Open product creation modal
-    console.log('Open product creation modal')
+    // Placeholder: modal not yet implemented
   }
 
   if (isLoading) {

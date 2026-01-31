@@ -1,9 +1,11 @@
 'use client'
 
+import { useMemo, memo } from 'react'
 import { useReviewQueue, useReviewStats } from '@/hooks/useReviewQueue'
 import { Activity, TrendingUp, AlertTriangle, CheckCircle2, Clock } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { REVIEW_CONSTANTS } from '@/lib/schemas/reviewForm'
 
 // 顏色類型
 type ColorType = 'red' | 'amber' | 'green'
@@ -36,37 +38,62 @@ export default function EfficiencyAnalysis() {
   const { data: queue } = useReviewQueue()
   const { data: stats } = useReviewStats()
 
-  if (!queue || !stats) return null
+  // 使用 useMemo 優化計算
+  const metrics = useMemo(() => {
+    if (!queue) return null
 
-  // 計算漏斗數據
-  const totalRecords = queue.length
-  const failCount = queue.filter(r => r.logic_validation_status === 'FAIL').length
-  const warnCount = queue.filter(r => r.logic_validation_status === 'WARN').length
-  const passCount = queue.filter(r => r.logic_validation_status === 'PASS').length
+    const totalRecords = queue.length
+    const failCount = queue.filter(r => r.logic_validation_status === 'FAIL').length
+    const warnCount = queue.filter(r => r.logic_validation_status === 'WARN').length
+    const passCount = queue.filter(r => r.logic_validation_status === 'PASS').length
 
-  // 計算低信心度記錄
-  const lowConfidence = queue.filter(r => r.confidence_level === 'LOW').length
-  const mediumConfidence = queue.filter(r => r.confidence_level === 'MEDIUM').length
-  const highConfidence = queue.filter(r => r.confidence_level === 'HIGH').length
+    const lowConfidence = queue.filter(r => r.confidence_level === 'LOW').length
+    const mediumConfidence = queue.filter(r => r.confidence_level === 'MEDIUM').length
+    const highConfidence = queue.filter(r => r.confidence_level === 'HIGH').length
 
-  // 計算等待時間統計
-  const waitTimes = queue.map(record => {
-    const now = new Date()
-    const created = new Date(record.created_at)
-    return (now.getTime() - created.getTime()) / (1000 * 60 * 60) // 小時
-  })
+    // 計算等待時間統計
+    const now = Date.now()
+    let totalWaitTime = 0
+    let maxWaitTime = 0
+    let urgentRecords = 0
 
-  const avgWaitTime = waitTimes.length > 0
-    ? waitTimes.reduce((sum, t) => sum + t, 0) / waitTimes.length
-    : 0
+    for (const record of queue) {
+      const hours = (now - new Date(record.created_at).getTime()) / (1000 * 60 * 60)
+      totalWaitTime += hours
+      if (hours > maxWaitTime) maxWaitTime = hours
+      if (hours > REVIEW_CONSTANTS.URGENT_HOURS) urgentRecords++
+    }
 
-  const maxWaitTime = waitTimes.length > 0 ? Math.max(...waitTimes) : 0
+    const avgWaitTime = totalRecords > 0 ? totalWaitTime / totalRecords : 0
 
-  // 積壓預警
-  const urgentRecords = queue.filter(record => {
-    const hours = (new Date().getTime() - new Date(record.created_at).getTime()) / (1000 * 60 * 60)
-    return hours > 24
-  }).length
+    return {
+      totalRecords,
+      failCount,
+      warnCount,
+      passCount,
+      lowConfidence,
+      mediumConfidence,
+      highConfidence,
+      avgWaitTime,
+      maxWaitTime,
+      urgentRecords,
+    }
+  }, [queue])
+
+  if (!queue || !stats || !metrics) return null
+
+  const {
+    totalRecords,
+    failCount,
+    warnCount,
+    passCount,
+    lowConfidence,
+    mediumConfidence,
+    highConfidence,
+    avgWaitTime,
+    maxWaitTime,
+    urgentRecords,
+  } = metrics
 
   return (
     <div className="space-y-6">
@@ -188,8 +215,8 @@ export default function EfficiencyAnalysis() {
   )
 }
 
-// 漏斗條形圖組件
-function FunnelBar({ label, count, total, color, icon: Icon }: FunnelBarProps) {
+// 漏斗條形圖組件 (使用 React.memo 優化)
+const FunnelBar = memo(function FunnelBar({ label, count, total, color, icon: Icon }: FunnelBarProps) {
   const percentage = total > 0 ? (count / total) * 100 : 0
 
   const colorClasses = {
@@ -218,10 +245,10 @@ function FunnelBar({ label, count, total, color, icon: Icon }: FunnelBarProps) {
       </div>
     </div>
   )
-}
+})
 
-// 信心度條形圖組件
-function ConfidenceBar({ label, count, total, color }: ConfidenceBarProps) {
+// 信心度條形圖組件 (使用 React.memo 優化)
+const ConfidenceBar = memo(function ConfidenceBar({ label, count, total, color }: ConfidenceBarProps) {
   const percentage = total > 0 ? (count / total) * 100 : 0
 
   const colorClasses = {
@@ -244,10 +271,10 @@ function ConfidenceBar({ label, count, total, color }: ConfidenceBarProps) {
       </div>
     </div>
   )
-}
+})
 
-// 效率指標卡片
-function MetricCard({ title, value, total, color, icon: Icon }: MetricCardProps) {
+// 效率指標卡片 (使用 React.memo 優化)
+const MetricCard = memo(function MetricCard({ title, value, total, color, icon: Icon }: MetricCardProps) {
   const percentage = total > 0 ? (value / total) * 100 : 0
 
   const bgClasses = {
@@ -276,4 +303,4 @@ function MetricCard({ title, value, total, color, icon: Icon }: MetricCardProps)
       </p>
     </div>
   )
-}
+})

@@ -71,8 +71,8 @@ function InfraContent() {
             primaryAction={{
               label: '配置監控',
               onClick: () => {
-                console.log('Navigating to monitoring settings...')
-                // TODO: Add actual settings route when available
+                // FUTURE(P2): Add dedicated monitoring settings page
+                // Currently navigates to general settings
                 router.push('/settings')
               },
               icon: Settings,

@@ -1,10 +1,23 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+
+interface ApiTestResult {
+    status: number
+    statusText: string
+    data: unknown
+    headers: Record<string, string>
+}
+
+interface ApiTestError {
+    message: string
+    stack?: string
+    name: string
+}
 
 export default function TestApiPage() {
-    const [result, setResult] = useState<any>(null)
-    const [error, setError] = useState<any>(null)
+    const [result, setResult] = useState<ApiTestResult | null>(null)
+    const [error, setError] = useState<ApiTestError | null>(null)
     const [loading, setLoading] = useState(false)
     const [url, setUrl] = useState('http://localhost:8000/api/v1/admin/products/?limit=10')
 
@@ -14,7 +27,6 @@ export default function TestApiPage() {
         setError(null)
 
         try {
-            console.log('Testing connection to:', url)
             const res = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -38,12 +50,12 @@ export default function TestApiPage() {
                 data,
                 headers: Object.fromEntries(res.headers.entries())
             })
-        } catch (err: any) {
-            console.error('Connection failed:', err)
+        } catch (err: unknown) {
+            const errorObj = err instanceof Error ? err : new Error(String(err))
             setError({
-                message: err.message,
-                stack: err.stack,
-                name: err.name
+                message: errorObj.message,
+                stack: errorObj.stack,
+                name: errorObj.name
             })
         } finally {
             setLoading(false)
@@ -89,7 +101,7 @@ export default function TestApiPage() {
 
                         <h4 className="font-semibold text-sm mt-4">Response Body:</h4>
                         <pre className="bg-white p-2 rounded border mt-1 text-xs overflow-auto max-h-60">
-                            {typeof result.data === 'object' ? JSON.stringify(result.data, null, 2) : result.data}
+                            {typeof result.data === 'object' ? JSON.stringify(result.data, null, 2) : String(result.data)}
                         </pre>
 
                         <h4 className="font-semibold text-sm mt-4">Response Headers:</h4>
