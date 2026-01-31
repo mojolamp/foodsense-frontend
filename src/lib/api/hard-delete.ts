@@ -11,6 +11,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { SOFT_DELETE_ENABLED_TABLES, type SoftDeleteEnabledTable } from '@/lib/supabase/soft-delete';
 import { randomBytes } from 'crypto';
+import type { JsonValue } from '@/types/api';
 
 // ============================================
 // Type Definitions
@@ -57,7 +58,7 @@ export interface DeleteRequest {
   approved_at: string | null;
   executed_at: string | null;
   expires_at: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, JsonValue>;
   created_at: string;
   updated_at: string;
 }
@@ -75,7 +76,7 @@ export interface AuditLog {
   status: AuditStatus;
   reason: string;
   timestamp: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, JsonValue>;
   created_at: string;
 }
 
@@ -182,7 +183,7 @@ export class HardDeleteError extends Error {
   constructor(
     public code: string,
     message: string,
-    public details?: Record<string, any>
+    public details?: Record<string, JsonValue>
   ) {
     super(message);
     this.name = 'HardDeleteError';
@@ -446,7 +447,7 @@ export async function createAuditLog(
   reason: string,
   approverId?: string,
   approverEmail?: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, JsonValue>
 ): Promise<string> {
   const supabase = createClient();
 
@@ -472,7 +473,7 @@ export async function createAuditLog(
     throw new HardDeleteError(
       'AUDIT_LOG_FAILED',
       'Failed to create audit log',
-      { error }
+      { error: error.message || String(error) }
     );
   }
 
@@ -499,7 +500,7 @@ export async function getAuditTrail(
     throw new HardDeleteError(
       'AUDIT_FETCH_FAILED',
       'Failed to fetch audit trail',
-      { error }
+      { error: error.message || String(error) }
     );
   }
 
@@ -524,7 +525,7 @@ export async function getOperationAuditTrail(
     throw new HardDeleteError(
       'AUDIT_FETCH_FAILED',
       'Failed to fetch operation audit trail',
-      { error }
+      { error: error.message || String(error) }
     );
   }
 
@@ -580,7 +581,7 @@ export async function softDeleteRecord(
     throw new HardDeleteError(
       'SOFT_DELETE_FAILED',
       'Failed to soft delete record',
-      { error: deleteError }
+      { error: deleteError.message || String(deleteError) }
     );
   }
 
@@ -699,7 +700,7 @@ export async function requestHardDelete(
     throw new HardDeleteError(
       'REQUEST_CREATION_FAILED',
       'Failed to create delete request',
-      { error: createError }
+      { error: createError.message || String(createError) }
     );
   }
 
@@ -797,7 +798,7 @@ export async function approveHardDelete(
         status: 'approved',
         approver_id: user.id,
         approver_email: request.approver_email,
-        approver_notes: request.approver_notes,
+        approver_notes: request.approver_notes ?? null,
         approved_at: now,
       })
       .eq('id', request.delete_request_id);
@@ -806,7 +807,7 @@ export async function approveHardDelete(
       throw new HardDeleteError(
         'APPROVAL_UPDATE_FAILED',
         'Failed to update delete request',
-        { error: updateError }
+        { error: updateError.message || String(updateError) }
       );
     }
 
@@ -827,7 +828,7 @@ export async function approveHardDelete(
       request.approver_email,
       {
         delete_request_id: request.delete_request_id,
-        approver_notes: request.approver_notes,
+        approver_notes: request.approver_notes ?? null,
         will_execute_at: willExecuteAt.toISOString(),
       }
     );
@@ -852,7 +853,7 @@ export async function approveHardDelete(
         status: 'rejected',
         approver_id: user.id,
         approver_email: request.approver_email,
-        approver_notes: request.approver_notes,
+        approver_notes: request.approver_notes ?? null,
       })
       .eq('id', request.delete_request_id);
 
@@ -860,7 +861,7 @@ export async function approveHardDelete(
       throw new HardDeleteError(
         'REJECTION_UPDATE_FAILED',
         'Failed to update delete request',
-        { error: updateError }
+        { error: updateError.message || String(updateError) }
       );
     }
 
@@ -879,7 +880,7 @@ export async function approveHardDelete(
       {
         delete_request_id: request.delete_request_id,
         rejection_reason: request.approver_notes || 'No reason provided',
-        approver_notes: request.approver_notes,
+        approver_notes: request.approver_notes ?? null,
       }
     );
 
@@ -933,7 +934,7 @@ export async function listDeleteRequests(options: {
     throw new HardDeleteError(
       'FETCH_FAILED',
       'Failed to fetch delete requests',
-      { error }
+      { error: error.message || String(error) }
     );
   }
 
@@ -1003,7 +1004,7 @@ export async function executeHardDelete(
       throw new HardDeleteError(
         'EXECUTION_FAILED',
         'Hard delete execution failed',
-        { error: deleteError }
+        { error: deleteError.message || String(deleteError) }
       );
     }
 

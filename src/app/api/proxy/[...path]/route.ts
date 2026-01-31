@@ -27,10 +27,13 @@ async function handleProxy(request: NextRequest, { params }: { params: Promise<{
 
     // 3. 轉發請求
     try {
-        const fetchOptions: RequestInit = {
+        // Next.js fetch 支援 duplex 選項用於 streaming request body
+        // 參考: https://github.com/nodejs/node/issues/46221
+        type ProxyFetchOptions = RequestInit & { duplex?: 'half' | 'full' };
+
+        const fetchOptions: ProxyFetchOptions = {
             method: request.method,
             headers: newHeaders,
-            // @ts-ignore: Next.js fetch 擴充選項
             duplex: 'half',
         };
 
@@ -58,10 +61,11 @@ async function handleProxy(request: NextRequest, { params }: { params: Promise<{
             headers: responseHeaders,
         });
 
-    } catch (error: any) {
-        console.error('[Proxy] Error:', error);
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Unknown proxy error';
+        console.error('[Proxy] Error:', message);
         return NextResponse.json(
-            { error_code: 'PROXY_ERROR', message: `Proxy Error: ${error.message}` },
+            { error_code: 'PROXY_ERROR', message: `Proxy Error: ${message}` },
             { status: 502 }
         );
     }
