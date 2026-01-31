@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { reviewAPI } from '@/lib/api/endpoints/review'
 import type { GroundTruthCreate, OCRRecord } from '@/types/review'
@@ -55,10 +54,13 @@ export function useGoldSamples(limit = 50) {
   })
 }
 
-// 批次審核 Hook
+/**
+ * 批次審核 Hook (P1-1 優化)
+ *
+ * 改用後端批次 API，從 N 個請求改為 1 個請求
+ */
 export function useBatchReviewSubmit() {
   const queryClient = useQueryClient()
-  const [_progress, setProgress] = useState({ completed: 0, total: 0, failed: 0 })
 
   return useMutation({
     mutationFn: async ({
@@ -68,54 +70,40 @@ export function useBatchReviewSubmit() {
       records: OCRRecord[]
       template: BatchReviewTemplate
     }) => {
-      setProgress({ completed: 0, total: records.length, failed: 0 })
+      // 組裝批次請求資料
+      const reviews = records.map(record => ({
+        ocr_record_id: record.id,
+        product_id: record.product_id,
+        corrected_payload: {
+          verified: true,
+          verified_at: new Date().toISOString(),
+          ocr_raw_text: record.ocr_raw_text,
+        },
+      }))
 
-      const results = []
-      let failed = 0
-
-      // 逐筆提交 (未來可改為後端批次 API)
-      for (let i = 0; i < records.length; i++) {
-        try {
-          const record = records[i]
-          const result = await reviewAPI.submitReview({
-            ocr_record_id: record.id,
-            product_id: record.product_id,
-            corrected_payload: {
-              verified: true,
-              verified_at: new Date().toISOString(),
-              ocr_raw_text: record.ocr_raw_text,
-            },
-            data_quality_score: template.data_quality_score,
-            confidence_score: template.confidence_score,
-            review_notes: template.review_notes,
-            is_gold: template.is_gold,
-          })
-          results.push(result)
-          setProgress({ completed: i + 1, total: records.length, failed })
-        } catch (error) {
-          failed++
-          setProgress({ completed: i + 1, total: records.length, failed })
-          console.error(`批次審核失敗: ${records[i].id}`, error)
+      // 使用批次 API（單一請求）
+      return reviewAPI.batchSubmitReviews({
+        reviews,
+        template: {
+          data_quality_score: template.data_quality_score,
+          confidence_score: template.confidence_score,
+          review_notes: template.review_notes,
+          is_gold: template.is_gold,
         }
-      }
-
-      return { results, failed, total: records.length }
+      })
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['reviewQueue'] })
       queryClient.invalidateQueries({ queryKey: ['reviewStats'] })
 
       if (data.failed === 0) {
-        toast.success(`成功批次審核 ${data.total} 筆記錄！`)
+        toast.success(`成功批次審核 ${data.submitted} 筆記錄！`)
       } else {
-        toast.success(`批次審核完成：成功 ${data.total - data.failed} 筆，失敗 ${data.failed} 筆`)
+        toast.success(`批次審核完成：成功 ${data.submitted} 筆，失敗 ${data.failed} 筆`)
       }
-
-      setProgress({ completed: 0, total: 0, failed: 0 })
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error) || '批次審核失敗')
-      setProgress({ completed: 0, total: 0, failed: 0 })
     },
   })
 }

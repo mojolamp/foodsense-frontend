@@ -4,19 +4,14 @@ import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useEntitySuggest } from '@/hooks/useIngestionGate'
-
-interface EntitySuggestion {
-  canonical_name: string
-  match_type: 'ALIAS' | 'HYBRID' | 'VECTOR_FALLBACK'
-  score: number
-}
+import type { EntitySuggestItem } from '@/lib/api/endpoints/ingestionGate'
 
 interface AutocompleteFieldProps {
   value: string
   onChange: (value: string) => void
   namespace: 'ingredients' | 'allergens' | 'additives'
   placeholder?: string
-  onSelect?: (suggestion: EntitySuggestion) => void
+  onSelect?: (suggestion: EntitySuggestItem) => void
 }
 
 export function AutocompleteField({
@@ -41,7 +36,7 @@ export function AutocompleteField({
     setShowSuggestions(newValue.length > 0)
   }
 
-  const handleSelectSuggestion = (suggestion: EntitySuggestion) => {
+  const handleSelectSuggestion = (suggestion: EntitySuggestItem) => {
     onChange(suggestion.canonical_name)
     setShowSuggestions(false)
     if (onSelect) {
@@ -70,7 +65,7 @@ export function AutocompleteField({
           {isLoading ? (
             <div className="p-2 text-sm text-muted-foreground">載入中...</div>
           ) : (
-            suggestions.map((suggestion: EntitySuggestion, idx: number) => (
+            suggestions.map((suggestion, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSelectSuggestion(suggestion)}

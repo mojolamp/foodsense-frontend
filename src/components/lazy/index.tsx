@@ -34,16 +34,18 @@ import dynamic from 'next/dynamic';
  * Review Modal - Large modal for reviewing products
  * Size: ~309 lines, heavy component
  */
-export const LazyReviewModal = lazyModal(
-  () => import('@/components/review/ReviewModal')
+export const LazyReviewModal = lazyWithPreload(
+  () => import('@/components/review/ReviewModal'),
+  { loading: () => <ModalSkeleton /> }
 );
 
 /**
  * Batch Review Modal - Bulk review operations
  * Size: ~300 lines
  */
-export const LazyBatchReviewModal = lazyModal(
-  () => import('@/components/review/BatchReviewModal')
+export const LazyBatchReviewModal = lazyWithPreload(
+  () => import('@/components/review/BatchReviewModal'),
+  { loading: () => <ModalSkeleton /> }
 );
 
 /**
@@ -74,8 +76,9 @@ export const LazyCommandPalette = lazyWithPreload(
  * Efficiency Analysis Chart - Uses recharts
  * Size: ~279 lines, includes heavy charting library
  */
-export const LazyEfficiencyAnalysis = lazyChart(
-  () => import('@/components/review/EfficiencyAnalysis')
+export const LazyEfficiencyAnalysis = lazyWithPreload(
+  () => import('@/components/review/EfficiencyAnalysis'),
+  { loading: () => <ChartSkeleton /> }
 );
 
 /**
@@ -111,7 +114,7 @@ export const LazyReviewQueueTable = dynamic(
  * Size: ~249 lines
  */
 export const LazyReviewQueueList = dynamic(
-  () => import('@/components/ingestion-gate/ReviewQueueList'),
+  () => import('@/components/ingestion-gate/ReviewQueueList').then(m => m.ReviewQueueList),
   {
     loading: () => <TableSkeleton rows={8} />,
     ssr: false,
@@ -127,7 +130,7 @@ export const LazyReviewQueueList = dynamic(
  * Size: ~213 lines
  */
 export const LazyEvidencePreview = dynamic(
-  () => import('@/components/ingestion-gate/EvidencePreviewEnhanced'),
+  () => import('@/components/ingestion-gate/EvidencePreviewEnhanced').then(m => m.EvidencePreviewEnhanced),
   {
     ssr: false,
   }
@@ -180,7 +183,7 @@ export function preloadReviewComponents() {
   if (typeof window !== 'undefined') {
     LazyReviewModal.preload?.();
     LazyBatchReviewModal.preload?.();
-    LazyReviewQueueTable.preload?.();
+    // Note: LazyReviewQueueTable uses dynamic() without preload support
   }
 }
 

@@ -183,7 +183,7 @@ export default function IngestionGateReviewPage() {
             onSelect={setSelectedReviewId}
             sortBy={sortBy}
             filters={filters}
-            onFiltersChange={setFilters}
+            onFiltersChange={(newFilters) => setFilters(prev => ({ ...prev, ...newFilters }))}
             selectedItems={selectedItems}
             onToggleSelect={(id) => {
               setSelectedItems((prev) =>

@@ -12,13 +12,13 @@
  */
 
 import dynamic from 'next/dynamic';
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 export interface DynamicOptions {
   /**
-   * Loading component to show while lazy component loads
+   * Loading function to show while lazy component loads
    */
-  loading?: ComponentType;
+  loading?: () => ReactNode;
 
   /**
    * Whether to render on server-side (default: false for lazy components)

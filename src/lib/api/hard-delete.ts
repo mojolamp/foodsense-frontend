@@ -43,9 +43,9 @@ export interface DeleteRequest {
   id: string;
   table_name: string;
   record_id: string;
-  requester_id: number; // BIGINT in database
+  requester_id: string; // UUID from Supabase auth
   requester_email: string;
-  approver_id: number | null; // BIGINT in database
+  approver_id: string | null; // UUID from Supabase auth
   approver_email: string | null;
   status: DeleteRequestStatus;
   reason: string;
@@ -214,9 +214,9 @@ export const ErrorCodes = {
  * Ensures requester and approver are different people
  */
 export function validateDualApproval(
-  requesterId: number,
+  requesterId: string,
   requesterEmail: string,
-  approverId: number,
+  approverId: string,
   approverEmail: string
 ): ValidationResult {
   // Email check (case-insensitive)
@@ -440,11 +440,11 @@ export async function createAuditLog(
   entityType: string,
   entityId: string,
   action: AuditAction,
-  requesterId: number,
+  requesterId: string,
   requesterEmail: string,
   status: AuditStatus,
   reason: string,
-  approverId?: number,
+  approverId?: string,
   approverEmail?: string,
   metadata?: Record<string, any>
 ): Promise<string> {

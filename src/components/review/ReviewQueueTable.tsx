@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import type { OCRRecord, PrioritySortStrategy } from '@/types/review'
 import { formatDistanceToNow } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
@@ -42,6 +42,28 @@ export default function ReviewQueueTable({
   onSortStrategyChange,
 }: Props) {
   const rowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map())
+
+  /**
+   * Row ref callback - 處理元素掛載和卸載
+   * 修復記憶體洩漏：當 el 為 null 時（元素卸載）從 Map 中移除
+   */
+  const setRowRef = useCallback((id: string, el: HTMLTableRowElement | null) => {
+    if (el) {
+      rowRefs.current.set(id, el)
+    } else {
+      rowRefs.current.delete(id)
+    }
+  }, [])
+
+  // 當 data 變更時，清理不再存在的 row refs
+  useEffect(() => {
+    const currentIds = new Set(data.map(r => r.id))
+    for (const id of rowRefs.current.keys()) {
+      if (!currentIds.has(id)) {
+        rowRefs.current.delete(id)
+      }
+    }
+  }, [data])
 
   const setSelectedIds = (next: Set<string>) => onSelectedIdsChange(next)
 
@@ -199,10 +221,7 @@ export default function ReviewQueueTable({
               return (
                 <TableRow
                   key={record.id}
-                  ref={(el) => {
-                    if (!el) return
-                    rowRefs.current.set(record.id, el)
-                  }}
+                  ref={(el) => setRowRef(record.id, el)}
                   data-testid={`review-queue-row-${idx}`}
                   data-record-id={record.id}
                   aria-selected={isActive}

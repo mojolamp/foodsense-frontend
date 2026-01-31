@@ -63,4 +63,39 @@ export const reviewAPI = {
   getTeamMetrics: () => {
     return apiClient.get<TeamMetrics>('/admin/review/metrics/team')
   },
+
+  // POST /admin/review/batch-submit (P1-1)
+  batchSubmitReviews: (data: {
+    reviews: Array<{
+      ocr_record_id: string
+      product_id?: number
+      corrected_payload?: Record<string, unknown>
+      data_quality_score?: number
+      confidence_score?: number
+      review_notes?: string
+      is_gold?: boolean
+    }>
+    template?: {
+      data_quality_score?: number
+      confidence_score?: number
+      is_gold?: boolean
+      review_notes?: string
+    }
+  }) => {
+    return apiClient.post<{
+      success: boolean
+      submitted: number
+      failed: number
+      total: number
+      results: Array<{
+        ocr_record_id: string
+        status: string
+        gt_id?: string
+      }>
+      errors: Array<{
+        ocr_record_id: string
+        error: string
+      }>
+    }>('/admin/review/batch-submit', data)
+  },
 }

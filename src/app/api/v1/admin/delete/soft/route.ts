@@ -17,7 +17,7 @@ import {
 export async function POST(request: NextRequest) {
   try {
     // Get current user
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,

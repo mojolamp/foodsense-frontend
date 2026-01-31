@@ -28,7 +28,7 @@ export async function authenticateRequest(
   request: NextRequest
 ): Promise<AuthResult> {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Check if createClient returned undefined (no session cookies)
     if (!supabase) {
@@ -109,7 +109,7 @@ export async function checkUserRole(
   allowedRoles: string[]
 ): Promise<{ authorized: boolean; userRole?: string; response?: NextResponse }> {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     if (!supabase) {
       return {

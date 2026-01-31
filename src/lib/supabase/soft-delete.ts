@@ -21,7 +21,7 @@
  * ```
  */
 
-import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
+// Note: Using 'any' type for query builders due to Supabase type changes
 
 /**
  * Tables that have soft_delete_enabled=true
@@ -77,8 +77,8 @@ export function isSoftDeleteEnabled(tableName: string): tableName is SoftDeleteE
  * ```
  */
 export function withoutSoftDeleted<T>(
-  query: PostgrestFilterBuilder<any, any, T>
-): PostgrestFilterBuilder<any, any, T> {
+  query: any
+): any {
   return query.is('soft_deleted_at', null);
 }
 
@@ -105,9 +105,9 @@ export function withoutSoftDeleted<T>(
  * ```
  */
 export function withSoftDeleteFilter<T>(
-  query: PostgrestFilterBuilder<any, any, T>,
+  query: any,
   includeDeleted: boolean = false
-): PostgrestFilterBuilder<any, any, T> {
+): any {
   return includeDeleted ? query : withoutSoftDeleted(query);
 }
 
@@ -127,8 +127,8 @@ export function withSoftDeleteFilter<T>(
  * ```
  */
 export function onlySoftDeleted<T>(
-  query: PostgrestFilterBuilder<any, any, T>
-): PostgrestFilterBuilder<any, any, T> {
+  query: any
+): any {
   return query.not('soft_deleted_at', 'is', null);
 }
 
@@ -148,8 +148,8 @@ export function onlySoftDeleted<T>(
  * ```
  */
 export function withAllRecords<T>(
-  query: PostgrestFilterBuilder<any, any, T>
-): PostgrestFilterBuilder<any, any, T> {
+  query: any
+): any {
   return query;
 }
 
@@ -200,9 +200,9 @@ export interface SoftDeleteOptions {
  * ```
  */
 export function applySoftDeleteFilter<T>(
-  query: PostgrestFilterBuilder<any, any, T>,
+  query: any,
   options: SoftDeleteOptions = {}
-): PostgrestFilterBuilder<any, any, T> {
+): any {
   const { includeDeleted = false, onlyDeleted = false } = options;
 
   if (onlyDeleted) {

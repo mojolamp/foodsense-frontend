@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Command } from 'cmdk'
 import { Search, FileText, CheckSquare, Star, Package, BookOpen, AlertCircle, BarChart3, Clock, Loader2 } from 'lucide-react'
@@ -33,8 +33,8 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
     }
   }, [open])
 
-  // 導航命令
-  const navigationCommands = [
+  // 導航命令 - memoized 避免每次渲染都重新建立物件
+  const navigationCommands = useMemo(() => [
     {
       icon: BarChart3,
       label: '前往儀表板',
@@ -83,7 +83,7 @@ export default function CommandPalette({ open, onOpenChange }: CommandPalettePro
       shortcut: 'g x',
       action: () => router.push('/data-quality')
     }
-  ]
+  ], [router])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

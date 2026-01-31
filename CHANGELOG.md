@@ -7,12 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-01-31
+
 ### Added
-- **Review Queue keyboard shortcuts (P0)** (behind feature flag)
-  - `n/p/r/x/a` on `/review/queue` (list layer)
-  - Input-focus guard to prevent accidental triggers
-  - Updated docs: `KEYBOARD_SHORTCUTS.md`
-  - Added unit tests (Vitest) and an optional Playwright spec
+
+#### P0 Critical Fixes
+- **Proper Error Types** (`src/hooks/useIngestionGate.ts`)
+  - Replaced all `error: any` with `error: unknown` + `getErrorMessage()` helper
+  - Type-safe error handling in all mutation callbacks
+
+- **Zod API Validation** (`src/lib/api/schemas/ingestionGate.ts`)
+  - Added comprehensive Zod schemas for API response validation
+  - `ReviewQueueItemSchema`, `EntitySuggestItemSchema`, `BulkResolveResponseSchema`
+  - `validateResponse()` utility for runtime type checking
+
+- **Proper Response Types** (`src/lib/api/endpoints/ingestionGate.ts`)
+  - Defined `ReviewQueueItem`, `EntitySuggestItem`, `BulkResolveResponse` interfaces
+  - Replaced all `<any>` generic parameters with proper types
+
+#### P1 Production-Ready Fixes
+- **Batch Operation Error Context** (`src/hooks/useIngestionGate.ts`)
+  - `useBulkResolve` and `useBulkApplyFix` now accumulate and report individual item errors
+  - Partial success displays detailed statistics (e.g., "成功 8 筆，失敗 2 筆")
+  - Error details logged to console for debugging
+
+- **CommandPalette Memoization** (`src/components/CommandPalette.tsx`)
+  - Wrapped `navigationCommands` array with `useMemo` to prevent recreation on every render
+  - Improves render performance when dialog is open
+
+- **ReviewQueueTable Memory Leak Fix** (`src/components/review/ReviewQueueTable.tsx`)
+  - Added `setRowRef` callback to handle element mount/unmount properly
+  - Refs are now cleaned up when rows are removed from the table
+  - Added `useEffect` to clean stale refs when `data` changes
+
+### Changed
+
+#### Code Quality Improvements
+- **Removed Duplicate Error Handling** (`src/components/ingestion-gate/BulkActions.tsx`)
+  - Removed redundant try-catch wrapper, using mutation callbacks instead
+  - Fixed `as any` radio type casts to type-safe setters
+
+- **Type-Safe Hard Delete** (`src/lib/api/hard-delete.ts`)
+  - Changed `requesterId/approverId` from `number` to `string` for Supabase UUID compatibility
+  - Updated tests accordingly
+
+- **JSX File Extension Fix** (`src/lib/lazy/dynamic-imports.tsx`)
+  - Renamed from `.ts` to `.tsx` for proper JSX support
+
+### Technical Debt Reduced
+- Removed 6 `any` types from hooks layer
+- Removed 8 untyped API response generics
+- Fixed 1 memory leak in table component
+- Added memoization to 1 frequently re-rendered component
 
 ## [3.0.0] - 2025-12-20
 

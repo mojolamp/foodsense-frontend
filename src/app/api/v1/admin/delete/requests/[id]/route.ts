@@ -17,11 +17,14 @@ import {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Next.js 15: 動態路由參數需要 await
+    const { id } = await params;
+
     // Get current user
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -53,10 +56,10 @@ export async function GET(
     }
 
     // Get delete request
-    const deleteRequest = await getDeleteRequest(params.id);
+    const deleteRequest = await getDeleteRequest(id);
 
     // Get audit trail
-    const auditTrail = await getOperationAuditTrail(params.id);
+    const auditTrail = await getOperationAuditTrail(id);
 
     // Check if token is still valid
     const now = new Date();

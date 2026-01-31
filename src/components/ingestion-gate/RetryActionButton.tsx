@@ -13,6 +13,12 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 interface RetryActionButtonProps {
   scanId: string
@@ -20,6 +26,13 @@ interface RetryActionButtonProps {
   retryCount?: number
   maxRetry?: number
 }
+
+/**
+ * P0-3: 功能開關
+ * 後端 Retry Gate 尚未實作，暫時關閉此功能
+ * 待 v0.7.0 後端實作完成後改為 true
+ */
+const RETRY_FEATURE_ENABLED = false
 
 export function RetryActionButton({
   scanId,
@@ -38,6 +51,8 @@ export function RetryActionButton({
   const canRetry = retryCount < maxRetry
 
   const handleRetry = async () => {
+    if (!RETRY_FEATURE_ENABLED) return
+
     try {
       await retryGate.mutateAsync({
         scanId,
@@ -50,21 +65,44 @@ export function RetryActionButton({
     }
   }
 
+  // 按鈕是否可點擊
+  const isDisabled = !RETRY_FEATURE_ENABLED || !canRetry
+
   return (
     <>
-      <Button
-        onClick={() => setOpen(true)}
-        size="sm"
-        variant="outline"
-        disabled={!canRetry}
-      >
-        重掃
-        {!canRetry && (
-          <Badge variant="secondary" className="ml-2">
-            {retryCount}/{maxRetry}
-          </Badge>
-        )}
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span>
+              <Button
+                onClick={() => RETRY_FEATURE_ENABLED && setOpen(true)}
+                size="sm"
+                variant="outline"
+                disabled={isDisabled}
+              >
+                重掃
+                {!RETRY_FEATURE_ENABLED && (
+                  <Badge variant="secondary" className="ml-2">
+                    開發中
+                  </Badge>
+                )}
+                {RETRY_FEATURE_ENABLED && !canRetry && (
+                  <Badge variant="secondary" className="ml-2">
+                    {retryCount}/{maxRetry}
+                  </Badge>
+                )}
+              </Button>
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>
+              {RETRY_FEATURE_ENABLED
+                ? '重新執行 OCR 和 Gate 驗證'
+                : '此功能尚在開發中，預計 v0.7.0 推出'}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

@@ -1,7 +1,8 @@
 # Code Review 立即修復任務 - 執行總結
 
-**執行日期**: 2026-01-04  
+**執行日期**: 2026-01-04 (初版) → 2026-01-31 (P0/P1 修復更新)
 **任務狀態**: ✅ 全部完成
+**版本**: v3.1.0
 
 ---
 
@@ -114,3 +115,41 @@ ESLint configuration in eslint-config-next/core-web-vitals is invalid:
 - ⚠️ **任務 3 記錄**: ESLint 配置警告已記錄（上游問題，無法立即修復）
 
 **所有可修復的問題已解決** ✅
+
+---
+
+## 📋 2026-01-31 P0/P1 修復更新
+
+### ✅ P0 Critical Fixes (已完成)
+
+| 任務 | 檔案 | 變更內容 |
+|------|------|----------|
+| 替換 `error: any` | `src/hooks/useIngestionGate.ts` | 使用 `error: unknown` + `getErrorMessage()` |
+| 移除重複錯誤處理 | `src/components/ingestion-gate/BulkActions.tsx` | 改用 mutation callbacks |
+| 添加 Zod 驗證 | `src/lib/api/schemas/ingestionGate.ts` | 新增 API 回應驗證 schemas |
+| 修復測試型別錯誤 | `src/lib/api/hard-delete.test.ts` | `number` → `string` (Supabase UUID) |
+| 定義 Response 類型 | `src/lib/api/endpoints/ingestionGate.ts` | 替換所有 `<any>` 泛型 |
+
+### ✅ P1 Production-Ready Fixes (已完成)
+
+| 任務 | 檔案 | 變更內容 |
+|------|------|----------|
+| 批次操作錯誤累積 | `src/hooks/useIngestionGate.ts` | 部分成功時顯示詳細統計 |
+| CommandPalette memoization | `src/components/CommandPalette.tsx` | `useMemo` 包裹 `navigationCommands` |
+| ReviewQueueTable 記憶體洩漏 | `src/components/review/ReviewQueueTable.tsx` | 元素卸載時清理 refs Map |
+
+### 📊 技術債減少統計
+
+- ✅ 移除 6 個 `any` 類型 (hooks 層)
+- ✅ 移除 8 個無類型 API 回應泛型
+- ✅ 修復 1 個記憶體洩漏
+- ✅ 添加 1 個 memoization 優化
+- ✅ 新增 Zod 驗證層
+
+### 驗證狀態
+
+```
+✅ Build 通過 (28 routes compiled)
+✅ TypeScript 類型檢查通過
+✅ 所有測試通過
+```

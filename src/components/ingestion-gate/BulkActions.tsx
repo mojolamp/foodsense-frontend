@@ -48,36 +48,34 @@ export function BulkActions({ selectedItems, items, onSuccess }: BulkActionsProp
     return ruleIds.size === 1
   }
 
-  const handleBulkAction = async () => {
-    try {
-      if (action === 'resolve') {
-        await bulkResolve.mutateAsync({
-          reviewIds: selectedItems,
-          status: 'RESOLVED',
-        })
-      } else {
-        const fixableFindings = selectedItemsData
-          .flatMap((item) => item.ui_payload.findings)
-          .filter((f) => f.actionability === 'ONE_CLICK_FIX')
-        
-        if (fixableFindings.length > 0) {
-          const ruleId = fixableFindings[0].rule_id
-          const patch = fixableFindings[0].suggested_patch
-          
-          await bulkApplyFix.mutateAsync({
-            reviewIds: selectedItems,
-            ruleId,
-            patch,
-          })
-        }
+  const handleBulkAction = () => {
+    // 錯誤由 mutation 的 onError 統一處理，避免重複 error handling
+    const mutationCallbacks = {
+      onSuccess: () => {
+        setOpen(false)
+        onSuccess?.()
+      },
+    }
+
+    if (action === 'resolve') {
+      bulkResolve.mutate(
+        { reviewIds: selectedItems, status: 'RESOLVED' },
+        mutationCallbacks
+      )
+    } else {
+      const fixableFindings = selectedItemsData
+        .flatMap((item) => item.ui_payload.findings)
+        .filter((f) => f.actionability === 'ONE_CLICK_FIX')
+
+      if (fixableFindings.length > 0) {
+        const ruleId = fixableFindings[0].rule_id
+        const patch = fixableFindings[0].suggested_patch
+
+        bulkApplyFix.mutate(
+          { reviewIds: selectedItems, ruleId, patch },
+          mutationCallbacks
+        )
       }
-      
-      setOpen(false)
-      if (onSuccess) {
-        onSuccess()
-      }
-    } catch (error) {
-      console.error('Bulk action failed:', error)
     }
   }
 
@@ -110,7 +108,7 @@ export function BulkActions({ selectedItems, items, onSuccess }: BulkActionsProp
                     type="radio"
                     value="resolve"
                     checked={action === 'resolve'}
-                    onChange={(e) => setAction(e.target.value as any)}
+                    onChange={() => setAction('resolve')}
                   />
                   <span>標記為已解決</span>
                 </label>
@@ -120,7 +118,7 @@ export function BulkActions({ selectedItems, items, onSuccess }: BulkActionsProp
                       type="radio"
                       value="apply_fix"
                       checked={action === 'apply_fix'}
-                      onChange={(e) => setAction(e.target.value as any)}
+                      onChange={() => setAction('apply_fix')}
                     />
                     <span>批次套用修正（同一規則）</span>
                   </label>
