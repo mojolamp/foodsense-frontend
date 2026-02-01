@@ -7,20 +7,31 @@
  * - Token security
  * - Safety checks
  * - Audit trail
+ *
+ * NOTE: These tests require Supabase environment variables:
+ * - NEXT_PUBLIC_SUPABASE_URL
+ * - SUPABASE_SERVICE_ROLE_KEY
+ *
+ * Tests will be skipped if env vars are not set.
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { createClient } from '@supabase/supabase-js';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Test configuration
-const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
-const TEST_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const TEST_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const TEST_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const TEST_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+// Check if integration tests should run
+const SKIP_INTEGRATION_TESTS = !TEST_SUPABASE_URL || !TEST_SERVICE_ROLE_KEY;
 
 // Create Supabase client with service role (bypasses RLS for testing)
-const supabase = createClient(TEST_SUPABASE_URL, TEST_SERVICE_ROLE_KEY);
+let supabase: SupabaseClient | null = null;
+if (!SKIP_INTEGRATION_TESTS) {
+  supabase = createClient(TEST_SUPABASE_URL, TEST_SERVICE_ROLE_KEY);
+}
 
-describe('E-T7 Hard Delete Integration Tests', () => {
+describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', () => {
   let testUserId: string;
   let testProductId: string;
   let superAdminUser1: any;

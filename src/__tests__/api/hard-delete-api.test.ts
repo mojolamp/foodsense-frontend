@@ -3,20 +3,32 @@
  * Tests all 5 API endpoints for hard delete feature
  *
  * @module __tests__/api/hard-delete-api.test
+ *
+ * NOTE: These tests require Supabase environment variables:
+ * - NEXT_PUBLIC_SUPABASE_URL
+ * - SUPABASE_SERVICE_ROLE_KEY
+ *
+ * Tests will be skipped if env vars are not set.
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Test configuration
-const TEST_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const TEST_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const TEST_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const TEST_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-// Create Supabase client
-const supabase = createClient(TEST_SUPABASE_URL, TEST_SERVICE_ROLE_KEY);
+// Check if integration tests should run
+const SKIP_INTEGRATION_TESTS = !TEST_SUPABASE_URL || !TEST_SERVICE_ROLE_KEY;
 
-describe('E-T7 API Integration Tests', () => {
+// Create Supabase client only if env vars exist
+let supabase: SupabaseClient | null = null;
+if (!SKIP_INTEGRATION_TESTS) {
+  supabase = createClient(TEST_SUPABASE_URL, TEST_SERVICE_ROLE_KEY);
+}
+
+describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
   let testProductId: string;
   let superAdminUser1: any;
   let superAdminUser2: any;
