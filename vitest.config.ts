@@ -31,15 +31,6 @@ export default defineConfig({
         'src/app/**/*',
       ],
     },
-    // 優化記憶體使用
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
-    // 限制並行執行
-    maxConcurrency: 1,
     // 設置測試超時
     testTimeout: 30000,
   },
