@@ -60,7 +60,7 @@ describe('EmptyState', () => {
   })
 
   it('沒有 action 時不應該顯示 action 區塊', () => {
-    const { container } = render(<EmptyState title="Empty" />)
+    render(<EmptyState title="Empty" />)
 
     // 確認沒有按鈕
     expect(screen.queryByRole('button')).not.toBeInTheDocument()

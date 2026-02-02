@@ -17,7 +17,7 @@ vi.mock('next/navigation', () => ({
 const hotkeyHandlers: Record<string, (e: KeyboardEvent) => void> = {}
 
 vi.mock('react-hotkeys-hook', () => ({
-  useHotkeys: (keys: string, handler: (e: KeyboardEvent) => void, options?: { enableOnFormTags?: boolean }) => {
+  useHotkeys: (keys: string, handler: (e: KeyboardEvent) => void, _options?: { enableOnFormTags?: boolean }) => {
     hotkeyHandlers[keys] = handler
   },
 }))

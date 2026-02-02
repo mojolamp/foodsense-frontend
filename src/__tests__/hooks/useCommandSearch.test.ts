@@ -3,7 +3,7 @@
  *
  * 測試搜尋功能與歷史記錄管理
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useSearchHistory } from '@/hooks/useCommandSearch'
 

@@ -11,7 +11,6 @@ const mockData: QualityOverview = {
   tier_a_count: 80,
   tier_b_count: 50,
   tier_c_count: 20,
-  total_products: 300,
   avg_source_support: 3.5,
   ingredient_coverage_rate: 0.85,
   recent_rules_count: 12,
