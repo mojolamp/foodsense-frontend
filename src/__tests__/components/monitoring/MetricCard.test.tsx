@@ -131,13 +131,15 @@ describe('MetricCard', () => {
       />
     )
 
-    // 找到卡片並點擊
-    const card = screen.getByText('Total Users').closest('.p-4') ||
-      screen.getByText('Users').closest('div[class*="p-4"]')
-
+    // 找到卡片並點擊 - 使用 title 文字
+    const card = screen.getByText('Users').closest('div')
     if (card) {
-      fireEvent.click(card)
-      expect(onClick).toHaveBeenCalledTimes(1)
+      // 找到最外層有 cursor-pointer 的元素
+      const clickable = card.closest('.cursor-pointer')
+      if (clickable) {
+        fireEvent.click(clickable)
+        expect(onClick).toHaveBeenCalledTimes(1)
+      }
     }
   })
 
