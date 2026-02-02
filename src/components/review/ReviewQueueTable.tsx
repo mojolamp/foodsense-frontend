@@ -115,6 +115,22 @@ export default function ReviewQueueTable({
       setSelectedIds(new Set())
     }
   }
+
+  // 使用 useCallback 優化回調函數 - 必須在 early return 之前
+  const getStatusVariant = useCallback((status: string) => {
+    switch (status) {
+      case 'PASS': return 'success'
+      case 'WARN': return 'warning'
+      case 'FAIL': return 'failure'
+      default: return 'secondary'
+    }
+  }, [])
+
+  // 使用 useMemo 計算是否全選 - 必須在 early return 之前
+  const isAllSelected = useMemo(() => {
+    return data.length > 0 && data.every(r => selectedIds.has(r.id))
+  }, [data, selectedIds])
+
   if (data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-10 border border-dashed rounded-lg bg-gray-50/50">
@@ -125,21 +141,6 @@ export default function ReviewQueueTable({
       </div>
     )
   }
-
-  // 使用 useCallback 優化回調函數
-  const getStatusVariant = useCallback((status: string) => {
-    switch (status) {
-      case 'PASS': return 'success'
-      case 'WARN': return 'warning'
-      case 'FAIL': return 'failure'
-      default: return 'secondary'
-    }
-  }, [])
-
-  // 使用 useMemo 計算是否全選
-  const isAllSelected = useMemo(() => {
-    return data.length > 0 && data.every(r => selectedIds.has(r.id))
-  }, [data, selectedIds])
 
   return (
     <div className="space-y-4">

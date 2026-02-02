@@ -121,70 +121,62 @@ export function useReviewQueueShortcuts(params: ReviewQueueShortcutsParams) {
   )
 
   // === ENHANCED HOTKEYS (vim-style J/K navigation) ===
+  // All hooks are always called, but handlers check feature flag internally
 
-  if (enhancedHotkeysEnabled) {
-    // j - Next record (vim-style)
-    useHotkeys(
-      'j',
-      (e) => {
-        if (shouldIgnore()) return
-        e.preventDefault()
-        if (count <= 0) return
-        setActiveIndex(Math.min(count - 1, Math.max(0, activeIndex + 1)))
-      },
-      { enableOnFormTags: false }
-    )
+  // j - Next record (vim-style)
+  useHotkeys(
+    'j',
+    (e) => {
+      if (!enhancedHotkeysEnabled || shouldIgnore()) return
+      e.preventDefault()
+      if (count <= 0) return
+      setActiveIndex(Math.min(count - 1, Math.max(0, activeIndex + 1)))
+    },
+    { enableOnFormTags: false }
+  )
 
-    // k - Previous record (vim-style)
-    useHotkeys(
-      'k',
-      (e) => {
-        if (shouldIgnore()) return
-        e.preventDefault()
-        if (count <= 0) return
-        setActiveIndex(Math.max(0, activeIndex - 1))
-      },
-      { enableOnFormTags: false }
-    )
+  // k - Previous record (vim-style)
+  useHotkeys(
+    'k',
+    (e) => {
+      if (!enhancedHotkeysEnabled || shouldIgnore()) return
+      e.preventDefault()
+      if (count <= 0) return
+      setActiveIndex(Math.max(0, activeIndex - 1))
+    },
+    { enableOnFormTags: false }
+  )
 
-    // i - Inspect product details
-    if (onInspect) {
-      useHotkeys(
-        'i',
-        (e) => {
-          if (shouldIgnore()) return
-          e.preventDefault()
-          onInspect()
-        },
-        { enableOnFormTags: false }
-      )
-    }
+  // i - Inspect product details
+  useHotkeys(
+    'i',
+    (e) => {
+      if (!enhancedHotkeysEnabled || !onInspect || shouldIgnore()) return
+      e.preventDefault()
+      onInspect()
+    },
+    { enableOnFormTags: false }
+  )
 
-    // f - Flag for manual review
-    if (onFlag) {
-      useHotkeys(
-        'f',
-        (e) => {
-          if (shouldIgnore()) return
-          e.preventDefault()
-          onFlag()
-        },
-        { enableOnFormTags: false }
-      )
-    }
+  // f - Flag for manual review
+  useHotkeys(
+    'f',
+    (e) => {
+      if (!enhancedHotkeysEnabled || !onFlag || shouldIgnore()) return
+      e.preventDefault()
+      onFlag()
+    },
+    { enableOnFormTags: false }
+  )
 
-    // ? - Show keyboard shortcuts help
-    if (onShowHelp) {
-      useHotkeys(
-        'shift+/',
-        (e) => {
-          if (shouldIgnore()) return
-          e.preventDefault()
-          onShowHelp()
-        },
-        { enableOnFormTags: false }
-      )
-    }
-  }
+  // ? - Show keyboard shortcuts help
+  useHotkeys(
+    'shift+/',
+    (e) => {
+      if (!enhancedHotkeysEnabled || !onShowHelp || shouldIgnore()) return
+      e.preventDefault()
+      onShowHelp()
+    },
+    { enableOnFormTags: false }
+  )
 }
-

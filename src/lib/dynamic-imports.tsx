@@ -172,9 +172,9 @@ export function prefetchRoute(href: string) {
  * const chart = await loadRecharts();
  * ```
  */
-export async function lazyLibrary<T = any>(libraryName: string): Promise<T> {
-  const module = await import(libraryName);
-  return module.default || module;
+export async function lazyLibrary<T = unknown>(libraryName: string): Promise<T> {
+  const imported = await import(libraryName);
+  return imported.default || imported;
 }
 
 /**

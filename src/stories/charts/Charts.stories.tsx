@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import LineChartWrapper from '@/components/charts/LineChartWrapper'
 import BarChartWrapper from '@/components/charts/BarChartWrapper'
 import PieChartWrapper from '@/components/charts/PieChartWrapper'

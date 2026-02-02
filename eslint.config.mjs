@@ -1,46 +1,102 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import js from "@eslint/js";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+import reactPlugin from "eslint-plugin-react";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
+import nextPlugin from "@next/eslint-plugin-next";
 import storybook from "eslint-plugin-storybook";
 
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [...compat.extends("next/core-web-vitals", "next/typescript"), {
-  rules: {
-    // TypeScript 嚴格規則
-    "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/no-unused-vars": ["warn", {
-      argsIgnorePattern: "^_",
-      varsIgnorePattern: "^_"
-    }],
-
-    // React Hooks 規則
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
-
-    // React 最佳實踐
-    "react/no-unescaped-entities": "off",
-
-    // 一般程式碼品質
-    "no-console": ["warn", { allow: ["warn", "error"] }],
-    "prefer-const": "error",
-    "no-var": "error",
+/** @type {import('eslint').Linter.Config[]} */
+const eslintConfig = [
+  // Global ignore patterns - MUST be first
+  {
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "coverage/**",
+      "playwright-report/**",
+      "storybook-static/**",
+      "*.config.js",
+      "*.config.mjs",
+      "*.config.ts",
+      ".storybook/**",
+      "next-env.d.ts",
+      "public/**",
+    ],
   },
-}, {
-  ignores: [
-    ".next/**",
-    "node_modules/**",
-    "*.config.js",
-    "*.config.mjs",
-    "*.config.ts",
-  ],
-}, ...storybook.configs["flat/recommended"]];
+
+  // Base JS recommended rules
+  js.configs.recommended,
+
+  // TypeScript support
+  ...tseslint.configs.recommended,
+
+  // React configuration
+  {
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    plugins: {
+      react: reactPlugin,
+      "react-hooks": reactHooksPlugin,
+      "@next/next": nextPlugin,
+    },
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        React: "readonly",
+      },
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
+    rules: {
+      // Next.js rules
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
+
+      // TypeScript rules
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
+
+      // React Hooks rules
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
+
+      // React best practices
+      "react/no-unescaped-entities": "off",
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+
+      // General code quality
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "prefer-const": "error",
+      "no-var": "error",
+    },
+  },
+
+  // Disable triple-slash rule for declaration files
+  {
+    files: ["**/*.d.ts"],
+    rules: {
+      "@typescript-eslint/triple-slash-reference": "off",
+    },
+  },
+
+  // Storybook configuration
+  ...storybook.configs["flat/recommended"],
+];
 
 export default eslintConfig;
