@@ -32,14 +32,18 @@ if (!SKIP_INTEGRATION_TESTS) {
 }
 
 describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', () => {
-  let testUserId: string;
+  let _testUserId: string;
   let testProductId: string;
   let superAdminUser1: any;
   let superAdminUser2: any;
 
+  // Non-null assertion: supabase is guaranteed to exist when tests run
+  // (tests are skipped if SKIP_INTEGRATION_TESTS is true)
+  const getSupabase = () => supabase!;
+
   beforeAll(async () => {
     // Create test users with profile_json structure
-    const { data: admin1, error: error1 } = await supabase
+    const { data: admin1, error: error1 } = await getSupabase()
       .from('users')
       .insert({
         profile_json: {
@@ -51,7 +55,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       .select()
       .single();
 
-    const { data: admin2, error: error2 } = await supabase
+    const { data: admin2, error: error2 } = await getSupabase()
       .from('users')
       .insert({
         profile_json: {
@@ -82,7 +86,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
     };
 
     // Create test product with required fields
-    const { data: product, error: productError } = await supabase
+    const { data: product, error: productError } = await getSupabase()
       .from('mcp_products')
       .insert({
         name: 'Test Product for E-T7',
@@ -105,19 +109,19 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
   afterAll(async () => {
     // Clean up test data
     if (testProductId) {
-      await supabase.from('mcp_products').delete().eq('id', testProductId);
+      await getSupabase().from('mcp_products').delete().eq('id', testProductId);
     }
 
     if (superAdminUser1?.id) {
-      await supabase.from('users').delete().eq('id', superAdminUser1.id);
+      await getSupabase().from('users').delete().eq('id', superAdminUser1.id);
     }
 
     if (superAdminUser2?.id) {
-      await supabase.from('users').delete().eq('id', superAdminUser2.id);
+      await getSupabase().from('users').delete().eq('id', superAdminUser2.id);
     }
 
     // Clean up test delete requests
-    await supabase
+    await getSupabase()
       .from('delete_requests')
       .delete()
       .or(
@@ -125,13 +129,13 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       );
 
     // Clean up test audit logs
-    await supabase.from('audit_logs').delete().eq('entity_id', testProductId);
+    await getSupabase().from('audit_logs').delete().eq('entity_id', testProductId);
   });
 
   describe('Complete Dual Approval Workflow', () => {
     it('should execute full hard delete workflow with dual approval', async () => {
       // Step 1: Soft delete the test product
-      const { error: softDeleteError } = await supabase
+      const { error: softDeleteError } = await getSupabase()
         .from('mcp_products')
         .update({ soft_deleted_at: new Date().toISOString() })
         .eq('id', testProductId);
@@ -142,7 +146,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       const twentyFourHoursAgo = new Date();
       twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 25);
 
-      await supabase
+      await getSupabase()
         .from('mcp_products')
         .update({ soft_deleted_at: twentyFourHoursAgo.toISOString() })
         .eq('id', testProductId);
@@ -152,7 +156,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 48);
 
-      const { data: deleteRequest, error: requestError } = await supabase
+      const { data: deleteRequest, error: requestError } = await getSupabase()
         .from('delete_requests')
         .insert({
           table_name: 'mcp_products',
@@ -172,7 +176,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       expect(deleteRequest.status).toBe('pending_approval');
 
       // Step 3: Create audit log for request
-      await supabase.from('audit_logs').insert({
+      await getSupabase().from('audit_logs').insert({
         operation_id: deleteRequest.id,
         entity_type: 'mcp_products',
         entity_id: testProductId,
@@ -187,7 +191,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       // Note: Database doesn't enforce this, application layer does
 
       // Step 5: Approve with different user
-      const { error: approvalError } = await supabase
+      const { error: approvalError } = await getSupabase()
         .from('delete_requests')
         .update({
           status: 'approved',
@@ -200,7 +204,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       expect(approvalError).toBeNull();
 
       // Create approval audit log
-      await supabase.from('audit_logs').insert({
+      await getSupabase().from('audit_logs').insert({
         operation_id: deleteRequest.id,
         entity_type: 'mcp_products',
         entity_id: testProductId,
@@ -214,7 +218,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       });
 
       // Step 6: Execute hard delete
-      const { error: hardDeleteError } = await supabase
+      const { error: hardDeleteError } = await getSupabase()
         .from('mcp_products')
         .delete()
         .eq('id', testProductId)
@@ -223,7 +227,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       expect(hardDeleteError).toBeNull();
 
       // Update request status
-      await supabase
+      await getSupabase()
         .from('delete_requests')
         .update({
           status: 'executed',
@@ -232,7 +236,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
         .eq('id', deleteRequest.id);
 
       // Create execution audit log
-      await supabase.from('audit_logs').insert({
+      await getSupabase().from('audit_logs').insert({
         operation_id: deleteRequest.id,
         entity_type: 'mcp_products',
         entity_id: testProductId,
@@ -246,7 +250,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       });
 
       // Step 7: Verify product is deleted
-      const { data: deletedProduct } = await supabase
+      const { data: deletedProduct } = await getSupabase()
         .from('mcp_products')
         .select('*')
         .eq('id', testProductId)
@@ -255,27 +259,28 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       expect(deletedProduct).toBeNull();
 
       // Step 8: Verify audit trail
-      const { data: auditTrail } = await supabase
+      const { data: auditTrail } = await getSupabase()
         .from('audit_logs')
         .select('*')
         .eq('operation_id', deleteRequest.id)
         .order('timestamp', { ascending: true });
 
+      expect(auditTrail).not.toBeNull();
       expect(auditTrail).toHaveLength(3);
-      expect(auditTrail[0].action).toBe('hard_delete_requested');
-      expect(auditTrail[1].action).toBe('hard_delete_approved');
-      expect(auditTrail[2].action).toBe('hard_delete_executed');
+      expect(auditTrail![0].action).toBe('hard_delete_requested');
+      expect(auditTrail![1].action).toBe('hard_delete_approved');
+      expect(auditTrail![2].action).toBe('hard_delete_executed');
 
       // Verify dual approval in audit trail
-      expect(auditTrail[0].requester_id).not.toBe(auditTrail[1].approver_id);
-      expect(auditTrail[0].requester_email).not.toBe(auditTrail[1].approver_email);
+      expect(auditTrail![0].requester_id).not.toBe(auditTrail![1].approver_id);
+      expect(auditTrail![0].requester_email).not.toBe(auditTrail![1].approver_email);
     });
   });
 
   describe('Security Enforcement', () => {
     it('should enforce 24-hour cooling period', async () => {
       // Create a new test product
-      const { data: product } = await supabase
+      const { data: product } = await getSupabase()
         .from('mcp_products')
         .insert({
           name: 'Test Product for Cooling Period',
@@ -288,31 +293,32 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
         .single();
 
       // Soft delete it NOW (not 24 hours ago)
-      await supabase
+      await getSupabase()
         .from('mcp_products')
         .update({ soft_deleted_at: new Date().toISOString() })
         .eq('id', product.id);
 
       // Try to create hard delete request (application should check cooling period)
-      const { data: softDeletedProduct } = await supabase
+      const { data: softDeletedProduct } = await getSupabase()
         .from('mcp_products')
         .select('soft_deleted_at')
         .eq('id', product.id)
         .single();
 
-      const deletedAt = new Date(softDeletedProduct.soft_deleted_at);
+      expect(softDeletedProduct).not.toBeNull();
+      const deletedAt = new Date(softDeletedProduct!.soft_deleted_at);
       const now = new Date();
       const hoursSinceDelete = (now.getTime() - deletedAt.getTime()) / (1000 * 60 * 60);
 
       expect(hoursSinceDelete).toBeLessThan(24);
 
       // Clean up
-      await supabase.from('mcp_products').delete().eq('id', product.id);
+      await getSupabase().from('mcp_products').delete().eq('id', product.id);
     });
 
     it('should prevent duplicate pending requests', async () => {
       // Create test product
-      const { data: product } = await supabase
+      const { data: product } = await getSupabase()
         .from('mcp_products')
         .insert({
           name: 'Test Product for Duplicate Check',
@@ -328,13 +334,13 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       const twentyFourHoursAgo = new Date();
       twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 25);
 
-      await supabase
+      await getSupabase()
         .from('mcp_products')
         .update({ soft_deleted_at: twentyFourHoursAgo.toISOString() })
         .eq('id', product.id);
 
       // Create first request
-      const { data: request1 } = await supabase
+      const { data: request1 } = await getSupabase()
         .from('delete_requests')
         .insert({
           table_name: 'mcp_products',
@@ -352,7 +358,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       expect(request1).toBeTruthy();
 
       // Check for existing pending request
-      const { data: existingRequest } = await supabase
+      const { data: existingRequest } = await getSupabase()
         .from('delete_requests')
         .select('id')
         .eq('table_name', 'mcp_products')
@@ -361,18 +367,18 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
         .single();
 
       expect(existingRequest).toBeTruthy();
-      expect(existingRequest.id).toBe(request1.id);
+      expect(existingRequest!.id).toBe(request1.id);
 
       // Application should prevent creating second request
 
       // Clean up
-      await supabase.from('delete_requests').delete().eq('id', request1.id);
-      await supabase.from('mcp_products').delete().eq('id', product.id);
+      await getSupabase().from('delete_requests').delete().eq('id', request1.id);
+      await getSupabase().from('mcp_products').delete().eq('id', product.id);
     });
 
     it('should enforce token expiry', async () => {
       // Create expired request
-      const { data: expiredRequest } = await supabase
+      const { data: expiredRequest } = await getSupabase()
         .from('delete_requests')
         .insert({
           table_name: 'mcp_products',
@@ -396,14 +402,14 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       // Application should reject approval with expired token
 
       // Clean up
-      await supabase.from('delete_requests').delete().eq('id', expiredRequest.id);
+      await getSupabase().from('delete_requests').delete().eq('id', expiredRequest.id);
     });
   });
 
   describe('Audit Trail Verification', () => {
     it('should create complete audit trail for rejection', async () => {
       // Create test product
-      const { data: product } = await supabase
+      const { data: product } = await getSupabase()
         .from('mcp_products')
         .insert({
           name: 'Test Product for Rejection',
@@ -419,13 +425,13 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       const twentyFourHoursAgo = new Date();
       twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 25);
 
-      await supabase
+      await getSupabase()
         .from('mcp_products')
         .update({ soft_deleted_at: twentyFourHoursAgo.toISOString() })
         .eq('id', product.id);
 
       // Create request
-      const { data: deleteRequest } = await supabase
+      const { data: deleteRequest } = await getSupabase()
         .from('delete_requests')
         .insert({
           table_name: 'mcp_products',
@@ -441,7 +447,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
         .single();
 
       // Create request audit log
-      await supabase.from('audit_logs').insert({
+      await getSupabase().from('audit_logs').insert({
         operation_id: deleteRequest.id,
         entity_type: 'mcp_products',
         entity_id: product.id,
@@ -453,7 +459,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       });
 
       // Reject
-      await supabase
+      await getSupabase()
         .from('delete_requests')
         .update({
           status: 'rejected',
@@ -464,7 +470,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
         .eq('id', deleteRequest.id);
 
       // Create rejection audit log
-      await supabase.from('audit_logs').insert({
+      await getSupabase().from('audit_logs').insert({
         operation_id: deleteRequest.id,
         entity_type: 'mcp_products',
         entity_id: product.id,
@@ -481,19 +487,20 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       });
 
       // Verify audit trail
-      const { data: auditTrail } = await supabase
+      const { data: auditTrail } = await getSupabase()
         .from('audit_logs')
         .select('*')
         .eq('operation_id', deleteRequest.id)
         .order('timestamp', { ascending: true });
 
+      expect(auditTrail).not.toBeNull();
       expect(auditTrail).toHaveLength(2);
-      expect(auditTrail[0].action).toBe('hard_delete_requested');
-      expect(auditTrail[1].action).toBe('hard_delete_rejected');
-      expect(auditTrail[1].approver_email).toBe(superAdminUser2.email);
+      expect(auditTrail![0].action).toBe('hard_delete_requested');
+      expect(auditTrail![1].action).toBe('hard_delete_rejected');
+      expect(auditTrail![1].approver_email).toBe(superAdminUser2.email);
 
       // Product should still exist
-      const { data: stillExists } = await supabase
+      const { data: stillExists } = await getSupabase()
         .from('mcp_products')
         .select('*')
         .eq('id', product.id)
@@ -502,16 +509,16 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
       expect(stillExists).toBeTruthy();
 
       // Clean up
-      await supabase.from('delete_requests').delete().eq('id', deleteRequest.id);
-      await supabase.from('audit_logs').delete().eq('operation_id', deleteRequest.id);
-      await supabase.from('mcp_products').delete().eq('id', product.id);
+      await getSupabase().from('delete_requests').delete().eq('id', deleteRequest.id);
+      await getSupabase().from('audit_logs').delete().eq('operation_id', deleteRequest.id);
+      await getSupabase().from('mcp_products').delete().eq('id', product.id);
     });
   });
 
   describe('RLS Policy Enforcement', () => {
     it('should allow super-admins to view delete requests', async () => {
       // Create test request
-      const { data: deleteRequest } = await supabase
+      const { data: deleteRequest } = await getSupabase()
         .from('delete_requests')
         .insert({
           table_name: 'users',
@@ -527,16 +534,16 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 Hard Delete Integration Tests', ()
         .single();
 
       // Query as super-admin (service role bypasses RLS in tests)
-      const { data: requests } = await supabase
+      const { data: requests } = await getSupabase()
         .from('delete_requests')
         .select('*')
         .eq('id', deleteRequest.id);
 
       expect(requests).toBeTruthy();
-      expect(requests.length).toBeGreaterThan(0);
+      expect(requests!.length).toBeGreaterThan(0);
 
       // Clean up
-      await supabase.from('delete_requests').delete().eq('id', deleteRequest.id);
+      await getSupabase().from('delete_requests').delete().eq('id', deleteRequest.id);
     });
   });
 });

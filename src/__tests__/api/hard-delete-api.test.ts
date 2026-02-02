@@ -35,9 +35,13 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
   let deleteRequestId: string;
   let approvalToken: string;
 
+  // Non-null assertion: supabase is guaranteed to exist when tests run
+  // (tests are skipped if SKIP_INTEGRATION_TESTS is true)
+  const getSupabase = () => supabase!;
+
   beforeAll(async () => {
     // Create test users
-    const { data: admin1, error: error1 } = await supabase
+    const { data: admin1, error: error1 } = await getSupabase()
       .from('users')
       .insert({
         profile_json: {
@@ -49,7 +53,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
       .select()
       .single();
 
-    const { data: admin2, error: error2 } = await supabase
+    const { data: admin2, error: error2 } = await getSupabase()
       .from('users')
       .insert({
         profile_json: {
@@ -75,7 +79,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
     };
 
     // Create test product
-    const { data: product, error: productError } = await supabase
+    const { data: product, error: productError } = await getSupabase()
       .from('mcp_products')
       .insert({
         name: 'API Test Product',
@@ -97,16 +101,16 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
   afterAll(async () => {
     // Clean up
     if (testProductId) {
-      await supabase.from('mcp_products').delete().eq('id', testProductId);
+      await getSupabase().from('mcp_products').delete().eq('id', testProductId);
     }
     if (superAdminUser1?.id) {
-      await supabase.from('users').delete().eq('id', superAdminUser1.id);
+      await getSupabase().from('users').delete().eq('id', superAdminUser1.id);
     }
     if (superAdminUser2?.id) {
-      await supabase.from('users').delete().eq('id', superAdminUser2.id);
+      await getSupabase().from('users').delete().eq('id', superAdminUser2.id);
     }
     if (deleteRequestId) {
-      await supabase.from('delete_requests').delete().eq('id', deleteRequestId);
+      await getSupabase().from('delete_requests').delete().eq('id', deleteRequestId);
     }
   });
 
@@ -134,7 +138,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
       expect(data.soft_deleted_at).toBeTruthy();
 
       // Verify in database
-      const { data: product } = await supabase
+      const { data: product } = await getSupabase()
         .from('mcp_products')
         .select('soft_deleted_at')
         .eq('id', testProductId)
@@ -192,7 +196,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
       const twentyFourHoursAgo = new Date();
       twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 25);
 
-      await supabase
+      await getSupabase()
         .from('mcp_products')
         .update({ soft_deleted_at: twentyFourHoursAgo.toISOString() })
         .eq('id', testProductId);
@@ -226,7 +230,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
       approvalToken = data.approval_token;
 
       // Verify in database
-      const { data: request } = await supabase
+      const { data: request } = await getSupabase()
         .from('delete_requests')
         .select('*')
         .eq('id', deleteRequestId)
@@ -238,7 +242,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
 
     it('should reject request without soft delete', async () => {
       // Create new product without soft delete
-      const { data: product } = await supabase
+      const { data: product } = await getSupabase()
         .from('mcp_products')
         .insert({
           name: 'Not Soft Deleted Product',
@@ -270,7 +274,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
       expect(data.error).toBe('NOT_SOFT_DELETED');
 
       // Clean up
-      await supabase.from('mcp_products').delete().eq('id', product.id);
+      await getSupabase().from('mcp_products').delete().eq('id', product.id);
     });
 
     it('should reject duplicate pending request', async () => {
@@ -322,7 +326,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
       expect(data.executed_at).toBeTruthy();
 
       // Verify in database
-      const { data: request } = await supabase
+      const { data: request } = await getSupabase()
         .from('delete_requests')
         .select('*')
         .eq('id', deleteRequestId)
@@ -332,7 +336,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
       expect(request?.approver_id).toBe(superAdminUser2.id);
 
       // Verify product deleted
-      const { data: product } = await supabase
+      const { data: product } = await getSupabase()
         .from('mcp_products')
         .select('*')
         .eq('id', testProductId)
@@ -341,7 +345,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
       expect(product).toBeNull();
 
       // Verify audit trail
-      const { data: auditTrail } = await supabase
+      const { data: auditTrail } = await getSupabase()
         .from('audit_logs')
         .select('*')
         .eq('operation_id', deleteRequestId)
@@ -353,7 +357,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
 
     it('should reject invalid token', async () => {
       // Create new request for testing
-      const { data: product } = await supabase
+      const { data: product } = await getSupabase()
         .from('mcp_products')
         .insert({
           name: 'Invalid Token Test Product',
@@ -366,7 +370,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
         .select()
         .single();
 
-      const { data: request } = await supabase
+      const { data: request } = await getSupabase()
         .from('delete_requests')
         .insert({
           table_name: 'mcp_products',
@@ -400,8 +404,8 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
       expect(data.error).toBe('INVALID_TOKEN');
 
       // Clean up
-      await supabase.from('delete_requests').delete().eq('id', request.id);
-      await supabase.from('mcp_products').delete().eq('id', product.id);
+      await getSupabase().from('delete_requests').delete().eq('id', request.id);
+      await getSupabase().from('mcp_products').delete().eq('id', product.id);
     });
   });
 
@@ -517,7 +521,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
   describe('Cross-Functional: Complete Workflow', () => {
     it('should execute complete workflow end-to-end', async () => {
       // Create test product
-      const { data: product } = await supabase
+      const { data: product } = await getSupabase()
         .from('mcp_products')
         .insert({
           name: 'Workflow Test Product',
@@ -550,7 +554,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
       expect(softDeleteResponse.status).toBe(200);
 
       // Backdate soft_deleted_at
-      await supabase
+      await getSupabase()
         .from('mcp_products')
         .update({
           soft_deleted_at: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(),
@@ -632,7 +636,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
       expect(approveResponse.status).toBe(200);
 
       // 6. Verify product deleted
-      const { data: deletedProduct } = await supabase
+      const { data: deletedProduct } = await getSupabase()
         .from('mcp_products')
         .select('*')
         .eq('id', product.id)
@@ -641,7 +645,7 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)('E-T7 API Integration Tests', () => {
       expect(deletedProduct).toBeNull();
 
       // Clean up request
-      await supabase
+      await getSupabase()
         .from('delete_requests')
         .delete()
         .eq('id', requestData.request_id);
