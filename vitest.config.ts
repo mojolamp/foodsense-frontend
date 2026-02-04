@@ -32,8 +32,7 @@ export default defineConfig({
         // 排除 app 目錄中的頁面組件（這些是 Next.js 特有的，難以單元測試）
         'src/app/**/*',
       ],
-      // 優化 coverage 選項
-      all: false, // 只收集有測試的檔案，減少記憶體使用
+      // 優化 coverage 選項 (注意: istanbul provider 不支援 'all' 選項)
       clean: true, // 每次清除之前的 coverage 資料
       skipFull: true, // 跳過 100% 覆蓋的檔案以減少輸出
     },
