@@ -1,13 +1,14 @@
 # FoodSense Frontend - Production Dockerfile
 # Optimized for AWS ECS/App Runner deployment
 
-# Stage 1: Dependencies
+# Stage 1: Dependencies (including devDependencies for build)
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci --only=production
+# Install all dependencies including devDependencies for build
+RUN npm ci
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
