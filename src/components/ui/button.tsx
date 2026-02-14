@@ -26,10 +26,16 @@ const buttonVariants = cva(
                 lg: "h-10 rounded-md px-8",
                 icon: "h-9 w-9",
             },
+            density: {
+                default: "",
+                compact: "h-7 px-2 py-1 text-xs",
+                spacious: "h-11 px-6 py-3",
+            },
         },
         defaultVariants: {
             variant: "default",
             size: "default",
+            density: "default",
         },
     }
 )
@@ -41,11 +47,11 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant, size, asChild = false, ...props }, ref) => {
+    ({ className, variant, size, density, asChild = false, ...props }, ref) => {
         const Comp = asChild ? Slot : "button"
         return (
             <Comp
-                className={cn(buttonVariants({ variant, size, className }))}
+                className={cn(buttonVariants({ variant, size, density, className }))}
                 ref={ref}
                 {...props}
             />

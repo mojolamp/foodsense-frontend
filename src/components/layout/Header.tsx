@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import { Menu } from 'lucide-react'
+import Breadcrumb from '@/components/ui/breadcrumb'
 
 interface HeaderProps {
   user: {
@@ -26,16 +26,11 @@ export default function Header({ user, onMenuClick }: HeaderProps) {
               <Menu className="h-6 w-6" />
             </button>
 
-            {/* Optional: Breadcrumbs or Page Title could go here */}
-            <div className="text-sm font-medium text-muted-foreground hidden sm:block">
-              {/* Placeholder for future breadcrumbs */}
+            <div className="hidden sm:block">
+              <Breadcrumb />
             </div>
           </div>
           <div className="flex items-center gap-x-4">
-            {/* Can add Notification bell here later */}
-            <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-              Dashboard
-            </Link>
             <div className="px-3 py-1.5 rounded-full bg-accent text-xs font-medium text-accent-foreground">
               {user.email}
             </div>

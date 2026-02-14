@@ -1,18 +1,30 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-const Table = React.forwardRef<
-    HTMLTableElement,
-    React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto">
-        <table
-            ref={ref}
-            className={cn("w-full caption-bottom text-sm", className)}
-            {...props}
-        />
-    </div>
-))
+export type TableDensity = 'compact' | 'default' | 'spacious'
+
+interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
+    density?: TableDensity
+}
+
+const Table = React.forwardRef<HTMLTableElement, TableProps>(
+    ({ className, density = 'default', ...props }, ref) => (
+        <div className="relative w-full overflow-auto">
+            <table
+                ref={ref}
+                data-density={density}
+                className={cn(
+                    "w-full caption-bottom",
+                    density === 'compact' && "text-xs",
+                    density === 'default' && "text-sm",
+                    density === 'spacious' && "text-sm",
+                    className
+                )}
+                {...props}
+            />
+        </div>
+    )
+)
 Table.displayName = "Table"
 
 const TableHeader = React.forwardRef<
@@ -72,7 +84,10 @@ const TableHead = React.forwardRef<
     <th
         ref={ref}
         className={cn(
-            "h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+            "px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+            "[[data-density=compact]_&]:h-8 [[data-density=compact]_&]:py-1",
+            "[[data-density=default]_&]:h-10 [[data-density=default]_&]:py-2",
+            "[[data-density=spacious]_&]:h-12 [[data-density=spacious]_&]:py-3",
             className
         )}
         {...props}
@@ -87,7 +102,10 @@ const TableCell = React.forwardRef<
     <td
         ref={ref}
         className={cn(
-            "p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+            "align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+            "[[data-density=compact]_&]:px-2 [[data-density=compact]_&]:py-1",
+            "[[data-density=default]_&]:p-2",
+            "[[data-density=spacious]_&]:px-2 [[data-density=spacious]_&]:py-3",
             className
         )}
         {...props}

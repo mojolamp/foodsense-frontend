@@ -58,7 +58,7 @@ export interface UseTableSelectionReturn {
   selectedCount: number
 }
 
-export function useTableSelection<T extends Record<string, unknown>>(
+export function useTableSelection<T extends Record<string, any>>(
   data: T[],
   options: UseTableSelectionOptions<T> = {}
 ): UseTableSelectionReturn {

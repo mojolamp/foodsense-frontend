@@ -13,7 +13,15 @@ import {
   BarChart2,
   Boxes,
   LogOut,
-  ScanLine
+  ScanLine,
+  Activity,
+  LineChart,
+  Server,
+  Shield,
+  Scale,
+  FileSearch,
+  ShieldCheck,
+  ArrowDownToLine,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
@@ -34,7 +42,32 @@ const navGroups = [
     items: [
       { name: 'Review Queue', href: '/review/queue', icon: ClipboardList },
       { name: 'History', href: '/review/history', icon: History },
+      { name: 'Analytics', href: '/review/analytics', icon: BarChart2 },
       { name: 'Gold Samples', href: '/gold-samples', icon: Star },
+    ]
+  },
+  {
+    title: 'Data Pipeline',
+    items: [
+      { name: 'Ingestion Gate', href: '/ingestion-gate/review', icon: ArrowDownToLine },
+    ]
+  },
+  {
+    title: 'LawCore',
+    items: [
+      { name: 'Overview', href: '/lawcore', icon: Shield },
+      { name: 'Presence Check', href: '/lawcore/check', icon: FileSearch },
+      { name: 'Rules', href: '/lawcore/rules', icon: Scale },
+      { name: 'Admin', href: '/lawcore/admin', icon: ShieldCheck },
+    ]
+  },
+  {
+    title: 'Monitoring',
+    items: [
+      { name: 'Overview', href: '/monitoring', icon: Activity },
+      { name: 'Business (L1)', href: '/monitoring/business', icon: LineChart },
+      { name: 'Application (L2)', href: '/monitoring/app', icon: Activity },
+      { name: 'Infrastructure (L3)', href: '/monitoring/infra', icon: Server },
     ]
   },
   {
@@ -120,7 +153,7 @@ export default function Sidebar({ user, mobileOpen = false, onClose }: SidebarPr
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">{user.email}</p>
             <p className="text-xs text-muted-foreground">Administrator</p>
-            <p className="text-[10px] text-muted-foreground/60 mt-1 font-mono">v0.4.0-pre</p>
+            <p className="text-[10px] text-muted-foreground/60 mt-1 font-mono">v0.5.0</p>
           </div>
           <button
             onClick={handleLogout}

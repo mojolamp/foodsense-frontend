@@ -7,6 +7,84 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-02-14
+
+### Added
+
+#### Design System Enhancement (P0)
+- **Semantic Design Tokens** (`globals.css`, `tailwind.config.ts`)
+  - 16 new CSS custom properties: `chart-primary/success/warning/danger/info/neutral`, `status-pass/fail/warn/pending`, `severity-critical/high/medium/low`
+  - Full dark mode support with adjusted luminosity values
+  - Tailwind config extended with `colors.chart.*`, `colors.status.*`, `colors.severity.*`
+
+- **Breadcrumb Navigation** (`src/components/ui/breadcrumb.tsx`)
+  - Auto-generates hierarchical breadcrumb from `usePathname()`
+  - Path-to-label mapping for all 20+ routes
+  - Integrated into Header, replacing empty placeholder
+
+- **Unified Monitoring Dashboard** (`src/app/(dashboard)/monitoring/page.tsx`)
+  - Three-tier summary cards (L1 Business, L2 App, L3 Infra) with real-time API data
+  - Status dot indicators, SLA violation alerts, cache hit ratio warnings
+  - ErrorBoundary wrapper, auto-refresh every 30-60s
+
+- **Sidebar Navigation Completeness** (`src/components/layout/Sidebar.tsx`)
+  - Added 3 missing nav groups: Data Pipeline (Ingestion Gate), LawCore (4 sub-pages), Monitoring (4 sub-pages)
+  - Added Analytics to Review Workbench group
+
+#### State Management (P1)
+- **Zustand Preferences Store** (`src/store/preferences.ts`)
+  - `tableDensity` (compact/default/spacious) and `sidebarCollapsed` state
+  - `persist` middleware for localStorage persistence
+  - Unified export via `src/store/index.ts`
+
+#### UI Component Enhancements (P1)
+- **Table Density System** (`src/components/ui/table.tsx`)
+  - `data-density` attribute cascade for compact/default/spacious sizing
+  - CSS attribute selectors for responsive cell padding and row height
+
+- **Button Density Variant** (`src/components/ui/button.tsx`)
+  - Added `density` prop: compact (`h-7 px-2 text-xs`) and spacious (`h-11 px-6`)
+
+- **Badge Semantic Tokens** (`src/components/ui/badge.tsx`)
+  - Updated success/warning/failure variants to use `status-pass/warn/fail` tokens
+
+- **Lightweight Charts** (`src/components/charts/`)
+  - `Sparkline.tsx` — Pure SVG trend line, zero dependencies
+  - `MiniBarChart.tsx` — Pure CSS bar chart, uses `chart-primary` token
+
+#### i18n Foundation (P2)
+- **String Centralization** (`src/lib/i18n/zh-TW.json`)
+  - 200+ Chinese UI strings extracted into structured JSON (15 namespaces)
+  - Covers: common, errors, success, dashboard, reviewQueue, products, shortcuts, commandPalette, monitoring, analytics, ingestionGate, dataQuality, dictionary, validation, timeRange
+
+- **Translation Hook** (`src/lib/i18n/useTranslation.ts`)
+  - `useTranslation()` React hook with `{key}` interpolation support
+  - `t()` standalone function for non-component usage
+
+### Changed
+
+#### Dashboard Real API Integration (P2)
+- **Dashboard** (`src/app/(dashboard)/page.tsx`)
+  - Replaced all hardcoded mock data with real API calls
+  - `monitoringAPI.getBusinessHealth()` for pipeline velocity, health score, LawCore adoption
+  - `reviewAPI.getStats()` for queue breakdown by status/confidence
+  - `productsAPI.getProducts()` for total product count
+  - Added Skeleton loading states, hourly traffic bar chart, queue breakdown panel
+
+#### Performance (P2)
+- **Virtual Scrolling** (`src/components/products/ProductsTable.tsx`)
+  - Enabled `@tanstack/react-virtual` behind `product_virtual_scrolling` feature flag
+  - Threshold: 100+ rows activates virtualization, 10-row overscan
+  - Split into StaticTable/VirtualizedTable sub-components
+
+#### Code Quality (P1)
+- **ReviewQueuePage Refactor** (`src/app/(dashboard)/review/queue/page.tsx`)
+  - Replaced ~60 lines of duplicate selection logic with existing `useTableSelection` hook
+  - Reduced page complexity while maintaining all functionality
+
+- **useTableSelection Generic Fix** (`src/hooks/useTableSelection.ts`)
+  - Relaxed type constraint from `Record<string, unknown>` to `Record<string, any>` for interface compatibility
+
 ## [3.2.0] - 2026-01-31
 
 ### Added

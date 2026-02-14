@@ -50,6 +50,26 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        chart: {
+          primary: "hsl(var(--chart-primary))",
+          success: "hsl(var(--chart-success))",
+          warning: "hsl(var(--chart-warning))",
+          danger: "hsl(var(--chart-danger))",
+          info: "hsl(var(--chart-info))",
+          neutral: "hsl(var(--chart-neutral))",
+        },
+        status: {
+          pass: "hsl(var(--status-pass))",
+          fail: "hsl(var(--status-fail))",
+          warn: "hsl(var(--status-warn))",
+          pending: "hsl(var(--status-pending))",
+        },
+        severity: {
+          critical: "hsl(var(--severity-critical))",
+          high: "hsl(var(--severity-high))",
+          medium: "hsl(var(--severity-medium))",
+          low: "hsl(var(--severity-low))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

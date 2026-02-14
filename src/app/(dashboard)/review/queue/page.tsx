@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useReviewQueue, useBatchReviewSubmit } from '@/hooks/useReviewQueue'
 import { useReviewQueueShortcuts } from '@/hooks/useReviewQueueShortcuts'
+import { useTableSelection } from '@/hooks/useTableSelection'
 import ReviewQueueTable from '@/components/review/ReviewQueueTable'
 import ReviewModal from '@/components/review/ReviewModal'
 import BatchReviewModal from '@/components/review/BatchReviewModal'
@@ -18,8 +19,6 @@ import type { BatchReviewTemplate } from '@/types/api'
 export default function ReviewQueuePage() {
   const [selectedRecord, setSelectedRecord] = useState<OCRRecord | null>(null)
   const [batchRecords, setBatchRecords] = useState<OCRRecord[]>([])
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [activeId, setActiveId] = useState<string | null>(null)
   const [sortStrategy, setSortStrategy] = useState<PrioritySortStrategy | null>(null)
   const [pendingAdvanceIndex, setPendingAdvanceIndex] = useState<number | null>(null)
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
@@ -40,67 +39,30 @@ export default function ReviewQueuePage() {
     return sortStrategy ? sortByPriority(base, sortStrategy) : base
   }, [queue, sortStrategy])
 
-  const activeIndex = useMemo(() => {
-    if (!activeId) return displayData.length > 0 ? 0 : -1
-    const idx = displayData.findIndex((r) => r.id === activeId)
-    return idx >= 0 ? idx : (displayData.length > 0 ? 0 : -1)
-  }, [activeId, displayData])
+  const {
+    selectedIds,
+    setSelectedIds,
+    activeId,
+    setActiveId,
+    activeIndex,
+    setActiveIndex,
+    toggleSelectActive,
+    toggleSelectAll,
+    clearSelection,
+  } = useTableSelection(displayData, { idKey: 'id' })
 
-  const setActiveIndex = (nextIndex: number) => {
-    if (displayData.length === 0) {
-      setActiveId(null)
-      return
-    }
-    const idx = Math.max(0, Math.min(displayData.length - 1, nextIndex))
-    setActiveId(displayData[idx].id)
-  }
-
-  // 初始 active row / 資料變動時的 fallback
-  useEffect(() => {
-    if (displayData.length === 0) {
-      setActiveId(null)
-      return
-    }
-    if (!activeId) {
-      setActiveId(displayData[0].id)
-      return
-    }
-    if (!displayData.some((r) => r.id === activeId)) {
-      setActiveId(displayData[0].id)
-    }
-  }, [displayData, activeId])
-
-  // 資料變動（篩選/重載）時，清理不存在的選取項
-  useEffect(() => {
-    if (displayData.length === 0) {
-      setSelectedIds(new Set())
-      return
-    }
-    const valid = new Set(displayData.map(r => r.id))
-    setSelectedIds((prev) => {
-      let changed = false
-      const next = new Set<string>()
-      for (const id of prev) {
-        if (valid.has(id)) next.add(id)
-        else changed = true
-      }
-      return changed ? next : prev
-    })
-  }, [displayData])
-
-  // 提交成功後（queue refetch），自動選下一筆（以 index 為準）
+  // Auto-advance after review submit
   useEffect(() => {
     if (pendingAdvanceIndex === null) return
     if (selectedRecord) return
     if (displayData.length === 0) {
       setPendingAdvanceIndex(null)
-      setActiveId(null)
       return
     }
     const idx = Math.min(pendingAdvanceIndex, displayData.length - 1)
     setActiveId(displayData[idx].id)
     setPendingAdvanceIndex(null)
-  }, [pendingAdvanceIndex, displayData, selectedRecord])
+  }, [pendingAdvanceIndex, displayData, selectedRecord, setActiveId])
 
   const openActiveRecord = () => {
     if (displayData.length === 0) return
@@ -109,66 +71,24 @@ export default function ReviewQueuePage() {
     setSelectedRecord(record)
   }
 
-  const toggleSelectActive = () => {
-    if (displayData.length === 0) return
-    const record = displayData[activeIndex]
-    if (!record) return
-    setSelectedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(record.id)) next.delete(record.id)
-      else next.add(record.id)
-      return next
-    })
-  }
-
-  const toggleSelectAll = () => {
-    if (displayData.length === 0) return
-    setSelectedIds((prev) => {
-      const ids = displayData.map((r) => r.id)
-      const isAllSelected = ids.length > 0 && ids.every((id) => prev.has(id))
-      if (isAllSelected) {
-        const next = new Set(prev)
-        for (const id of ids) next.delete(id)
-        return next
-      }
-      const next = new Set(prev)
-      for (const id of ids) next.add(id)
-      return next
-    })
-  }
-
-  // Enhanced hotkeys actions
-  // Note: Quick approve/reject/flag actions are placeholder implementations for future enhancement
-  // Full implementation requires backend API support (P1 Phase 2)
   const handleApprove = () => {
     if (displayData.length === 0) return
     const record = displayData[activeIndex]
     if (!record) return
-    // Future: Implement quick approve with backend API call
-    // Currently shows notification as placeholder
-    toast.success(`快速批准: ${record.product_id}`, {
-      duration: 2000,
-      icon: '✅',
-    })
+    toast.success(`快速批准: ${record.product_id}`, { duration: 2000, icon: '✅' })
   }
 
   const handleReject = () => {
     if (displayData.length === 0) return
     const record = displayData[activeIndex]
     if (!record) return
-    // Future: Implement quick reject with backend API call
-    // Currently shows notification as placeholder
-    toast.error(`快速拒絕: ${record.product_id}`, {
-      duration: 2000,
-      icon: '❌',
-    })
+    toast.error(`快速拒絕: ${record.product_id}`, { duration: 2000, icon: '❌' })
   }
 
   const handleInspect = () => {
     if (displayData.length === 0) return
     const record = displayData[activeIndex]
     if (!record) return
-    // Open review modal to inspect product details
     setSelectedRecord(record)
   }
 
@@ -176,16 +96,7 @@ export default function ReviewQueuePage() {
     if (displayData.length === 0) return
     const record = displayData[activeIndex]
     if (!record) return
-    // Future: Implement flag for manual review with backend API call
-    // Currently shows notification as placeholder
-    toast(`已標記為需人工審核: ${record.product_id}`, {
-      duration: 2000,
-      icon: '🚩',
-    })
-  }
-
-  const handleShowHelp = () => {
-    setShowShortcutsHelp(true)
+    toast(`已標記為需人工審核: ${record.product_id}`, { duration: 2000, icon: '🚩' })
   }
 
   useReviewQueueShortcuts({
@@ -196,17 +107,16 @@ export default function ReviewQueuePage() {
     openReviewModal: openActiveRecord,
     toggleSelectActive,
     toggleSelectAll,
-    // Enhanced actions (only used if feature flag enabled)
     onApprove: enhancedHotkeysEnabled ? handleApprove : undefined,
     onReject: enhancedHotkeysEnabled ? handleReject : undefined,
     onInspect: enhancedHotkeysEnabled ? handleInspect : undefined,
     onFlag: enhancedHotkeysEnabled ? handleFlag : undefined,
-    onShowHelp: enhancedHotkeysEnabled ? handleShowHelp : undefined,
+    onShowHelp: enhancedHotkeysEnabled ? () => setShowShortcutsHelp(true) : undefined,
   })
 
   const handleBatchReview = (records: OCRRecord[]) => {
     setBatchRecords(records)
-    setSelectedIds(new Set())
+    clearSelection()
   }
 
   const handleBatchSubmit = async (template: BatchReviewTemplate) => {

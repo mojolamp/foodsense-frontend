@@ -1,0 +1,345 @@
+{
+  "common": {
+    "loading": "載入中...",
+    "processing": "處理中...",
+    "submitting": "提交中...",
+    "creating": "建立中...",
+    "testing": "測試中...",
+    "applying": "套用中...",
+    "close": "關閉",
+    "cancel": "取消",
+    "confirm": "確認",
+    "create": "建立",
+    "enable": "啟用",
+    "disable": "停用",
+    "enabled": "啟用中",
+    "disabled": "已停用",
+    "skip": "跳過",
+    "refresh": "重新整理",
+    "clearSearch": "清除搜尋",
+    "clearFilters": "清除篩選器",
+    "noBrand": "無品牌",
+    "all": "全部",
+    "configureMonitoring": "配置監控",
+    "viewDocs": "查看說明文件"
+  },
+
+  "errors": {
+    "unknown": "發生未知錯誤",
+    "createFailed": "建立失敗",
+    "updateFailed": "更新失敗",
+    "deleteFailed": "刪除失敗",
+    "markFailed": "標記失敗",
+    "applyFailed": "套用失敗",
+    "submitFailed": "提交失敗",
+    "rescanFailed": "重掃失敗",
+    "batchFailed": "批次操作失敗",
+    "batchApplyFailed": "批次套用失敗",
+    "loginFailed": "登入失敗",
+    "reviewSubmitFailed": "審核提交失敗",
+    "batchReviewFailed": "批次審核失敗"
+  },
+
+  "success": {
+    "reviewMarkedResolved": "審核已標記為已解決",
+    "correctionApplied": "修正已套用",
+    "aliasSubmitted": "別名已提交",
+    "rescanStarted": "重掃已啟動",
+    "reviewSubmitted": "審核提交成功!",
+    "batchReviewSuccess": "成功批次審核 {count} 筆記錄！",
+    "batchReviewPartial": "批次審核完成：成功 {submitted} 筆，失敗 {failed} 筆",
+    "appliedCorrections": "已套用修正 {count} 個"
+  },
+
+  "priority": {
+    "urgent": "緊急",
+    "high": "高",
+    "medium": "中",
+    "low": "低",
+    "veryLow": "極低"
+  },
+
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "System overview and real-time metrics.",
+    "quickLinks": "快速連結",
+    "quickLinksDesc": "常用功能與頁面",
+    "recentActivity": "Recent Activity",
+    "recentActivityDesc": "Latest system events and reviews.",
+    "healthChartPlaceholder": "Health Status Chart (Coming Soon)",
+    "links": {
+      "reviewQueue": "審核佇列",
+      "reviewQueueDesc": "待審核記錄",
+      "productList": "產品列表",
+      "productListDesc": "已標準化產品",
+      "monitoringDashboard": "監控儀表板",
+      "monitoringDashboardDesc": "系統健康狀態",
+      "dataQuality": "資料品質",
+      "dataQualityDesc": "品質分析與趨勢",
+      "lawcoreRules": "LawCore 規則",
+      "lawcoreRulesDesc": "法規驗證引擎",
+      "dictionaryMgmt": "字典管理",
+      "dictionaryMgmtDesc": "標準化參考資料"
+    }
+  },
+
+  "reviewQueue": {
+    "title": "審核佇列",
+    "pendingCount": "待審核記錄: {count} 筆",
+    "emptyState": "目前沒有待審核記錄",
+    "sortLabel": "優先級排序:",
+    "sortNone": "無排序 (預設)",
+    "sortQuick": "快速處理 (簡單優先)",
+    "sortUrgent": "緊急優先 (等待時間)",
+    "sortQuality": "品質優先 (影響度)",
+    "sortBalanced": "綜合平衡",
+    "smartSortEnabled": "已啟用智能排序",
+    "selectedCount": "已選擇 {count} 筆記錄",
+    "deselect": "取消選擇",
+    "batchReview": "批次審核",
+    "selectAll": "全選",
+    "deselectAll": "取消全選",
+    "select": "選擇",
+    "filters": {
+      "validationStatus": "驗證狀態",
+      "confidenceLevel": "信心水平",
+      "clearFilters": "清除篩選"
+    },
+    "shortcuts": {
+      "hint": "快捷鍵：",
+      "nav": "導航、",
+      "approve": "批准、",
+      "reject": "拒絕、",
+      "inspect": "檢查、",
+      "help": "說明",
+      "basic": "快捷鍵：n/p（下一/上一）、r（開始審核）、x（選取/取消）、a（全選/取消）",
+      "viewFullHelp": "查看完整說明"
+    },
+    "quickApprove": "快速批准: {productId}",
+    "quickReject": "快速拒絕: {productId}",
+    "flagManualReview": "已標記為需人工審核: {productId}"
+  },
+
+  "products": {
+    "name": "產品名稱",
+    "brand": "品牌",
+    "barcode": "條碼",
+    "tier": "Tier",
+    "sourceCount": "來源數量",
+    "veganType": "素食類型",
+    "actions": "操作",
+    "viewDetails": "查看詳情",
+    "sourceCountUnit": "{count} 個來源",
+    "goldenRecord": "Golden Record",
+    "emptyFiltered": {
+      "title": "沒有符合條件的產品",
+      "description": "嘗試調整您的搜尋條件或清除篩選器以查看更多結果"
+    },
+    "emptyInitial": {
+      "title": "尚無產品",
+      "description": "開始建立您的產品資料庫以啟用成分分析和品質追蹤",
+      "helpText": "產品可以從 CSV 檔案匯入或手動新增。匯入後，它們會出現在這裡供審核和分析",
+      "importBtn": "匯入產品",
+      "addManualBtn": "手動新增"
+    }
+  },
+
+  "shortcuts": {
+    "title": "鍵盤快捷鍵",
+    "enhancedModeEnabled": "增強模式已啟用",
+    "categories": {
+      "navigation": "導航",
+      "selection": "選取",
+      "reviewActions": "審核動作",
+      "global": "全域"
+    },
+    "actions": {
+      "nextRecord": "下一筆記錄",
+      "prevRecord": "上一筆記錄",
+      "openReview": "開啟審核視窗",
+      "toggleSelect": "切換選取目前記錄",
+      "quickApprove": "快速批准",
+      "quickReject": "快速拒絕",
+      "inspectDetails": "檢查產品詳情",
+      "flagManual": "標記為需人工審核",
+      "goReviewQueue": "前往審核佇列",
+      "goProductList": "前往產品列表",
+      "showShortcuts": "顯示快捷鍵說明"
+    }
+  },
+
+  "commandPalette": {
+    "placeholder": "搜尋功能或執行命令...",
+    "searching": "搜尋中...",
+    "noResults": "未找到相關結果",
+    "productResults": "產品搜尋結果",
+    "ocrResults": "OCR 記錄搜尋結果",
+    "recentSearches": "最近搜尋",
+    "clearHistory": "清除搜尋歷史",
+    "navigation": "導航",
+    "quickActions": "快速操作",
+    "nav": {
+      "dashboard": "前往儀表板",
+      "reviewQueue": "前往審核佇列",
+      "reviewAnalytics": "前往審核分析",
+      "reviewHistory": "前往審核歷史",
+      "goldSamples": "前往黃金樣本",
+      "products": "前往產品總覽",
+      "dictionary": "前往成分字典",
+      "dataQuality": "前往資料品質"
+    },
+    "actions": {
+      "reload": "重新載入頁面"
+    },
+    "searchTip": "搜尋產品名稱、條碼、ID 或 OCR 記錄"
+  },
+
+  "monitoring": {
+    "overview": {
+      "title": "Monitoring Overview",
+      "subtitle": "Unified view across all three monitoring layers",
+      "autoRefresh": "Auto-refreshing every 30-60 seconds"
+    },
+    "business": {
+      "waitingTitle": "等待業務數據",
+      "waitingDesc": "系統開始處理請求後將顯示業務健康指標"
+    },
+    "app": {
+      "waitingTitle": "等待效能數據",
+      "waitingDesc": "記錄到流量後將顯示應用程式效能指標"
+    },
+    "infra": {
+      "waitingTitle": "等待基礎設施數據",
+      "waitingDesc": "資料庫有活動後將顯示基礎設施指標"
+    }
+  },
+
+  "analytics": {
+    "title": "審核分析",
+    "subtitle": "個人績效追蹤與效率分析",
+    "tabs": {
+      "performance": "個人績效",
+      "efficiency": "效率分析"
+    },
+    "kpis": {
+      "totalReviews": "總審核量",
+      "avgQuality": "平均品質分數",
+      "avgConfidence": "平均信心度",
+      "reviewAccuracy": "審核準確度",
+      "goldSamples": "黃金樣本",
+      "todayReviews": "今日審核",
+      "weekReviews": "本週審核",
+      "monthReviews": "本月審核"
+    },
+    "charts": {
+      "qualityDist": "品質分數分佈",
+      "confidenceDist": "信心度分佈"
+    },
+    "insights": {
+      "title": "績效洞察",
+      "quality": "品質評估",
+      "confidence": "信心度評估",
+      "goldContribution": "黃金樣本貢獻",
+      "activity": "審核活躍度"
+    }
+  },
+
+  "ingestionGate": {
+    "title": "IngestionGate 審核工作台",
+    "pendingCount": "待審核項目: {count} 筆",
+    "summary": "摘要",
+    "gateDecision": "Gate 決策",
+    "oneClickFix": "可一鍵修正",
+    "missingEvidence": "缺證據欄位",
+    "validationResults": "驗證結果",
+    "fieldStatus": "欄位狀態",
+    "fieldQuality": "欄位品質",
+    "missingRequired": "缺失必填欄位",
+    "lowConfidence": "低信心度欄位",
+    "noEvidence": "無證據欄位",
+    "submitAll": "提交所有修正",
+    "markResolved": "標記為已解決",
+    "currentValue": "當前值",
+    "confirmApply": "確認套用",
+    "confirmExecute": "確認執行",
+    "confirmRescan": "確認重掃"
+  },
+
+  "dataQuality": {
+    "emptyTitle": "尚未有品質數據",
+    "emptyDesc": "匯入並處理產品後將顯示品質指標",
+    "importProducts": "匯入產品",
+    "kpis": {
+      "avgSourceSupport": "平均來源支持度",
+      "ingredientCoverage": "成分覆蓋率"
+    }
+  },
+
+  "dictionary": {
+    "emptyFiltered": "嘗試調整搜尋關鍵字以查看更多結果",
+    "emptyInitial": "字典尚未建立",
+    "goImport": "前往匯入產品",
+    "enterStandardName": "請輸入標準名稱",
+    "batchCorrection": "批次校正"
+  },
+
+  "rules": {
+    "runTest": "執行測試"
+  },
+
+  "reviewTemplates": {
+    "excellent": "優質樣本",
+    "good": "良好品質",
+    "acceptable": "可接受",
+    "needsImprovement": "需改進",
+    "poor": "低品質"
+  },
+
+  "validation": {
+    "qualityScoreMustBeInt": "品質分數必須是整數",
+    "qualityScoreMin": "品質分數最低為 {min}",
+    "qualityScoreMax": "品質分數最高為 {max}",
+    "confidenceMin": "信心分數最低為 {min}",
+    "confidenceMax": "信心分數最高為 {max}",
+    "highQualityHighConfidence": "高品質評分應該搭配較高的信心度",
+    "lowQualityLowConfidence": "低品質評分不應搭配過高的信心度"
+  },
+
+  "evidence": {
+    "ocrText": "OCR 文字",
+    "imageROI": "圖像區域",
+    "manualCorrection": "人工修正",
+    "noEvidence": "無證據",
+    "confidence": "信心度:",
+    "textContent": "文字內容:",
+    "location": "位置:",
+    "viewImageROI": "查看圖像區域",
+    "evidenceDetails": "證據詳情",
+    "evidence": "證據"
+  },
+
+  "efficiency": {
+    "needsUrgent": "需要緊急處理",
+    "lowConfidence": "低信心度記錄"
+  },
+
+  "timeRange": {
+    "last1h": "最近 1 小時",
+    "last6h": "最近 6 小時",
+    "last24h": "最近 24 小時",
+    "last7d": "最近 7 天",
+    "last30d": "最近 30 天",
+    "custom": "自定義範圍",
+    "selectRange": "選擇時間範圍",
+    "endAfterStart": "結束時間必須晚於開始時間"
+  },
+
+  "login": {
+    "loggingIn": "登入中...",
+    "login": "登入"
+  },
+
+  "stats": {
+    "pendingTotal": "待審核總數"
+  }
+}
