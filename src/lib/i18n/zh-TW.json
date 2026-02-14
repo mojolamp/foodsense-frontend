@@ -341,5 +341,959 @@
 
   "stats": {
     "pendingTotal": "待審核總數"
+  },
+
+  "ocr": {
+    "title": "OCR 掃描器",
+    "subtitle": "掃描產品標籤，提交至 Ingestion Pipeline 或查看歷史記錄",
+    "tabs": {
+      "scan": "OCR 掃描",
+      "manual": "手動提交",
+      "history": "歷史記錄"
+    },
+    "upload": {
+      "title": "上傳圖片",
+      "hint": "支援 JPG、PNG、WebP，最大 20MB",
+      "dropLabel": "拖放檔案至此處或點擊瀏覽"
+    },
+    "options": {
+      "title": "掃描選項",
+      "triple": "三重驗證",
+      "tripleDesc": "多來源交叉驗證",
+      "provenance": "溯源追蹤",
+      "provenanceDesc": "追蹤資料來源與轉換過程"
+    },
+    "actions": {
+      "startScan": "開始掃描",
+      "scanning": "掃描中...",
+      "submitToPipeline": "送入 Pipeline",
+      "rescan": "重新掃描",
+      "downloadJSON": "下載 JSON"
+    },
+    "result": {
+      "title": "掃描結果",
+      "noResult": "尚無掃描結果",
+      "noResultDesc": "上傳產品標籤圖片並點擊「開始掃描」，透過 OCR 管線處理",
+      "route": "路由",
+      "confidence": "信心度",
+      "needsReview": "需要人工審核",
+      "attempts": "嘗試次數"
+    },
+    "submission": {
+      "title": "Pipeline 提交",
+      "submitted": "已提交",
+      "recordId": "Record ID",
+      "traceId": "Trace ID",
+      "status": "狀態"
+    },
+    "history": {
+      "title": "查詢提交狀態",
+      "desc": "輸入 Record ID 或 Trace ID 查詢先前提交的狀態",
+      "placeholder": "Record ID (例: abc-123-def)",
+      "lookup": "查詢",
+      "lookingUp": "查詢中...",
+      "detail": "提交詳情",
+      "source": "來源",
+      "schemaVersion": "Schema 版本",
+      "dedupKey": "Dedup Key",
+      "retries": "重試次數",
+      "created": "建立時間",
+      "updated": "更新時間",
+      "error": "錯誤",
+      "dlqReason": "DLQ 原因"
+    },
+    "manual": {
+      "title": "手動 Ingestion 提交",
+      "desc": "手動提交結構化資料至 Ingestion Gate Pipeline",
+      "sourceType": "來源類型",
+      "sourceId": "來源 ID",
+      "rawPayload": "原始資料 (JSON)",
+      "invalidJson": "無效的 JSON 格式",
+      "submit": "提交至 Ingestion Gate"
+    }
+  },
+
+  "etl": {
+    "title": "ETL 任務管理",
+    "subtitle": "管理批次採集任務、檢視進度與條碼交叉比對",
+    "kpis": {
+      "collected": "已採集",
+      "cleaned": "已清理",
+      "inReview": "審核中",
+      "errors": "錯誤"
+    },
+    "actions": {
+      "newJob": "新增採集任務",
+      "crosscheck": "條碼交叉比對"
+    },
+    "filters": {
+      "collector": "採集器",
+      "status": "狀態"
+    },
+    "table": {
+      "jobId": "任務 ID",
+      "type": "類型",
+      "source": "來源",
+      "stage": "階段",
+      "status": "狀態",
+      "created": "建立時間"
+    },
+    "newPipeline": {
+      "title": "新增採集任務",
+      "collectorType": "採集器類型",
+      "query": "搜尋關鍵字",
+      "limit": "筆數上限",
+      "siteKey": "站點",
+      "autoApprove": "自動通過審核",
+      "execute": "執行 Pipeline"
+    },
+    "crosscheck": {
+      "title": "條碼交叉比對",
+      "barcode": "條碼",
+      "sources": "比對來源",
+      "compare": "開始比對",
+      "conflict": "衝突",
+      "match": "一致",
+      "suggestion": "建議動作"
+    },
+    "status": {
+      "collecting": "採集中",
+      "cleaning": "清理中",
+      "reviewing": "審核中",
+      "done": "完成",
+      "failed": "失敗"
+    }
+  },
+
+  "documents": {
+    "title": "文件管理",
+    "subtitle": "上傳與管理知識文件（PDF、CSV、JSON、XLSX）",
+    "upload": {
+      "hint": "支援 PDF、CSV、JSON、XLSX，最大 20MB",
+      "dropLabel": "拖放文件至此處或點擊瀏覽"
+    },
+    "table": {
+      "name": "檔名",
+      "type": "類型",
+      "size": "大小",
+      "pages": "頁數",
+      "hasNutrition": "含營養標示",
+      "uploadedAt": "上傳時間"
+    },
+    "empty": {
+      "title": "尚無文件",
+      "desc": "上傳 PDF、CSV 或 XLSX 文件以擴充知識庫"
+    }
+  },
+
+  "crawler": {
+    "title": "Crawler 管理",
+    "subtitle": "檢視與管理爬蟲 DOM 修復建議",
+    "stats": {
+      "pending": "待審核",
+      "approved": "已通過",
+      "rejected": "已拒絕",
+      "avgConfidence": "平均信心度"
+    },
+    "table": {
+      "site": "站點",
+      "selector": "選擇器",
+      "confidence": "信心度",
+      "status": "狀態",
+      "actions": "操作"
+    },
+    "detail": {
+      "suggestedFix": "建議修復",
+      "failureSignature": "失敗特徵",
+      "lastWorking": "最後正常時間"
+    },
+    "actions": {
+      "approve": "通過",
+      "reject": "拒絕",
+      "viewFix": "查看建議修復"
+    }
+  },
+
+  "dlq": {
+    "title": "Dead Letter Queue",
+    "subtitle": "管理失敗訊息、重放與封存",
+    "tabs": {
+      "dlq": "失敗佇列",
+      "dedup": "去重統計"
+    },
+    "stats": {
+      "total": "總計",
+      "pending": "待處理",
+      "failed": "失敗",
+      "processing": "處理中",
+      "replayed": "已重放"
+    },
+    "filters": {
+      "queueType": "佇列類型",
+      "status": "狀態"
+    },
+    "actions": {
+      "replayAll": "批次重放待處理",
+      "processRetries": "處理重試",
+      "replay": "重放",
+      "archive": "封存",
+      "delete": "刪除"
+    },
+    "table": {
+      "id": "ID",
+      "queue": "佇列",
+      "status": "狀態",
+      "error": "錯誤",
+      "retries": "重試次數"
+    },
+    "dedup": {
+      "title": "去重統計",
+      "mode": "去重模式",
+      "totalChecked": "總檢查數",
+      "duplicatesFound": "重複發現"
+    }
+  },
+
+  "metrics": {
+    "title": "採集指標",
+    "subtitle": "各通道採集健康度與趨勢",
+    "channels": {
+      "ocr": "OCR",
+      "crawler": "Crawler",
+      "ingestion": "Ingestion"
+    },
+    "kpis": {
+      "successCount": "成功",
+      "failCount": "失敗",
+      "successRate": "成功率"
+    },
+    "health": {
+      "title": "健康摘要",
+      "dlqDepth": "DLQ 深度",
+      "dedupMode": "去重模式",
+      "lastRefresh": "上次更新",
+      "autoRefresh": "自動更新"
+    }
+  },
+
+  "operations": {
+    "title": "營運操作台",
+    "subtitle": "系統級營運工具與監控"
+  },
+
+  "controlPlane": {
+    "title": "控制平面",
+    "subtitle": "引擎模式、緊急停止、隔離管理與策略驗證",
+    "tabs": {
+      "engine": "引擎模式與停止開關",
+      "quarantine": "隔離區",
+      "lint": "策略驗證",
+      "version": "版本與建構"
+    },
+    "engineMode": {
+      "title": "引擎模式",
+      "current": "目前模式",
+      "source": "來源",
+      "setBy": "設定者",
+      "changeMode": "變更引擎模式",
+      "reason": "變更原因",
+      "ttl": "TTL（秒）",
+      "apply": "套用",
+      "applying": "套用中...",
+      "modes": {
+        "NORMAL": "正常",
+        "SAFETY_LOCKDOWN": "安全鎖定",
+        "READONLY_CACHE": "唯讀快取"
+      }
+    },
+    "killSwitch": {
+      "title": "緊急停止開關",
+      "active": "啟動中",
+      "inactive": "未啟動",
+      "resolvedMode": "解析模式",
+      "activeOverrides": "作用中覆寫",
+      "activate": "啟動停止開關",
+      "confirmActivate": "確認啟動",
+      "deactivate": "停用",
+      "scope": "範圍",
+      "tenantId": "租戶 ID",
+      "reason": "原因",
+      "expires": "到期時間"
+    },
+    "quarantine": {
+      "title": "隔離區管理",
+      "overdueWarning": "個逾期事件",
+      "severity": "嚴重度",
+      "status": "狀態",
+      "product": "產品",
+      "reason": "原因",
+      "sla": "SLA 期限",
+      "overdue": "已逾期",
+      "approve": "核准",
+      "reject": "拒絕",
+      "release": "釋出",
+      "bulkApprove": "批次核准",
+      "bulkReject": "批次拒絕",
+      "reviewNote": "審核備註",
+      "noEvents": "無隔離事件"
+    },
+    "strategyLint": {
+      "title": "策略驗證",
+      "passed": "全部通過",
+      "failed": "偵測到失敗",
+      "errors": "錯誤",
+      "warnings": "警告",
+      "rule": "規則",
+      "message": "訊息",
+      "file": "檔案"
+    },
+    "version": {
+      "title": "版本資訊",
+      "fingerprint": "複合指紋",
+      "apiVersions": "API 版本",
+      "current": "目前版本",
+      "latest": "最新版本",
+      "default": "預設版本",
+      "supported": "支援版本",
+      "deprecated": "已棄用",
+      "versionDetails": "版本詳情",
+      "deprecationNotices": "棄用通知",
+      "sunsetDate": "終止日期",
+      "replacement": "替代方案"
+    }
+  },
+
+  "dbMonitoring": {
+    "title": "資料庫深度監控",
+    "stats": {
+      "observations": "觀測數",
+      "ingredients": "成分數",
+      "variants": "變體數",
+      "embeddingCoverage": "嵌入覆蓋率"
+    },
+    "slowQueries": {
+      "title": "慢查詢",
+      "threshold": "閾值",
+      "query": "查詢",
+      "time": "時間",
+      "noSlowQueries": "無超過閾值的慢查詢"
+    },
+    "optimization": {
+      "title": "最佳化報告",
+      "avgTime": "平均（ms）",
+      "p95Time": "P95（ms）",
+      "p99Time": "P99（ms）",
+      "recommendations": "建議"
+    },
+    "indexUsage": {
+      "title": "索引使用情況",
+      "index": "索引",
+      "table": "表格",
+      "scans": "掃描次數",
+      "size": "大小"
+    },
+    "connectionPool": {
+      "title": "連線池"
+    },
+    "actions": {
+      "runAnalyze": "執行 ANALYZE",
+      "analyzing": "分析中...",
+      "resetMonitoring": "重置監控"
+    }
+  },
+
+  "costMonitoring": {
+    "title": "成本與預算",
+    "budgetStatus": {
+      "daily": "每日預算",
+      "monthly": "每月預算",
+      "spent": "已花費",
+      "limit": "上限",
+      "healthy": "正常",
+      "warning": "警告",
+      "critical": "嚴重"
+    },
+    "dailySummary": {
+      "title": "今日總計"
+    },
+    "byModel": {
+      "title": "按模型成本（近 30 天）",
+      "model": "模型",
+      "provider": "供應商",
+      "cost": "成本",
+      "requests": "請求數",
+      "inputTokens": "輸入令牌",
+      "outputTokens": "輸出令牌"
+    },
+    "alerts": {
+      "title": "成本警報"
+    }
+  },
+
+  "deepDiagnostics": {
+    "title": "系統深度診斷",
+    "collectMetrics": "收集指標",
+    "collecting": "收集中...",
+    "deepHealth": {
+      "title": "深度健康檢查",
+      "duration": "持續時間",
+      "checksOk": "檢查通過"
+    },
+    "systemStats": {
+      "title": "系統統計",
+      "uptime": "運行時間",
+      "httpRequests": "HTTP 請求",
+      "inProgress": "處理中",
+      "cacheHitRate": "快取命中率",
+      "dlqMessages": "DLQ 訊息",
+      "pendingJobs": "待處理工作"
+    },
+    "healthIndicators": {
+      "title": "健康指標",
+      "httpSuccessRate": "HTTP 成功率",
+      "cacheHitRate": "快取命中率",
+      "budgetHealth": "預算健康",
+      "queueHealth": "佇列健康"
+    },
+    "recentActivity": {
+      "title": "近期活動（過去一小時）",
+      "productsCreated": "建立產品",
+      "aiRequests": "AI 請求",
+      "errors": "錯誤"
+    }
+  },
+
+  "knowledgeGraph": {
+    "title": "知識圖譜",
+    "subtitle": "成分知識庫查詢、變體匹配與聚合管理",
+    "tabs": {
+      "query": "查詢與搜尋",
+      "variants": "變體匹配",
+      "aggregation": "聚合工作",
+      "stats": "KG 統計"
+    },
+    "query": {
+      "searchPlaceholder": "搜尋成分...",
+      "searchType": "搜尋類型",
+      "hybrid": "混合",
+      "vector": "向量",
+      "keyword": "關鍵字",
+      "results": "結果",
+      "noResults": "未找到結果",
+      "executionTime": "執行時間",
+      "ingredients": "成分",
+      "products": "產品",
+      "categories": "類別",
+      "embedded": "已嵌入",
+      "coverage": "覆蓋率"
+    },
+    "variants": {
+      "title": "變體匹配",
+      "singleMatch": "單一匹配",
+      "batchMatch": "批次匹配",
+      "variantText": "輸入變體文字...",
+      "batchPlaceholder": "每行輸入一個變體...",
+      "match": "匹配",
+      "matching": "匹配中...",
+      "layer1": "精確",
+      "layer2": "模糊",
+      "layer3": "語義",
+      "layer4": "人工",
+      "pendingReviews": "待審核",
+      "highPriority": "高優先",
+      "canonicalName": "標準名稱",
+      "confidence": "信心度",
+      "noReviews": "無待審核項目"
+    },
+    "aggregation": {
+      "title": "聚合工作",
+      "newJob": "新增聚合工作",
+      "jobType": "聚合類型",
+      "ingredientFrequency": "成分頻率",
+      "nutritionStats": "營養統計",
+      "anomalyDetection": "異常偵測",
+      "priority": "優先級",
+      "minObservations": "最少觀測數",
+      "progress": "進度",
+      "execute": "執行",
+      "cancel": "取消",
+      "pendingObservations": "待處理觀測",
+      "batchApprove": "批次核准",
+      "batchReject": "批次拒絕",
+      "noJobs": "無聚合工作",
+      "noObservations": "無待處理觀測"
+    },
+    "stats": {
+      "queryModule": "查詢模組",
+      "variantModule": "變體匹配模組",
+      "aggregationModule": "聚合模組",
+      "totalVariants": "變體總數",
+      "pendingReviews": "待審核",
+      "avgConfidence": "平均信心度",
+      "lastUpdated": "最後更新"
+    }
+  },
+  "ocrReview": {
+    "title": "OCR 審核佇列",
+    "description": "審核低信心度 OCR 辨識結果",
+    "tab": "審核佇列",
+    "pending": "待審核",
+    "approved": "已核准",
+    "rejected": "已拒絕",
+    "avgConfidence": "平均信心度",
+    "confidenceFilter": "信心度篩選",
+    "minConfidence": "最低信心度",
+    "maxConfidence": "最高信心度",
+    "correctedText": "校正文字",
+    "approve": "核准",
+    "reject": "拒絕",
+    "rejectionReason": "拒絕原因",
+    "noItems": "無待審核項目",
+    "noItemsDescription": "所有 OCR 辨識結果皆在信心度門檻以上"
+  },
+  "dedup": {
+    "title": "去重管理",
+    "serviceStats": "服務統計",
+    "health": "健康狀態",
+    "mode": "模式",
+    "totalFingerprints": "指紋總數",
+    "redisAvailable": "Redis 可用",
+    "status": "狀態",
+    "healthy": "健康",
+    "degraded": "降級",
+    "unhealthy": "不健康",
+    "connected": "已連線",
+    "disconnected": "已斷線",
+    "duplicateCheck": "重複檢查",
+    "duplicateCheckDescription": "測試內容是否會被標記為重複。輸入 JSON 或純文字。",
+    "check": "檢查",
+    "checking": "檢查中...",
+    "duplicate": "重複",
+    "unique": "唯一",
+    "adminActions": "管理員操作",
+    "clearAll": "清除所有指紋",
+    "confirmClear": "確認清除？",
+    "clearing": "清除中...",
+    "cleared": "已清除 {count} 個指紋"
+  },
+  "dataQualityV2": {
+    "title": "資料品質",
+    "description": "資料治理、品質監控、漂移偵測與驗證",
+    "tabs": {
+      "overview": "總覽",
+      "drift": "漂移偵測",
+      "freshness": "新鮮度",
+      "validation": "驗證錯誤"
+    },
+    "coverage": {
+      "title": "欄位完成率",
+      "totalProducts": "產品總數"
+    },
+    "drift": {
+      "title": "漂移報告",
+      "metric": "指標",
+      "period": "期間",
+      "baseline": "基線",
+      "current": "目前",
+      "magnitude": "幅度",
+      "significant": "顯著",
+      "noDrift": "無漂移報告",
+      "noDriftDescription": "漂移偵測定期執行，收集數據後再查看",
+      "lastComputed": "最後計算時間"
+    },
+    "freshness": {
+      "title": "新鮮度",
+      "totalProducts": "產品總數",
+      "avgAgeDays": "平均天數",
+      "staleProducts": "過期產品",
+      "staleRate": "過期率",
+      "ageDistribution": "年齡分布"
+    },
+    "validation": {
+      "title": "驗證錯誤",
+      "totalErrors": "錯誤總數",
+      "byType": "依類型",
+      "byField": "依欄位",
+      "recentErrors": "最近錯誤",
+      "noErrors": "無驗證錯誤",
+      "noErrorsDescription": "所有產品皆通過驗證檢查"
+    }
+  },
+  "pipelineOps": {
+    "title": "Pipeline 營運",
+    "subtitle": "任務佇列、正規化、掃描服務管理",
+    "health": {
+      "taskQueue": "任務佇列",
+      "normalizer": "正規化器",
+      "scanService": "掃描服務"
+    },
+    "taskQueue": {
+      "title": "任務佇列",
+      "stats": "佇列統計",
+      "jobLookup": "工作查詢",
+      "jobId": "工作 ID",
+      "lookup": "查詢",
+      "activeJobs": "進行中的工作",
+      "trigger": "觸發任務",
+      "aggregation": "聚合",
+      "embeddings": "嵌入向量",
+      "export": "匯出",
+      "email": "郵件",
+      "maintenance": "維護清理",
+      "cancel": "取消",
+      "retry": "重試",
+      "noActiveJobs": "無進行中的工作"
+    },
+    "normalizer": {
+      "title": "正規化器",
+      "normalize": "正規化",
+      "batchOCR": "批次 OCR 正規化",
+      "version": "版本資訊",
+      "health": "健康狀態",
+      "inputText": "輸入文字",
+      "result": "結果"
+    },
+    "scanV1": {
+      "title": "Scan v1",
+      "upload": "上傳圖片",
+      "polling": "輪詢任務狀態",
+      "jobId": "任務 ID",
+      "status": "狀態"
+    }
+  },
+
+  "dashboardV2": {
+    "criticalAlerts": "嚴重警報",
+    "engineLockdown": "引擎：安全鎖定",
+    "killSwitchActive": "緊急停止：啟動中",
+    "systemPulse": "系統脈搏",
+    "health": "健康",
+    "requestsPerHour": "請求/小時",
+    "reviewQueue": "審核佇列",
+    "lawcore": "LawCore",
+    "costToday": "今日成本",
+    "dlqDepth": "DLQ 深度",
+    "pipelineStatus": "Pipeline 狀態",
+    "taskQueue": "任務佇列",
+    "etlRunning": "ETL 執行中",
+    "normalizerHealth": "正規化器健康",
+    "recentErrors": "最近錯誤",
+    "noErrors": "無最近錯誤",
+    "quickLinks": "快速連結"
+  },
+
+  "crawlerV2": {
+    "statusStrip": "爬蟲狀態",
+    "sites": "站點數",
+    "lastCrawl": "最後爬取",
+    "quality": "品質",
+    "tabs": {
+      "control": "爬蟲控制",
+      "repairs": "DOM 修復"
+    },
+    "crawlControl": {
+      "title": "爬蟲控制",
+      "crawlProduct": "爬取產品",
+      "searchProducts": "搜尋產品",
+      "allSites": "所有站點",
+      "scheduled": "排程任務",
+      "probe": "探測",
+      "assessment": "評估",
+      "validateQuality": "品質驗證",
+      "taskLookup": "任務查詢"
+    }
+  },
+
+  "ocrCorrections": {
+    "title": "OCR 校正",
+    "submit": "提交校正",
+    "list": "校正列表",
+    "approve": "核准",
+    "reject": "拒絕",
+    "feedback": "提交回饋",
+    "status": {
+      "pending": "待審核",
+      "approved": "已核准",
+      "rejected": "已拒絕",
+      "candidate": "候選"
+    },
+    "fields": {
+      "originalText": "原始文字",
+      "correctedText": "校正文字",
+      "reason": "原因",
+      "confidence": "信心度"
+    }
+  },
+
+  "groundTruth": {
+    "title": "Ground Truth 工具",
+    "suggest": "建議",
+    "validate": "驗證",
+    "convert": "轉換",
+    "health": "健康狀態",
+    "suggestDesc": "輸入 JSON 取得 Ground Truth 建議",
+    "validateDesc": "輸入 JSON 驗證資料正確性",
+    "convertDesc": "輸入檔案路徑轉換為引擎輸入格式",
+    "valid": "有效",
+    "invalid": "無效"
+  },
+
+  "dictionaryV2": {
+    "overview": {
+      "totalTokens": "Token 總數",
+      "totalCorrections": "校正數",
+      "avgTokenPerProduct": "平均 Token/產品",
+      "topErrors": "常見錯誤"
+    },
+    "additives": {
+      "title": "添加物登記",
+      "searchPlaceholder": "搜尋添加物...",
+      "code": "代碼",
+      "name": "名稱",
+      "category": "分類",
+      "riskLevel": "風險等級",
+      "noResults": "無符合結果"
+    }
+  },
+
+  "controlPlaneV2": {
+    "title": "控制平面",
+    "subtitle": "引擎模式、緊急停止、隔離管理與策略驗證",
+    "statusStrip": {
+      "mode": "模式",
+      "killSwitch": "緊急停止",
+      "pacHealth": "PaC 健康狀態",
+      "active": "啟動中",
+      "inactive": "未啟動",
+      "unknown": "未知"
+    },
+    "sections": {
+      "quarantine": "隔離區",
+      "strategyLint": "策略驗證",
+      "versionBuild": "版本與建構",
+      "pacDiagnostics": "PaC 診斷"
+    },
+    "engineMode": {
+      "title": "引擎模式",
+      "source": "來源：{source}",
+      "setBy": "設定者：{setBy}",
+      "expires": "到期：{time}",
+      "ttlSuffix": "（TTL：{ttl}s）",
+      "changeMode": "變更引擎模式",
+      "reasonPlaceholder": "變更原因...",
+      "ttlLabel": "TTL（秒）：",
+      "applying": "套用中...",
+      "apply": "套用"
+    },
+    "killSwitch": {
+      "title": "緊急停止開關",
+      "active": "啟動中",
+      "inactive": "未啟動",
+      "resolvedMode": "解析模式：",
+      "activeOverrides": "作用中覆寫（{count}）",
+      "tableScope": "範圍",
+      "tableMode": "模式",
+      "tableReason": "原因",
+      "tableExpires": "到期時間",
+      "tableActions": "操作",
+      "activateTitle": "啟動停止開關",
+      "tenantIdPlaceholder": "租戶 ID...",
+      "reasonPlaceholder": "原因...",
+      "ttlLabel": "TTL：",
+      "ttlUnit": "秒",
+      "confirmActivate": "確認啟動",
+      "activating": "啟動中...",
+      "cancel": "取消"
+    },
+    "quarantine": {
+      "overdueEvents": "{count} 個逾期事件",
+      "statCritical": "CRITICAL",
+      "statWarn": "WARN",
+      "statInfo": "INFO",
+      "statOverdue": "逾期",
+      "filterAllSeverity": "全部嚴重度",
+      "filterAllStatus": "全部狀態",
+      "filterPending": "待審核",
+      "filterApproved": "已核准",
+      "filterRejected": "已拒絕",
+      "filterReleased": "已釋出",
+      "notePlaceholder": "備註（選填）...",
+      "approve": "核准（{count}）",
+      "reject": "拒絕（{count}）",
+      "tableSeverity": "嚴重度",
+      "tableProduct": "產品",
+      "tableReason": "原因",
+      "tableStatus": "狀態",
+      "tableSLA": "SLA",
+      "tableActions": "操作",
+      "noEvents": "無隔離事件",
+      "overdue": "已逾期"
+    },
+    "strategyLint": {
+      "allPassed": "全部檢查通過",
+      "failuresDetected": "偵測到 Lint 失敗",
+      "errors": "錯誤：{count}",
+      "warnings": "警告：{count}",
+      "info": "資訊：{count}",
+      "tableSeverity": "嚴重度",
+      "tableRule": "規則",
+      "tableMessage": "訊息",
+      "tableFile": "檔案"
+    },
+    "version": {
+      "fingerprint": "複合指紋",
+      "apiVersions": "API 版本",
+      "current": "目前：",
+      "latest": "最新：",
+      "default": "預設：",
+      "supported": "支援：",
+      "deprecated": "已棄用：",
+      "versionDetails": "版本詳情",
+      "tableVersion": "版本",
+      "tablePrefix": "前綴",
+      "tableStatus": "狀態",
+      "badgeLatest": "最新",
+      "badgeDefault": "預設",
+      "badgeDeprecated": "已棄用",
+      "deprecationNotices": "棄用通知",
+      "sunset": "終止日期：{date}",
+      "replaceWith": "替代方案：{replacement}"
+    },
+    "pacDiagnostics": {
+      "title": "PaC 診斷",
+      "health": "PaC 健康狀態",
+      "overallStatus": "整體狀態",
+      "healthy": "健康",
+      "degraded": "降級",
+      "unhealthy": "不健康",
+      "suggestedActions": "建議操作",
+      "subsystems": {
+        "engine_mode": "引擎模式",
+        "kill_switch": "緊急停止開關",
+        "quarantine_sla": "隔離 SLA",
+        "strategy_lint": "策略驗證"
+      },
+      "status": {
+        "ok": "正常",
+        "degraded": "降級",
+        "unhealthy": "不健康",
+        "unavailable": "不可用"
+      },
+      "detail": {
+        "mode": "模式：{value}",
+        "activeCount": "啟動中：{value}",
+        "overdueTotal": "逾期：{value}",
+        "errorCount": "錯誤：{value}"
+      },
+      "unavailable": "診斷不可用：{message}"
+    }
+  },
+
+  "dataQualityV2Flat": {
+    "kpiStrip": {
+      "goldenRecords": "Golden Records",
+      "stale": "過期",
+      "driftAlerts": "漂移警報",
+      "validationErrors": "驗證錯誤"
+    }
+  },
+
+  "infraFlat": {
+    "kpiStrip": {
+      "dbSize": "資料庫大小",
+      "connections": "連線數",
+      "cacheHit": "快取命中率",
+      "slowQueries": "慢查詢"
+    }
+  },
+
+  "dlqFlat": {
+    "kpiStrip": {
+      "total": "總計",
+      "pending": "待處理",
+      "failed": "失敗",
+      "processing": "處理中",
+      "replayed": "已重放"
+    },
+    "dedupSection": "去重服務"
+  },
+
+  "reviewHistory": {
+    "title": "審核歷史",
+    "totalRecords": "已審核記錄",
+    "kpi": {
+      "total": "總數",
+      "goldSamples": "黃金樣本",
+      "avgQuality": "平均品質",
+      "avgConfidence": "平均信心度"
+    },
+    "empty": "目前沒有審核歷史記錄"
+  },
+
+  "goldSamples": {
+    "title": "黃金樣本",
+    "subtitle": "高品質訓練樣本",
+    "kpi": {
+      "totalSamples": "樣本總數",
+      "avgQuality": "平均品質",
+      "avgConfidence": "平均信心度"
+    },
+    "empty": "目前沒有黃金樣本",
+    "emptyDesc": "審核產品後可建立黃金樣本"
+  },
+
+  "productsV2": {
+    "kpi": {
+      "total": "總計",
+      "golden": "Golden",
+      "tierA": "Tier A",
+      "tierB": "Tier B",
+      "tierC": "Tier C"
+    }
+  },
+
+  "benchmark": {
+    "title": "基準測試",
+    "description": "黃金樣本基準測試 — 執行測試、檢視結果、追蹤品質趨勢",
+    "runBenchmark": "執行基準測試",
+    "running": "執行中...",
+    "datasetInfo": "資料集資訊",
+    "version": "版本",
+    "totalSamples": "樣本總數",
+    "categories": "類別",
+    "created": "建立日期",
+    "difficulty": "難度",
+    "easy": "簡單",
+    "medium": "中等",
+    "hard": "困難",
+    "latestResults": "最新結果",
+    "noResults": "無基準測試結果",
+    "noResultsDescription": "點擊「執行基準測試」以執行黃金樣本測試套件",
+    "passRate": "通過率",
+    "total": "總數",
+    "passed": "通過",
+    "failed": "失敗",
+    "avgDuration": "平均耗時",
+    "p95Duration": "P95 耗時",
+    "thresholds": "通過/失敗門檻",
+    "ingredientExtraction": "成分擷取",
+    "nutritionParsing": "營養解析",
+    "performance": "效能",
+    "minPrecision": "最低精確率",
+    "minRecall": "最低召回率",
+    "minF1": "最低 F1",
+    "minFieldAccuracy": "最低欄位準確率",
+    "numericTolerance": "數值容差",
+    "requiredFields": "必要欄位",
+    "maxProcessingTime": "最大處理時間",
+    "history": "歷史記錄",
+    "noHistory": "無基準測試歷史",
+    "precision": "精確率",
+    "recall": "召回率",
+    "f1Score": "F1 分數",
+    "positionAccuracy": "位置準確率",
+    "fieldAccuracy": "欄位準確率",
+    "numericAccuracy": "數值準確率",
+    "failedProducts": "失敗產品"
   }
 }

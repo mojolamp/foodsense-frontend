@@ -1,0 +1,60 @@
+import { apiClient } from '../client'
+
+// ── Types ──────────────────────────────────────────────────
+
+export interface CoverageReport {
+  total_products: number
+  fields: Record<string, number>
+  queried_at: string
+}
+
+export interface DriftReport {
+  metric_name: string
+  baseline_mean: number
+  current_mean: number
+  drift_magnitude: number
+  is_significant: boolean
+  period: string
+}
+
+export interface DriftResponse {
+  reports: DriftReport[]
+  last_computed: string | null
+  queried_at: string
+}
+
+export interface FreshnessReport {
+  total_products: number
+  age_distribution: Record<string, number>
+  avg_age_days: number
+  stale_count: number
+  queried_at: string
+}
+
+export interface ValidationErrorReport {
+  total_errors: number
+  by_type: Record<string, number>
+  by_field: Record<string, number>
+  recent_errors: Record<string, unknown>[]
+  queried_at: string
+}
+
+// ── API Client ─────────────────────────────────────────────
+
+export const dataQualityV2API = {
+  getCoverage() {
+    return apiClient.get<CoverageReport>('/api/v1/data-quality/coverage')
+  },
+
+  getDrift() {
+    return apiClient.get<DriftResponse>('/api/v1/data-quality/drift')
+  },
+
+  getFreshness() {
+    return apiClient.get<FreshnessReport>('/api/v1/data-quality/freshness')
+  },
+
+  getValidationErrors(limit = 50) {
+    return apiClient.get<ValidationErrorReport>(`/api/v1/data-quality/validation-errors?limit=${limit}`)
+  },
+}

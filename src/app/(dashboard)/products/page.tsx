@@ -6,6 +6,10 @@ import ProductsTable from '@/components/products/ProductsTable'
 import ProductFilters from '@/components/products/ProductFilters'
 import ProductDetailDrawer from '@/components/products/ProductDetailDrawer'
 import { ProductsLoadingSkeleton } from '@/components/layout/LoadingStates'
+import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Product, ProductFilters as Filters } from '@/types/product'
 
 export default function ProductsPage() {
@@ -16,29 +20,21 @@ export default function ProductsPage() {
 
   const { data, isLoading, error } = useProducts(page, pageSize, filters)
 
-  // Check if any filters are active
   const hasActiveFilters = Object.keys(filters).some(
     key => filters[key as keyof Filters] !== undefined && filters[key as keyof Filters] !== ''
   )
 
-  // Handle clear filters
   const handleClearFilters = () => {
     setFilters({})
     setPage(1)
   }
 
-  // Handle import products
-  // FUTURE(P2): Implement product import modal/page when backend API is ready
-  // Currently a placeholder - will navigate to import workflow in future release
   const handleImportProducts = () => {
-    // Placeholder: navigation target not yet implemented
+    // FUTURE(P2): Implement product import modal/page when backend API is ready
   }
 
-  // Handle add manually
-  // FUTURE(P2): Implement product creation modal when backend API is ready
-  // Currently a placeholder - will open creation form in future release
   const handleAddManually = () => {
-    // Placeholder: modal not yet implemented
+    // FUTURE(P2): Implement product creation modal when backend API is ready
   }
 
   if (isLoading) {
@@ -47,25 +43,56 @@ export default function ProductsPage() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-600">載入失敗: {(error as Error).message}</p>
-      </div>
+      <Card className="p-4 border-destructive bg-destructive/10">
+        <p className="text-destructive">載入失敗: {(error as Error).message}</p>
+      </Card>
     )
   }
+
+  const totalProducts = data?.total || 0
+  const products = data?.products || []
+  const goldenCount = products.filter(p => p.is_golden).length
+  const tierACnt = products.filter(p => p.tier === 'A').length
+  const tierBCnt = products.filter(p => p.tier === 'B').length
+  const tierCCnt = products.filter(p => p.tier === 'C').length
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">產品總覽</h1>
-        <p className="mt-2 text-gray-600">
-          共 {data?.total || 0} 個產品
+        <h1 className="text-3xl font-bold tracking-tight">產品總覽</h1>
+        <p className="mt-2 text-muted-foreground">
+          共 {totalProducts.toLocaleString()} 個產品
         </p>
+      </div>
+
+      {/* KPI Strip */}
+      <div className="flex flex-wrap items-center gap-4 px-4 py-2 rounded-lg border border-border bg-muted/30 text-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">Total:</span>
+          <span className="font-semibold">{totalProducts.toLocaleString()}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">Golden:</span>
+          <Badge variant="success" className="text-xs">{goldenCount}</Badge>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">Tier A:</span>
+          <Badge variant="default" className="text-xs">{tierACnt}</Badge>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">Tier B:</span>
+          <Badge variant="secondary" className="text-xs">{tierBCnt}</Badge>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">Tier C:</span>
+          <Badge variant={tierCCnt > 0 ? 'destructive' : 'secondary'} className="text-xs">{tierCCnt}</Badge>
+        </div>
       </div>
 
       <ProductFilters filters={filters} onFiltersChange={setFilters} />
 
       <ProductsTable
-        products={data?.products || []}
+        products={products}
         onProductClick={(product) => setSelectedProduct(product)}
         hasActiveFilters={hasActiveFilters}
         onClearFilters={handleClearFilters}
@@ -74,28 +101,32 @@ export default function ProductsPage() {
       />
 
       {data && data.total > pageSize && (
-        <div className="flex items-center justify-between bg-white px-6 py-4 rounded-lg shadow">
-          <div className="text-sm text-gray-700">
+        <Card className="flex items-center justify-between px-6 py-4">
+          <div className="text-sm text-muted-foreground">
             顯示 {(page - 1) * pageSize + 1} 到{' '}
             {Math.min(page * pageSize, data.total)} 筆，共 {data.total} 筆
           </div>
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage(page - 1)}
               disabled={page === 1}
-              className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50"
             >
+              <ChevronLeft className="h-4 w-4 mr-1" />
               上一頁
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage(page + 1)}
               disabled={page * pageSize >= data.total}
-              className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50"
             >
               下一頁
-            </button>
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
           </div>
-        </div>
+        </Card>
       )}
 
       {selectedProduct && (
@@ -107,5 +138,3 @@ export default function ProductsPage() {
     </div>
   )
 }
-
-

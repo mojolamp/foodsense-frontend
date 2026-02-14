@@ -33,6 +33,26 @@ export interface CorrectionRequest {
   affected_product_ids?: string[]
 }
 
+export interface Additive {
+  code?: string
+  name: string
+  category?: string
+  risk_level?: 'low' | 'medium' | 'high'
+  description?: string
+}
+
+export interface AdditivesListResponse {
+  additives: Additive[]
+  total: number
+}
+
+export interface DictionaryStatsResponse {
+  total_tokens: number
+  total_corrections: number
+  avg_token_per_product: number
+  top_errors: Array<{ token: string; count: number }>
+}
+
 
 
 

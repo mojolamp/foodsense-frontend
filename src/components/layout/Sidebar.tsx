@@ -22,6 +22,11 @@ import {
   FileSearch,
   ShieldCheck,
   ArrowDownToLine,
+  AlertTriangle,
+  Network,
+  ShieldAlert,
+  FlaskConical,
+  Workflow,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
@@ -35,6 +40,13 @@ const navGroups = [
       { name: 'Products', href: '/products', icon: Package },
       { name: 'Dictionary', href: '/dictionary', icon: BookOpen },
       { name: 'Clustering', href: '/clustering', icon: Boxes },
+      { name: 'Knowledge Graph', href: '/knowledge-graph', icon: Network },
+    ]
+  },
+  {
+    title: 'Control Plane',
+    items: [
+      { name: 'Control Plane', href: '/control-plane', icon: ShieldAlert },
     ]
   },
   {
@@ -49,7 +61,10 @@ const navGroups = [
   {
     title: 'Data Pipeline',
     items: [
+      { name: 'OCR Scanner', href: '/data-pipeline/ocr', icon: ScanLine },
       { name: 'Ingestion Gate', href: '/ingestion-gate/review', icon: ArrowDownToLine },
+      { name: 'ETL Jobs', href: '/data-pipeline/etl', icon: Boxes },
+      { name: 'Documents', href: '/data-pipeline/documents', icon: FileSearch },
     ]
   },
   {
@@ -71,10 +86,20 @@ const navGroups = [
     ]
   },
   {
+    title: 'Operations',
+    items: [
+      { name: 'Pipeline Ops', href: '/operations/pipeline', icon: Workflow },
+      { name: 'Crawler Admin', href: '/operations/crawler', icon: Settings },
+      { name: 'Dead Letter Queue', href: '/operations/dlq', icon: AlertTriangle },
+      { name: 'Acquisition Metrics', href: '/operations/metrics', icon: BarChart2 },
+    ]
+  },
+  {
     title: 'System & Analytics',
     items: [
       { name: 'Rules Engine', href: '/rules', icon: Settings },
       { name: 'Data Quality', href: '/data-quality', icon: BarChart2 },
+      { name: 'Benchmark', href: '/benchmark', icon: FlaskConical },
     ]
   }
 ]

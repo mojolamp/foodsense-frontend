@@ -74,11 +74,17 @@ export class APIClient {
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout)
 
     try {
+      // Don't set Content-Type for FormData — let browser set multipart boundary
+      const isFormData = options?.body instanceof FormData
+      const contentTypeHeaders: Record<string, string> = isFormData
+        ? {}
+        : { 'Content-Type': 'application/json' }
+
       const response = await fetch(url, {
         ...options,
         signal: controller.signal,
         headers: {
-          'Content-Type': 'application/json',
+          ...contentTypeHeaders,
           ...authHeaders,
           ...options?.headers,
         },
@@ -158,6 +164,13 @@ export class APIClient {
   async delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'DELETE',
+    })
+  }
+
+  async postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: formData,
     })
   }
 }

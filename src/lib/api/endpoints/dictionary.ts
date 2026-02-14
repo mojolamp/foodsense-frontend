@@ -3,6 +3,8 @@ import type {
   TokenRanking,
   TokenDetail,
   CorrectionRequest,
+  AdditivesListResponse,
+  DictionaryStatsResponse,
 } from '@/types/dictionary'
 
 export const dictionaryAPI = {
@@ -38,12 +40,16 @@ export const dictionaryAPI = {
   },
 
   getStats: async () => {
-    return apiClient.get<{
-      total_tokens: number
-      total_corrections: number
-      avg_token_per_product: number
-      top_errors: Array<{ token: string; count: number }>
-    }>('/admin/dictionary/stats')
+    return apiClient.get<DictionaryStatsResponse>('/admin/dictionary/stats')
+  },
+
+  getAdditives: async (search?: string) => {
+    const params = search ? `?search=${encodeURIComponent(search)}` : ''
+    return apiClient.get<AdditivesListResponse>(`/admin/dictionary/additives${params}`)
+  },
+
+  getOverview: async () => {
+    return apiClient.get<{ dictionaries: string[] }>('/admin/dictionary/')
   },
 }
 

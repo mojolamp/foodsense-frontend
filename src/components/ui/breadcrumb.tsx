@@ -25,6 +25,17 @@ const breadcrumbLabels: Record<string, string> = {
   admin: 'Admin',
   'ingestion-gate': 'Ingestion Gate',
   'data-quality': 'Data Quality',
+  'data-pipeline': 'Data Pipeline',
+  ocr: 'OCR Scanner',
+  etl: 'ETL Jobs',
+  documents: 'Documents',
+  operations: 'Operations',
+  crawler: 'Crawler Admin',
+  dlq: 'Dead Letter Queue',
+  metrics: 'Acquisition Metrics',
+  'control-plane': 'Control Plane',
+  'knowledge-graph': 'Knowledge Graph',
+  benchmark: 'Benchmark',
   settings: 'Settings',
 }
 

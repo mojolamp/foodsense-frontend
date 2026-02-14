@@ -20,6 +20,38 @@ export interface FeatureFlags {
   data_quality_trends: boolean
   screen_reader_enhancements: boolean
   a11y_automation: boolean
+
+  // P2 Phase: Data Acquisition UI
+  ocr_scanner: boolean
+  etl_pipeline: boolean
+  document_upload: boolean
+  crawler_admin: boolean
+  dlq_operations: boolean
+  acquisition_metrics: boolean
+  ingestion_manual_submit: boolean
+
+  // P3 Phase: Full Coverage
+  control_plane: boolean
+  knowledge_graph: boolean
+  benchmark_runner: boolean
+  monitoring_deep: boolean
+  ocr_review_queue: boolean
+
+  // P4 Phase: Dashboard-First Redesign
+  pipeline_operations: boolean
+  dashboard_command_center: boolean
+  crawler_full_control: boolean
+  etl_review_section: boolean
+  ocr_corrections: boolean
+  ground_truth_panel: boolean
+  dictionary_additives: boolean
+  pac_diagnostics: boolean
+  tab_flattening: boolean
+  data_quality_flat: boolean
+  monitoring_infra_flat: boolean
+  dlq_flat: boolean
+  products_kpi: boolean
+  sparse_page_modernize: boolean
 }
 
 // Default flags (all disabled for safety)
@@ -33,6 +65,32 @@ const DEFAULT_FLAGS: FeatureFlags = {
   data_quality_trends: false,
   screen_reader_enhancements: false,
   a11y_automation: false,
+  ocr_scanner: false,
+  etl_pipeline: false,
+  document_upload: false,
+  crawler_admin: false,
+  dlq_operations: false,
+  acquisition_metrics: false,
+  ingestion_manual_submit: false,
+  control_plane: false,
+  knowledge_graph: false,
+  benchmark_runner: false,
+  monitoring_deep: false,
+  ocr_review_queue: false,
+  pipeline_operations: false,
+  dashboard_command_center: false,
+  crawler_full_control: false,
+  etl_review_section: false,
+  ocr_corrections: false,
+  ground_truth_panel: false,
+  dictionary_additives: false,
+  pac_diagnostics: false,
+  tab_flattening: false,
+  data_quality_flat: false,
+  monitoring_infra_flat: false,
+  dlq_flat: false,
+  products_kpi: false,
+  sparse_page_modernize: false,
 }
 
 // Legacy function for backward compatibility

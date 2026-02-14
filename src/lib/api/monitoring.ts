@@ -88,6 +88,74 @@ export interface InfraMetrics {
 }
 
 /**
+ * Deep Health Check
+ */
+export interface DeepHealthCheck {
+  name: string
+  status: 'ok' | 'degraded' | 'fail' | 'skip'
+  detail: string
+}
+
+export interface DeepHealthResponse {
+  status: 'healthy' | 'degraded' | 'unhealthy'
+  timestamp: string
+  duration_ms: number
+  checks: DeepHealthCheck[]
+  summary: {
+    total: number
+    ok: number
+    degraded: number
+    fail: number
+    skip: number
+  }
+}
+
+/**
+ * System Stats
+ */
+export interface SystemStatsResponse {
+  timestamp: string
+  uptime_seconds: number
+  http: { total_requests: number; requests_in_progress: number }
+  business: { total_products: number; total_ingredients: number; total_observations: number; total_variants: number }
+  queue: { pending_jobs: number; total_jobs: number }
+  cost: { daily_spent_usd: number; daily_limit_usd: number; monthly_spent_usd: number; monthly_limit_usd: number }
+  errors: { total_errors: number; dlq_messages: number }
+  cache: { hits: number; misses: number; hit_rate: number }
+}
+
+/**
+ * Dashboard Data
+ */
+export interface DashboardDataResponse {
+  timestamp: string
+  uptime_seconds: number
+  http: Record<string, unknown>
+  business: Record<string, unknown>
+  queue: Record<string, unknown>
+  cost: Record<string, unknown>
+  errors: Record<string, unknown>
+  cache: Record<string, unknown>
+  health_indicators: {
+    http_success_rate: number
+    cache_hit_rate: number
+    budget_health: 'healthy' | 'warning' | 'critical'
+    queue_health: 'healthy' | 'normal' | 'warning' | 'critical' | 'no_workers'
+  }
+  recent_activity: {
+    products_created_last_hour: number
+    ai_requests_last_hour: number
+    errors_last_hour: number
+  }
+  alerts: {
+    severity: 'warning' | 'critical'
+    type: string
+    message: string
+    value: number
+  }[]
+}
+
+/**
  * Error detail for drill-down
  */
 export interface ErrorDetail {
@@ -136,6 +204,34 @@ export class MonitoringAPI {
     return apiClientV2.get<{ errors: ErrorDetail[] }>(
       `/monitoring/errors?endpoint=${encodedEndpoint}&limit=${limit}`
     )
+  }
+
+  /**
+   * Get deep health check (Tier 2 — admin JWT required)
+   */
+  async getDeepHealth(): Promise<DeepHealthResponse> {
+    return apiClientV2.get<DeepHealthResponse>('/monitoring/health/deep')
+  }
+
+  /**
+   * Get system stats (Tier 2 — admin JWT required)
+   */
+  async getSystemStats(): Promise<SystemStatsResponse> {
+    return apiClientV2.get<SystemStatsResponse>('/monitoring/stats')
+  }
+
+  /**
+   * Get dashboard data (Tier 2 — admin JWT required)
+   */
+  async getDashboardData(): Promise<DashboardDataResponse> {
+    return apiClientV2.get<DashboardDataResponse>('/monitoring/dashboard-data')
+  }
+
+  /**
+   * Trigger manual metrics collection (Tier 2 — admin JWT required)
+   */
+  async collectMetrics(): Promise<{ status: string; timestamp: string; message: string }> {
+    return apiClientV2.post('/monitoring/collect', {})
   }
 
   /**
