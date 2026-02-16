@@ -338,7 +338,7 @@ function DeepDiagnosticsSection() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Cache Hit Rate</span>
-                <span className="font-medium">{(sysStats.cache.hit_rate * 100).toFixed(1)}%</span>
+                <span className="font-medium">{sysStats.cache.hit_rate.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">DLQ Messages</span>
@@ -363,11 +363,11 @@ function DeepDiagnosticsSection() {
             <div className="space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">HTTP Success Rate</span>
-                <span className="font-medium">{(dashData.health_indicators.http_success_rate * 100).toFixed(1)}%</span>
+                <span className="font-medium">{dashData.health_indicators.http_success_rate.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Cache Hit Rate</span>
-                <span className="font-medium">{(dashData.health_indicators.cache_hit_rate * 100).toFixed(1)}%</span>
+                <span className="font-medium">{dashData.health_indicators.cache_hit_rate.toFixed(1)}%</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Budget Health</span>
