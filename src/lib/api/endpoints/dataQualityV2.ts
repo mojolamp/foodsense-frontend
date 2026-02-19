@@ -53,22 +53,22 @@ export interface IngestionSummaryResponse {
 
 export const dataQualityV2API = {
   getCoverage() {
-    return apiClient.get<CoverageReport>('/api/v1/data-quality/coverage')
+    return apiClient.get<CoverageReport>('/api/v1/coverage')
   },
 
   getDrift() {
-    return apiClient.get<DriftResponse>('/api/v1/data-quality/drift')
+    return apiClient.get<DriftResponse>('/api/v1/drift')
   },
 
   getFreshness() {
-    return apiClient.get<FreshnessReport>('/api/v1/data-quality/freshness')
+    return apiClient.get<FreshnessReport>('/api/v1/freshness')
   },
 
   getValidationErrors(limit = 50) {
-    return apiClient.get<ValidationErrorReport>(`/api/v1/data-quality/validation-errors?limit=${limit}`)
+    return apiClient.get<ValidationErrorReport>(`/api/v1/validation-errors?limit=${limit}`)
   },
 
   getIngestionSummary() {
-    return apiClient.get<IngestionSummaryResponse>('/api/v1/data-quality/ingestion-summary')
+    return apiClient.get<IngestionSummaryResponse>('/api/v1/ingestion-summary')
   },
 }
