@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { crawlerAdminAPI } from '@/lib/api/endpoints/crawlerAdmin'
 import { getErrorMessage } from '@/types/api'
+import type { CreateScheduleRequest } from '@/types/crawlerPipeline'
 import toast from 'react-hot-toast'
 
 export function useRepairStats() {
@@ -44,6 +45,30 @@ export function useRejectRepair() {
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error) || 'Reject failed')
+    },
+  })
+}
+
+// ── Schedule Management ──────────────────────────────────
+
+export function useCrawlerSchedules() {
+  return useQuery({
+    queryKey: ['crawler-schedules'],
+    queryFn: () => crawlerAdminAPI.listSchedules(),
+    refetchInterval: 30_000,
+  })
+}
+
+export function useCreateCrawlerSchedule() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CreateScheduleRequest) => crawlerAdminAPI.createSchedule(data),
+    onSuccess: (data) => {
+      toast.success(`Schedule created: ${data.schedule_id?.slice(0, 8) ?? 'ok'}`)
+      queryClient.invalidateQueries({ queryKey: ['crawler-schedules'] })
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error) || 'Create schedule failed')
     },
   })
 }

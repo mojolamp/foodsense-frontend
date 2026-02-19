@@ -4,6 +4,10 @@ import type {
   RepairActionResponse,
   RepairsPendingResponse,
 } from '@/types/crawlerAdmin'
+import type {
+  CrawlerSchedule,
+  CreateScheduleRequest,
+} from '@/types/crawlerPipeline'
 
 export const crawlerAdminAPI = {
   async getStats(): Promise<{ success: boolean; stats: DOMRepairStats }> {
@@ -37,6 +41,18 @@ export const crawlerAdminAPI = {
     return apiClient.post<RepairActionResponse>(
       `/api/v1/crawler-admin/repairs/${repairId}/reject`,
       { reason }
+    )
+  },
+
+  // ── Schedule Management ──────────────────────────────────
+
+  async createSchedule(data: CreateScheduleRequest) {
+    return apiClient.post<CrawlerSchedule>('/api/v1/crawler-admin/schedule', data)
+  },
+
+  async listSchedules() {
+    return apiClient.get<{ schedules: CrawlerSchedule[]; total: number }>(
+      '/api/v1/crawler-admin/schedules'
     )
   },
 }

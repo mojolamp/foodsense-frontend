@@ -39,6 +39,16 @@ export interface ValidationErrorReport {
   queried_at: string
 }
 
+export interface IngestionSummaryResponse {
+  total_records: number
+  by_status: Record<string, number>
+  by_source_type: Record<string, number>
+  today_count: number
+  pass_rate: number
+  queried_at: string
+  source: string
+}
+
 // ── API Client ─────────────────────────────────────────────
 
 export const dataQualityV2API = {
@@ -56,5 +66,9 @@ export const dataQualityV2API = {
 
   getValidationErrors(limit = 50) {
     return apiClient.get<ValidationErrorReport>(`/api/v1/data-quality/validation-errors?limit=${limit}`)
+  },
+
+  getIngestionSummary() {
+    return apiClient.get<IngestionSummaryResponse>('/api/v1/data-quality/ingestion-summary')
   },
 }

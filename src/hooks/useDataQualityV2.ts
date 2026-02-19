@@ -32,3 +32,11 @@ export function useDQValidationErrors(limit = 50) {
     refetchInterval: 60_000,
   })
 }
+
+export function useDQIngestionSummary() {
+  return useQuery({
+    queryKey: ['data-quality', 'ingestion-summary'],
+    queryFn: () => dataQualityV2API.getIngestionSummary(),
+    refetchInterval: 60_000,
+  })
+}
