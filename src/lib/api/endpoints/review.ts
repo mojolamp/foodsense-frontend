@@ -2,7 +2,7 @@ import { apiClient } from '../client'
 import type { OCRRecord, GroundTruthCreate, GroundTruth, ReviewStats, ReviewerMetrics, TeamMetrics } from '@/types/review'
 
 export const reviewAPI = {
-  // GET /admin/review/queue
+  // GET /review-queue
   getQueue: (params?: {
     validation_status?: string
     confidence_level?: string
@@ -16,55 +16,55 @@ export const reviewAPI = {
     if (params?.offset) query.append('offset', params.offset.toString())
 
     const queryString = query.toString()
-    return apiClient.get<OCRRecord[]>(`/admin/review/queue${queryString ? `?${queryString}` : ''}`)
+    return apiClient.get<OCRRecord[]>(`/review-queue${queryString ? `?${queryString}` : ''}`)
   },
 
-  // POST /admin/review/submit
+  // POST /review-queue/submit
   submitReview: (data: GroundTruthCreate) => {
-    return apiClient.post<GroundTruth>('/admin/review/submit', data)
+    return apiClient.post<GroundTruth>('/review-queue/submit', data)
   },
 
-  // GET /admin/review/stats
+  // GET /review-queue/stats
   getStats: () => {
-    return apiClient.get<ReviewStats>('/admin/review/stats')
+    return apiClient.get<ReviewStats>('/review-queue/stats')
   },
 
-  // GET /admin/review/history
+  // GET /review-queue/history
   getHistory: (params?: { limit?: number; offset?: number }) => {
     const query = new URLSearchParams()
     if (params?.limit) query.append('limit', params.limit.toString())
     if (params?.offset) query.append('offset', params.offset.toString())
 
     const queryString = query.toString()
-    return apiClient.get<GroundTruth[]>(`/admin/review/history${queryString ? `?${queryString}` : ''}`)
+    return apiClient.get<GroundTruth[]>(`/review-queue/history${queryString ? `?${queryString}` : ''}`)
   },
 
-  // GET /admin/review/gold-samples
+  // GET /review-queue/gold-samples
   getGoldSamples: (params?: { limit?: number; offset?: number }) => {
     const query = new URLSearchParams()
     if (params?.limit) query.append('limit', params.limit.toString())
     if (params?.offset) query.append('offset', params.offset.toString())
 
     const queryString = query.toString()
-    return apiClient.get<GroundTruth[]>(`/admin/review/gold-samples${queryString ? `?${queryString}` : ''}`)
+    return apiClient.get<GroundTruth[]>(`/review-queue/gold-samples${queryString ? `?${queryString}` : ''}`)
   },
 
-  // POST /admin/review/gold-samples
+  // POST /review-queue/gold-samples
   markAsGold: (gt_id: string) => {
-    return apiClient.post<{ success: boolean; message?: string }>(`/admin/review/gold-samples?gt_id=${gt_id}`, {})
+    return apiClient.post<{ success: boolean; message?: string }>(`/review-queue/gold-samples?gt_id=${gt_id}`, {})
   },
 
-  // GET /admin/review/metrics/personal
+  // GET /review-queue/metrics/personal
   getPersonalMetrics: () => {
-    return apiClient.get<ReviewerMetrics>('/admin/review/metrics/personal')
+    return apiClient.get<ReviewerMetrics>('/review-queue/metrics/personal')
   },
 
-  // GET /admin/review/metrics/team
+  // GET /review-queue/metrics/team
   getTeamMetrics: () => {
-    return apiClient.get<TeamMetrics>('/admin/review/metrics/team')
+    return apiClient.get<TeamMetrics>('/review-queue/metrics/team')
   },
 
-  // POST /admin/review/batch-submit (P1-1)
+  // POST /review-queue/batch-submit
   batchSubmitReviews: (data: {
     reviews: Array<{
       ocr_record_id: string
@@ -96,6 +96,6 @@ export const reviewAPI = {
         ocr_record_id: string
         error: string
       }>
-    }>('/admin/review/batch-submit', data)
+    }>('/review-queue/batch-submit', data)
   },
 }

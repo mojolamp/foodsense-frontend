@@ -4,13 +4,16 @@ import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle, XCircle, ChevronDown, ChevronRight, Code, Globe, Wrench } from 'lucide-react'
+import { CheckCircle, XCircle, ChevronDown, ChevronRight, Code, Globe, Wrench, Rocket, Activity, CalendarClock } from 'lucide-react'
 import { useRepairStats, useRepairs, useApproveRepair, useRejectRepair } from '@/hooks/useCrawlerAdmin'
 import type { DOMRepairItem } from '@/types/crawlerAdmin'
 import CrawlerStatusStrip from '@/components/crawler/CrawlerStatusStrip'
 import CrawlControlPanel from '@/components/crawler/CrawlControlPanel'
+import PipelineLaunchPanel from '@/components/crawler/PipelineLaunchPanel'
+import CrawlerHealthDashboard from '@/components/crawler/CrawlerHealthDashboard'
+import ScheduleManager from '@/components/crawler/ScheduleManager'
 
-type TabType = 'control' | 'repairs'
+type TabType = 'control' | 'pipeline' | 'health' | 'schedules' | 'repairs'
 
 export default function CrawlerAdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>('control')
@@ -34,6 +37,9 @@ export default function CrawlerAdminPage() {
 
   const tabs: { key: TabType; label: string; icon: React.ElementType; badge?: number }[] = [
     { key: 'control', label: 'Crawl Control', icon: Globe },
+    { key: 'pipeline', label: 'Pipeline', icon: Rocket },
+    { key: 'health', label: 'Health', icon: Activity },
+    { key: 'schedules', label: 'Schedules', icon: CalendarClock },
     { key: 'repairs', label: 'DOM Repairs', icon: Wrench, badge: stats?.pending },
   ]
 
@@ -43,7 +49,7 @@ export default function CrawlerAdminPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Crawler Admin</h1>
         <p className="mt-2 text-muted-foreground">
-          Full crawler control, DOM repair management, and quality assessment.
+          Full crawler control, pipeline orchestration, health monitoring, and DOM repair management.
         </p>
       </div>
 
@@ -51,12 +57,12 @@ export default function CrawlerAdminPage() {
       <CrawlerStatusStrip />
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-border">
+      <div className="flex gap-1 border-b border-border overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === tab.key
                 ? 'border-primary text-primary'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -73,6 +79,15 @@ export default function CrawlerAdminPage() {
 
       {/* Crawl Control Tab */}
       {activeTab === 'control' && <CrawlControlPanel />}
+
+      {/* Pipeline Tab */}
+      {activeTab === 'pipeline' && <PipelineLaunchPanel />}
+
+      {/* Health Tab */}
+      {activeTab === 'health' && <CrawlerHealthDashboard />}
+
+      {/* Schedules Tab */}
+      {activeTab === 'schedules' && <ScheduleManager />}
 
       {/* DOM Repairs Tab */}
       {activeTab === 'repairs' && (

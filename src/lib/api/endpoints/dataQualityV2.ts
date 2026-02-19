@@ -39,22 +39,36 @@ export interface ValidationErrorReport {
   queried_at: string
 }
 
+export interface IngestionSummaryResponse {
+  total_records: number
+  by_status: Record<string, number>
+  by_source_type: Record<string, number>
+  today_count: number
+  pass_rate: number
+  queried_at: string
+  source: string
+}
+
 // ── API Client ─────────────────────────────────────────────
 
 export const dataQualityV2API = {
   getCoverage() {
-    return apiClient.get<CoverageReport>('/api/v1/data-quality/coverage')
+    return apiClient.get<CoverageReport>('/api/v1/coverage')
   },
 
   getDrift() {
-    return apiClient.get<DriftResponse>('/api/v1/data-quality/drift')
+    return apiClient.get<DriftResponse>('/api/v1/drift')
   },
 
   getFreshness() {
-    return apiClient.get<FreshnessReport>('/api/v1/data-quality/freshness')
+    return apiClient.get<FreshnessReport>('/api/v1/freshness')
   },
 
   getValidationErrors(limit = 50) {
-    return apiClient.get<ValidationErrorReport>(`/api/v1/data-quality/validation-errors?limit=${limit}`)
+    return apiClient.get<ValidationErrorReport>(`/api/v1/validation-errors?limit=${limit}`)
+  },
+
+  getIngestionSummary() {
+    return apiClient.get<IngestionSummaryResponse>('/api/v1/ingestion-summary')
   },
 }

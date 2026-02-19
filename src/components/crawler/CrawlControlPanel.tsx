@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -14,11 +14,27 @@ import {
   useCrawlerValidateQuality,
   useCrawlerList,
 } from '@/hooks/useCrawlerRaw'
+import type { ActiveTask, TaskSource } from '@/types/crawlerPipeline'
+import ActiveTaskTracker from './ActiveTaskTracker'
 import TaskStatusLookup from './TaskStatusLookup'
 
 export default function CrawlControlPanel() {
   const { data: crawlers } = useCrawlerList()
   const sites = crawlers?.crawlers ?? []
+
+  // Active tasks auto-tracking
+  const [activeTasks, setActiveTasks] = useState<ActiveTask[]>([])
+
+  const trackTask = useCallback((taskId: string, label: string, source: TaskSource) => {
+    setActiveTasks((prev) => [
+      { taskId, label, source, startedAt: new Date().toISOString() },
+      ...prev,
+    ])
+  }, [])
+
+  const dismissTask = useCallback((taskId: string) => {
+    setActiveTasks((prev) => prev.filter((t) => t.taskId !== taskId))
+  }, [])
 
   // Form states
   const [productUrl, setProductUrl] = useState('')
@@ -39,6 +55,21 @@ export default function CrawlControlPanel() {
 
   return (
     <div className="space-y-4">
+      {/* Active Tasks */}
+      {activeTasks.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Tasks</h4>
+          {activeTasks.map((t) => (
+            <ActiveTaskTracker
+              key={t.taskId}
+              taskId={t.taskId}
+              label={t.label}
+              onDismiss={() => dismissTask(t.taskId)}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Crawl Product */}
       <Card className="p-4">
         <div className="flex items-center gap-2 mb-3">
@@ -64,7 +95,10 @@ export default function CrawlControlPanel() {
           <Button
             size="sm"
             disabled={!productSite || !productUrl || crawlProduct.isPending}
-            onClick={() => crawlProduct.mutate({ site_name: productSite, url: productUrl })}
+            onClick={() => crawlProduct.mutate(
+              { site_name: productSite, url: productUrl },
+              { onSuccess: (data) => trackTask(data.task_id, `Product: ${productSite}`, 'product') }
+            )}
           >
             Crawl
           </Button>
@@ -108,7 +142,10 @@ export default function CrawlControlPanel() {
               <Button
                 size="sm"
                 disabled={!searchSite || !searchKeyword || crawlSearch.isPending}
-                onClick={() => crawlSearch.mutate({ site_name: searchSite, keyword: searchKeyword, limit: searchLimit })}
+                onClick={() => crawlSearch.mutate(
+                  { site_name: searchSite, keyword: searchKeyword, limit: searchLimit },
+                  { onSuccess: (data) => trackTask(data.task_id, `Search: ${searchSite}/${searchKeyword}`, 'search') }
+                )}
               >
                 Search
               </Button>
@@ -132,7 +169,10 @@ export default function CrawlControlPanel() {
             <Button
               size="sm"
               disabled={!allSitesKeyword || crawlAllSites.isPending}
-              onClick={() => crawlAllSites.mutate({ keyword: allSitesKeyword })}
+              onClick={() => crawlAllSites.mutate(
+                { keyword: allSitesKeyword },
+                { onSuccess: (data) => trackTask(data.task_id, `All Sites: ${allSitesKeyword}`, 'allSites') }
+              )}
             >
               Crawl All
             </Button>
@@ -166,10 +206,16 @@ export default function CrawlControlPanel() {
               size="sm"
               className="w-full"
               disabled={!schedKeywords || crawlScheduled.isPending}
-              onClick={() => crawlScheduled.mutate({
-                keywords: schedKeywords.split(',').map(k => k.trim()).filter(Boolean),
-                sites: schedSites ? schedSites.split(',').map(s => s.trim()).filter(Boolean) : null,
-              })}
+              onClick={() => {
+                const kws = schedKeywords.split(',').map(k => k.trim()).filter(Boolean)
+                crawlScheduled.mutate(
+                  {
+                    keywords: kws,
+                    sites: schedSites ? schedSites.split(',').map(s => s.trim()).filter(Boolean) : null,
+                  },
+                  { onSuccess: (data) => trackTask(data.task_id, `Scheduled: ${kws.length} keywords`, 'scheduled') }
+                )
+              }}
             >
               Schedule
             </Button>
@@ -186,15 +232,13 @@ export default function CrawlControlPanel() {
             className="w-full"
             variant="outline"
             disabled={probe.isPending}
-            onClick={() => probe.mutate({})}
+            onClick={() => probe.mutate(
+              {},
+              { onSuccess: (data) => trackTask(data.task_id, 'Health Probe', 'probe') }
+            )}
           >
             {probe.isPending ? 'Probing...' : 'Run Probe'}
           </Button>
-          {probe.data && (
-            <Badge variant="success" className="mt-2 text-xs">
-              Task: {probe.data.task_id}
-            </Badge>
-          )}
         </Card>
 
         <Card className="p-4">
@@ -219,7 +263,7 @@ export default function CrawlControlPanel() {
         </Card>
       </div>
 
-      {/* Task Lookup */}
+      {/* Manual Task Lookup */}
       <TaskStatusLookup />
     </div>
   )

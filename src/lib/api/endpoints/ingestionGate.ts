@@ -57,58 +57,49 @@ export const ingestionGateAPI = {
     if (filters?.offset) params.append('offset', String(filters.offset))
     if (filters?.decision) params.append('decision', filters.decision)
 
-    const response = await apiClient.get<ReviewQueueItem[] | { data: ReviewQueueItem[] }>(`/api/v1/review-queue?${params.toString()}`)
-    // API 可能直接返回陣列或包在 data 中
+    const response = await apiClient.get<ReviewQueueItem[] | { data: ReviewQueueItem[] }>(`/review-queue?${params.toString()}`)
     return Array.isArray(response) ? response : (response as { data: ReviewQueueItem[] }).data || []
   },
 
   async getReviewDetail(reviewId: string): Promise<ReviewQueueItem> {
-    const response = await apiClient.get<{ data: ReviewQueueItem }>(`/api/v1/review-queue/${reviewId}`)
-    return response.data
+    return apiClient.get<ReviewQueueItem>(`/review-queue/${reviewId}`)
   },
 
   async resolveReview(reviewId: string, resolution: { status: string; notes?: string }): Promise<ResolveReviewResponse> {
-    const response = await apiClient.post<{ data: ResolveReviewResponse }>(`/api/v1/review-queue/${reviewId}/resolve`, resolution)
-    return response.data
+    return apiClient.post<ResolveReviewResponse>(`/review-queue/${reviewId}/resolve`, resolution)
   },
 
   async applyPatch(reviewId: string, patchRequest: { finding_id: string; patch: JsonValue[] }): Promise<ApplyPatchResponse> {
-    const response = await apiClient.post<{ data: ApplyPatchResponse }>(`/api/v1/review-queue/${reviewId}/apply-patch`, patchRequest)
-    return response.data
+    return apiClient.post<ApplyPatchResponse>(`/review-queue/${reviewId}/apply-patch`, patchRequest)
   },
 
   async getEntitySuggest(query: string, namespace: 'ingredients' | 'allergens' | 'additives'): Promise<EntitySuggestItem[]> {
-    const response = await apiClient.get<EntitySuggestItem[] | { data: EntitySuggestItem[] }>(`/api/v1/entity/suggest?q=${encodeURIComponent(query)}&namespace=${namespace}`)
-    // API 可能直接返回陣列或包在 data 中
+    const response = await apiClient.get<EntitySuggestItem[] | { data: EntitySuggestItem[] }>(`/entity/suggest?q=${encodeURIComponent(query)}&namespace=${namespace}`)
     return Array.isArray(response) ? response : (response as { data: EntitySuggestItem[] }).data || []
   },
 
   async commitEntityAlias(data: { original: string; canonical: string; namespace: string }): Promise<CommitAliasResponse> {
-    const response = await apiClient.post<{ data: CommitAliasResponse }>('/api/v1/entity/alias/commit', data)
-    return response.data
+    return apiClient.post<CommitAliasResponse>('/entity/alias/commit', data)
   },
 
   async retryGate(scanId: string, request: { action: string; target_fields: string[] }): Promise<RetryGateResponse> {
-    const response = await apiClient.post<{ data: RetryGateResponse }>(`/api/v1/ingestion-gate/retry`, {
+    return apiClient.post<RetryGateResponse>('/ingestion-gate/retry', {
       scan_id: scanId,
       ...request,
     })
-    return response.data
   },
 
   async bulkResolve(reviewIds: string[], status: string): Promise<BulkResolveResponse> {
-    const response = await apiClient.post<{ data: BulkResolveResponse }>('/api/v1/review-queue/bulk/resolve', {
+    return apiClient.post<BulkResolveResponse>('/review-queue/bulk/resolve', {
       review_ids: reviewIds,
       status,
     })
-    return response.data
   },
 
   async bulkApplyFix(reviewIds: string[], request: { rule_id: string; patch: JsonValue[] }): Promise<BulkApplyFixResponse> {
-    const response = await apiClient.post<{ data: BulkApplyFixResponse }>('/api/v1/review-queue/bulk/apply-fix', {
+    return apiClient.post<BulkApplyFixResponse>('/review-queue/bulk/apply-fix', {
       review_ids: reviewIds,
       ...request,
     })
-    return response.data
   },
 }
