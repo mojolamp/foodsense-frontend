@@ -126,6 +126,32 @@ export interface PromoteRulePayload {
 }
 
 /**
+ * Import raw laws payload
+ */
+export interface ImportRawLawsPayload {
+  source: 'TFDA' | 'EFSA' | 'JECFA' | 'MANUAL'
+  laws: Array<{
+    title: string
+    official_id?: string
+    category: 'ACT' | 'REGULATION' | 'ANNOUNCEMENT' | 'GUIDELINE'
+    issuing_agency?: string
+    publication_date?: string
+    effective_date?: string
+    content_text?: string
+  }>
+}
+
+/**
+ * Import raw laws response
+ */
+export interface ImportRawLawsResponse {
+  status: string
+  imported: number
+  skipped: number
+  message: string
+}
+
+/**
  * LawCore API Client
  */
 export class LawCoreAPI {
@@ -190,6 +216,16 @@ export class LawCoreAPI {
   async promoteRule(payload: PromoteRulePayload): Promise<{ message: string; rule_ids: string[] }> {
     return apiClientLawCore.post<{ message: string; rule_ids: string[] }, PromoteRulePayload>(
       '/admin/promote-rule',
+      payload
+    )
+  }
+
+  /**
+   * Import raw laws to staging table (admin only)
+   */
+  async importRawLaws(payload: ImportRawLawsPayload): Promise<ImportRawLawsResponse> {
+    return apiClientLawCore.post<ImportRawLawsResponse, ImportRawLawsPayload>(
+      '/admin/import-raw-laws',
       payload
     )
   }
