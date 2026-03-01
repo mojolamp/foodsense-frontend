@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { productsAPI } from '@/lib/api/endpoints/products'
-import type { ProductFilters } from '@/types/product'
+import type { ProductFilters, TierLevel } from '@/types/product'
 import toast from 'react-hot-toast'
 
 export function useProducts(
@@ -26,7 +26,7 @@ export function useUpdateProductTier() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ productId, tier }: { productId: string; tier: 'A' | 'B' | 'C' }) =>
+    mutationFn: ({ productId, tier }: { productId: string; tier: TierLevel }) =>
       productsAPI.updateProductTier(productId, tier),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['products'] })

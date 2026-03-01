@@ -5,6 +5,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useProductDetail, useUpdateProductTier } from '@/hooks/useProducts'
 import { Product } from '@/types/product'
+import type { TierLevel } from '@/types/product'
 import TierBadge from './TierBadge'
 import IngredientStructureTree from './IngredientStructureTree'
 
@@ -13,13 +14,25 @@ interface Props {
   onClose: () => void
 }
 
+function EmptyField({ label }: { label?: string }) {
+  return (
+    <span className="text-gray-400 italic text-sm">{label || '未提取'}</span>
+  )
+}
+
 export default function ProductDetailDrawer({ product, onClose }: Props) {
   const { data, isLoading } = useProductDetail(product.id)
   const { mutate: updateTier, isPending: isUpdating } = useUpdateProductTier()
 
-  const handleTierUpdate = (tier: 'A' | 'B' | 'C') => {
+  const handleTierUpdate = (tier: TierLevel) => {
     updateTier({ productId: product.id, tier })
   }
+
+  const nutrition = data?.golden_record?.nutrition_per_100g
+  const hasNutrition = nutrition && typeof nutrition === 'object' && Object.keys(nutrition).length > 0
+  const allergens = data?.golden_record?.allergens
+  const hasAllergens = Array.isArray(allergens) && allergens.length > 0
+  const completeness = data?.golden_record?.completeness
 
   return (
     <Transition.Root show={true} as={Fragment}>
@@ -83,7 +96,7 @@ export default function ProductDetailDrawer({ product, onClose }: Props) {
                               <div>
                                 <dt className="text-sm text-gray-500">品牌</dt>
                                 <dd className="mt-1 text-sm text-gray-900">
-                                  {data.golden_record.brand || '-'}
+                                  {data.golden_record.brand || <EmptyField />}
                                 </dd>
                               </div>
                               <div>
@@ -95,17 +108,109 @@ export default function ProductDetailDrawer({ product, onClose }: Props) {
                               <div>
                                 <dt className="text-sm text-gray-500">素食類型</dt>
                                 <dd className="mt-1 text-sm text-gray-900">
-                                  {data.golden_record.vegan_type || '-'}
+                                  {data.golden_record.vegan_type || <EmptyField />}
                                 </dd>
                               </div>
                             </dl>
+
+                            {/* 過敏原 */}
+                            <div className="mt-4">
+                              <dt className="text-sm text-gray-500 mb-1">過敏原</dt>
+                              <dd>
+                                {hasAllergens ? (
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {allergens!.map((a, i) => (
+                                      <span
+                                        key={i}
+                                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-50 text-red-700 ring-1 ring-red-200"
+                                      >
+                                        {a}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <EmptyField />
+                                )}
+                              </dd>
+                            </div>
+
+                            {/* 營養成分 */}
+                            <div className="mt-4">
+                              <dt className="text-sm text-gray-500 mb-1">營養成分</dt>
+                              <dd>
+                                {hasNutrition ? (
+                                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                    <table className="min-w-full text-sm">
+                                      <thead className="bg-gray-50">
+                                        <tr>
+                                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">項目</th>
+                                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">每份</th>
+                                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">每100g</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-gray-100">
+                                        {Object.entries(nutrition!).map(([key, val]) => {
+                                          const v = val as { per_serving?: string; per_100g?: string | null } | string
+                                          if (typeof v === 'object' && v !== null) {
+                                            return (
+                                              <tr key={key}>
+                                                <td className="px-3 py-1.5 font-medium text-gray-700">{key}</td>
+                                                <td className="px-3 py-1.5 text-gray-600">{v.per_serving || '-'}</td>
+                                                <td className="px-3 py-1.5 text-gray-600">{v.per_100g || '-'}</td>
+                                              </tr>
+                                            )
+                                          }
+                                          return (
+                                            <tr key={key}>
+                                              <td className="px-3 py-1.5 font-medium text-gray-700">{key}</td>
+                                              <td className="px-3 py-1.5 text-gray-600" colSpan={2}>{String(v)}</td>
+                                            </tr>
+                                          )
+                                        })}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                ) : (
+                                  <EmptyField />
+                                )}
+                              </dd>
+                            </div>
+
+                            {/* 資料完整度 */}
+                            {completeness && (
+                              <div className="mt-4">
+                                <dt className="text-sm text-gray-500 mb-2">資料完整度</dt>
+                                <dd className="flex flex-wrap gap-2">
+                                  {([
+                                    { key: 'has_ingredients' as const, label: '成分' },
+                                    { key: 'has_nutrition' as const, label: '營養' },
+                                    { key: 'has_allergens' as const, label: '過敏原' },
+                                    { key: 'has_brand' as const, label: '品牌' },
+                                  ]).map(({ key, label }) => {
+                                    const ok = completeness[key]
+                                    return (
+                                      <span
+                                        key={key}
+                                        className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
+                                          ok
+                                            ? 'bg-green-50 text-green-700'
+                                            : 'bg-gray-100 text-gray-400'
+                                        }`}
+                                      >
+                                        {ok ? '\u2713' : '\u2717'} {label}
+                                      </span>
+                                    )
+                                  })}
+                                </dd>
+                              </div>
+                            )}
 
                             <div className="mt-4">
                               <label className="block text-sm font-medium text-gray-700 mb-2">
                                 更新 Tier
                               </label>
                               <div className="flex gap-2">
-                                {(['A', 'B', 'C'] as const).map((tier) => (
+                                {(['A+', 'A', 'B', 'C'] as const).map((tier) => (
                                   <button
                                     key={tier}
                                     onClick={() => handleTierUpdate(tier)}
@@ -113,7 +218,9 @@ export default function ProductDetailDrawer({ product, onClose }: Props) {
                                     className={`
                                       px-4 py-2 rounded-lg font-medium
                                       ${data.golden_record.tier === tier
-                                        ? 'bg-blue-600 text-white'
+                                        ? tier === 'A+'
+                                          ? 'bg-amber-500 text-white'
+                                          : 'bg-blue-600 text-white'
                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                       }
                                       disabled:opacity-50
@@ -248,8 +355,3 @@ export default function ProductDetailDrawer({ product, onClose }: Props) {
     </Transition.Root>
   )
 }
-
-
-
-
-

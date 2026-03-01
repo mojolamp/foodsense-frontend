@@ -133,7 +133,7 @@ function ProductRow({ product, onProductClick }: { product: Product; onProductCl
         )}
       </td>
       <td className="px-6 py-4 text-sm text-muted-foreground">
-        {product.brand || '-'}
+        {product.brand || <span className="text-muted-foreground/50 italic">未提取</span>}
       </td>
       <td className="px-6 py-4 text-sm font-mono text-muted-foreground">
         {product.barcode || '-'}
@@ -145,7 +145,7 @@ function ProductRow({ product, onProductClick }: { product: Product; onProductCl
         {product.source_count} 個來源
       </td>
       <td className="px-6 py-4 text-sm text-muted-foreground">
-        {product.vegan_type || '-'}
+        {product.vegan_type || <span className="text-muted-foreground/50 italic">未提取</span>}
       </td>
       <td className="px-6 py-4 text-sm">
         <button
@@ -233,7 +233,7 @@ function VirtualizedTable({
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm text-muted-foreground">
-                      {product.brand || '-'}
+                      {product.brand || <span className="text-muted-foreground/50 italic">未提取</span>}
                     </td>
                     <td className="px-6 py-4 text-sm font-mono text-muted-foreground">
                       {product.barcode || '-'}
@@ -245,7 +245,7 @@ function VirtualizedTable({
                       {product.source_count} 個來源
                     </td>
                     <td className="px-6 py-4 text-sm text-muted-foreground">
-                      {product.vegan_type || '-'}
+                      {product.vegan_type || <span className="text-muted-foreground/50 italic">未提取</span>}
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <button

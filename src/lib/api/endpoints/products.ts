@@ -4,6 +4,7 @@ import type {
   GoldenRecord,
   ProductVariant,
   ProductFilters,
+  TierLevel,
 } from '@/types/product'
 
 export interface ProductsResponse {
@@ -42,7 +43,7 @@ export const productsAPI = {
     }>(`/admin/products/${productId}`)
   },
 
-  updateProductTier: async (productId: string, tier: 'A' | 'B' | 'C') => {
+  updateProductTier: async (productId: string, tier: TierLevel) => {
     return apiClient.put<Product>(`/admin/products/${productId}/tier`, { tier })
   },
 

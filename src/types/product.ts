@@ -1,15 +1,24 @@
+export type TierLevel = 'A+' | 'A' | 'B' | 'C'
+
 export interface Product {
   id: string
   golden_record_id?: string
   product_name: string
   brand?: string
   barcode?: string
-  tier: 'A' | 'B' | 'C'
+  tier: TierLevel
   source_count: number
   is_golden: boolean
   vegan_type?: string
   created_at: string
   updated_at: string
+}
+
+export interface DataCompleteness {
+  has_ingredients: boolean
+  has_nutrition: boolean
+  has_allergens: boolean
+  has_brand: boolean
 }
 
 export interface GoldenRecord {
@@ -22,7 +31,8 @@ export interface GoldenRecord {
   additive_markers: AdditiveMarker[]
   nutrition_per_100g?: NutritionData
   allergens?: string[]
-  tier: 'A' | 'B' | 'C'
+  tier: TierLevel
+  completeness?: DataCompleteness
 }
 
 export interface IngredientsStructure {
@@ -51,7 +61,7 @@ export interface ProductVariant {
 
 export interface ProductFilters {
   search?: string
-  tier?: 'A' | 'B' | 'C'
+  tier?: TierLevel
   source?: string
   is_golden?: boolean
   vegan_type?: string

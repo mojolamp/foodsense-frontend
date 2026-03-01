@@ -33,6 +33,7 @@ export default function ProductFilters({ filters, onFiltersChange }: Props) {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
           >
             <option value="">全部</option>
+            <option value="A+">A+</option>
             <option value="A">A</option>
             <option value="B">B</option>
             <option value="C">C</option>
