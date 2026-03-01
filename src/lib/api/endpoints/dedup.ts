@@ -69,29 +69,29 @@ export interface DedupHealthResponse {
 
 export const dedupAPI = {
   check(data: DedupCheckRequest) {
-    return apiClient.post<DedupCheckResponse>('/api/v1/dedup/check', data)
+    return apiClient.post<DedupCheckResponse>('/dedup/check', data)
   },
 
   markSeen(data: DedupMarkSeenRequest) {
-    return apiClient.post<DedupMarkSeenResponse>('/api/v1/dedup/mark-seen', data)
+    return apiClient.post<DedupMarkSeenResponse>('/dedup/mark-seen', data)
   },
 
   checkAndMark(data: DedupCheckRequest) {
-    return apiClient.post<DedupCheckAndMarkResponse>('/api/v1/dedup/check-and-mark', data)
+    return apiClient.post<DedupCheckAndMarkResponse>('/dedup/check-and-mark', data)
   },
 
   clear(scope?: DedupScope) {
     const params = new URLSearchParams()
     if (scope) params.set('scope', scope)
     const qs = params.toString()
-    return apiClient.delete<DedupClearResponse>(`/api/v1/dedup/clear${qs ? `?${qs}` : ''}`)
+    return apiClient.delete<DedupClearResponse>(`/dedup/clear${qs ? `?${qs}` : ''}`)
   },
 
   getStats() {
-    return apiClient.get<DedupStatsResponse>('/api/v1/dedup/stats')
+    return apiClient.get<DedupStatsResponse>('/dedup/stats')
   },
 
   getHealth() {
-    return apiClient.get<DedupHealthResponse>('/api/v1/dedup/health')
+    return apiClient.get<DedupHealthResponse>('/dedup/health')
   },
 }

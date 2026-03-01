@@ -12,7 +12,7 @@ import type {
 
 export const costMonitoringAPI = {
   async getBudgetStatus(): Promise<BudgetStatusResponse> {
-    return apiClient.get('/api/v1/cost/budget-status')
+    return apiClient.get('/cost/budget-status')
   },
 
   async getDailySummary(params?: {
@@ -23,7 +23,7 @@ export const costMonitoringAPI = {
     if (params?.date) searchParams.set('date', params.date)
     if (params?.tenant_id) searchParams.set('tenant_id', params.tenant_id)
     const qs = searchParams.toString()
-    return apiClient.get(`/api/v1/cost/daily-summary${qs ? `?${qs}` : ''}`)
+    return apiClient.get(`/cost/daily-summary${qs ? `?${qs}` : ''}`)
   },
 
   async getByTenant(params: {
@@ -33,7 +33,7 @@ export const costMonitoringAPI = {
     const searchParams = new URLSearchParams()
     searchParams.set('start_date', params.start_date)
     if (params.end_date) searchParams.set('end_date', params.end_date)
-    return apiClient.get(`/api/v1/cost/by-tenant?${searchParams.toString()}`)
+    return apiClient.get(`/cost/by-tenant?${searchParams.toString()}`)
   },
 
   async getByModel(params: {
@@ -43,18 +43,18 @@ export const costMonitoringAPI = {
     const searchParams = new URLSearchParams()
     searchParams.set('start_date', params.start_date)
     if (params.end_date) searchParams.set('end_date', params.end_date)
-    return apiClient.get(`/api/v1/cost/by-model?${searchParams.toString()}`)
+    return apiClient.get(`/cost/by-model?${searchParams.toString()}`)
   },
 
   async getAlerts(): Promise<CostAlert[]> {
-    return apiClient.get('/api/v1/cost/alerts')
+    return apiClient.get('/cost/alerts')
   },
 
   async trackCost(req: TrackCostRequest): Promise<TrackCostResponse> {
-    return apiClient.post('/api/v1/cost/track', req)
+    return apiClient.post('/cost/track', req)
   },
 
   async getHealth(): Promise<CostHealthResponse> {
-    return apiClient.get('/api/v1/cost/health')
+    return apiClient.get('/cost/health')
   },
 }

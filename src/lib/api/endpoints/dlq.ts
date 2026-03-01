@@ -9,7 +9,7 @@ import type {
 
 export const dlqAPI = {
   async getStats(): Promise<{ success: boolean; stats: DLQStats }> {
-    return apiClient.get('/api/v1/dlq/stats')
+    return apiClient.get('/dlq/stats')
   },
 
   async getMessages(params?: {
@@ -24,34 +24,34 @@ export const dlqAPI = {
     if (params?.page) searchParams.set('page', String(params.page))
     if (params?.page_size) searchParams.set('page_size', String(params.page_size))
     const qs = searchParams.toString()
-    return apiClient.get<DLQMessagesResponse>(`/api/v1/dlq/messages${qs ? `?${qs}` : ''}`)
+    return apiClient.get<DLQMessagesResponse>(`/dlq/messages${qs ? `?${qs}` : ''}`)
   },
 
   async replayMessage(messageId: string): Promise<DLQActionResponse> {
-    return apiClient.post<DLQActionResponse>(`/api/v1/dlq/replay/${messageId}`, {})
+    return apiClient.post<DLQActionResponse>(`/dlq/replay/${messageId}`, {})
   },
 
   async replayQueue(queueType?: string): Promise<{ success: boolean; replayed_count: number }> {
-    return apiClient.post('/api/v1/dlq/replay-queue', { queue_type: queueType })
+    return apiClient.post('/dlq/replay-queue', { queue_type: queueType })
   },
 
   async archiveMessage(messageId: string): Promise<DLQActionResponse> {
-    return apiClient.post<DLQActionResponse>(`/api/v1/dlq/archive/${messageId}`, {})
+    return apiClient.post<DLQActionResponse>(`/dlq/archive/${messageId}`, {})
   },
 
   async deleteMessage(messageId: string): Promise<DLQActionResponse> {
-    return apiClient.delete<DLQActionResponse>(`/api/v1/dlq/messages/${messageId}`)
+    return apiClient.delete<DLQActionResponse>(`/dlq/messages/${messageId}`)
   },
 }
 
 export const dedupAPI = {
   async getStats(): Promise<{ success: boolean; stats: DedupStats }> {
-    return apiClient.get('/api/v1/dedup/stats')
+    return apiClient.get('/dedup/stats')
   },
 }
 
 export const acquisitionMetricsAPI = {
   async getMetrics(): Promise<{ success: boolean; metrics: AcquisitionMetrics }> {
-    return apiClient.get('/api/v1/data-acquisition/metrics')
+    return apiClient.get('/data-acquisition/metrics')
   },
 }

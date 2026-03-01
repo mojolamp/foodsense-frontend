@@ -9,7 +9,7 @@ import type {
 
 export const ocrReviewAPI = {
   async getStats(): Promise<{ stats: OCRReviewStats }> {
-    return apiClient.get('/api/v1/ocr-review/stats')
+    return apiClient.get('/ocr-review/stats')
   },
 
   async getPending(params?: {
@@ -24,18 +24,18 @@ export const ocrReviewAPI = {
     if (params?.min_confidence != null) searchParams.set('min_confidence', String(params.min_confidence))
     if (params?.max_confidence != null) searchParams.set('max_confidence', String(params.max_confidence))
     const qs = searchParams.toString()
-    return apiClient.get(`/api/v1/ocr-review/pending${qs ? `?${qs}` : ''}`)
+    return apiClient.get(`/ocr-review/pending${qs ? `?${qs}` : ''}`)
   },
 
   async approve(reviewId: string, req: ApproveOCRReviewRequest): Promise<OCRReviewActionResponse> {
-    return apiClient.post(`/api/v1/ocr-review/${reviewId}/approve`, req)
+    return apiClient.post(`/ocr-review/${reviewId}/approve`, req)
   },
 
   async reject(reviewId: string, req: RejectOCRReviewRequest): Promise<OCRReviewActionResponse> {
-    return apiClient.post(`/api/v1/ocr-review/${reviewId}/reject`, req)
+    return apiClient.post(`/ocr-review/${reviewId}/reject`, req)
   },
 
   async getItem(reviewId: string): Promise<{ item: import('@/types/ocrReview').OCRReviewItem }> {
-    return apiClient.get(`/api/v1/ocr-review/${reviewId}`)
+    return apiClient.get(`/ocr-review/${reviewId}`)
   },
 }

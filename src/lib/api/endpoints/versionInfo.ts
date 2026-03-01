@@ -1,4 +1,4 @@
-import { apiClient } from '../client'
+import { apiClientV2V2 } from '../client'
 import type {
   VersionInfoResponse,
   CurrentVersionResponse,
@@ -9,22 +9,22 @@ import type {
 
 export const versionInfoAPI = {
   async getInfo(): Promise<VersionInfoResponse> {
-    return apiClient.get('/api/v1/version/info')
+    return apiClientV2.get('/version/info')
   },
 
   async getCurrent(): Promise<CurrentVersionResponse> {
-    return apiClient.get('/api/v1/version/current')
+    return apiClientV2.get('/version/current')
   },
 
   async getSupported(): Promise<SupportedVersionsResponse> {
-    return apiClient.get('/api/v1/version/supported')
+    return apiClientV2.get('/version/supported')
   },
 
   async getDeprecations(): Promise<DeprecationsResponse> {
-    return apiClient.get('/api/v1/version/deprecations')
+    return apiClientV2.get('/version/deprecations')
   },
 
   async getMigrationGuide(fromVersion: string, toVersion: string): Promise<MigrationGuideResponse> {
-    return apiClient.get(`/api/v1/version/migration/${encodeURIComponent(fromVersion)}/to/${encodeURIComponent(toVersion)}`)
+    return apiClientV2.get(`/version/migration/${encodeURIComponent(fromVersion)}/to/${encodeURIComponent(toVersion)}`)
   },
 }

@@ -9,22 +9,22 @@ import type {
 
 export const benchmarkAPI = {
   run() {
-    return apiClient.post<BenchmarkRunResponse>('/api/v1/benchmark/run', {})
+    return apiClient.post<BenchmarkRunResponse>('/benchmark/run', {})
   },
 
   getResults() {
-    return apiClient.get<BenchmarkResultsResponse>('/api/v1/benchmark/results')
+    return apiClient.get<BenchmarkResultsResponse>('/benchmark/results')
   },
 
   getHistory(limit = 10) {
-    return apiClient.get<BenchmarkHistoryResponse>(`/api/v1/benchmark/history?limit=${limit}`)
+    return apiClient.get<BenchmarkHistoryResponse>(`/benchmark/history?limit=${limit}`)
   },
 
   getMetrics() {
-    return apiClient.get<BenchmarkMetricsResponse>('/api/v1/benchmark/metrics')
+    return apiClient.get<BenchmarkMetricsResponse>('/benchmark/metrics')
   },
 
   getDatasetInfo() {
-    return apiClient.get<DatasetInfoResponse>('/api/v1/benchmark/dataset/info')
+    return apiClient.get<DatasetInfoResponse>('/benchmark/dataset/info')
   },
 }

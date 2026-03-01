@@ -10,13 +10,13 @@ export const documentAPI = {
     const formData = new FormData()
     formData.append('file', file)
     return apiClient.postFormData<DocumentUploadResponse>(
-      '/api/v1/documents/upload',
+      '/documents/upload',
       formData
     )
   },
 
   async getDocument(documentId: string): Promise<{ success: boolean; document: DocumentDetail }> {
-    return apiClient.get(`/api/v1/documents/${documentId}`)
+    return apiClient.get(`/documents/${documentId}`)
   },
 
   async getDocuments(params?: {
@@ -27,6 +27,6 @@ export const documentAPI = {
     if (params?.page) searchParams.set('page', String(params.page))
     if (params?.page_size) searchParams.set('page_size', String(params.page_size))
     const qs = searchParams.toString()
-    return apiClient.get<DocumentListResponse>(`/api/v1/documents${qs ? `?${qs}` : ''}`)
+    return apiClient.get<DocumentListResponse>(`/documents${qs ? `?${qs}` : ''}`)
   },
 }

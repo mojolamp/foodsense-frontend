@@ -11,7 +11,7 @@ import type {
 
 export const crawlerAdminAPI = {
   async getStats(): Promise<{ success: boolean; stats: DOMRepairStats }> {
-    return apiClient.get('/api/v1/crawler-admin/repairs/stats')
+    return apiClient.get('/crawler-admin/repairs/stats')
   },
 
   async getPendingRepairs(params?: {
@@ -23,13 +23,13 @@ export const crawlerAdminAPI = {
     if (params?.page_size) searchParams.set('page_size', String(params.page_size))
     const qs = searchParams.toString()
     return apiClient.get<RepairsPendingResponse>(
-      `/api/v1/crawler-admin/repairs/pending${qs ? `?${qs}` : ''}`
+      `/crawler-admin/repairs/pending${qs ? `?${qs}` : ''}`
     )
   },
 
   async approveRepair(repairId: string): Promise<RepairActionResponse> {
     return apiClient.post<RepairActionResponse>(
-      `/api/v1/crawler-admin/repairs/${repairId}/approve`,
+      `/crawler-admin/repairs/${repairId}/approve`,
       {}
     )
   },
@@ -39,7 +39,7 @@ export const crawlerAdminAPI = {
     reason: string
   ): Promise<RepairActionResponse> {
     return apiClient.post<RepairActionResponse>(
-      `/api/v1/crawler-admin/repairs/${repairId}/reject`,
+      `/crawler-admin/repairs/${repairId}/reject`,
       { reason }
     )
   },
@@ -47,12 +47,12 @@ export const crawlerAdminAPI = {
   // ── Schedule Management ──────────────────────────────────
 
   async createSchedule(data: CreateScheduleRequest) {
-    return apiClient.post<CrawlerSchedule>('/api/v1/crawler-admin/schedule', data)
+    return apiClient.post<CrawlerSchedule>('/crawler-admin/schedule', data)
   },
 
   async listSchedules() {
     return apiClient.get<{ schedules: CrawlerSchedule[]; total: number }>(
-      '/api/v1/crawler-admin/schedules'
+      '/crawler-admin/schedules'
     )
   },
 }

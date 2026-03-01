@@ -11,7 +11,7 @@ import type {
 
 export const dbMonitoringAPI = {
   async getStats(): Promise<DbStats> {
-    return apiClient.get('/api/v1/db/stats')
+    return apiClient.get('/db/stats')
   },
 
   async getSlowQueries(params?: {
@@ -22,31 +22,31 @@ export const dbMonitoringAPI = {
     if (params?.threshold_ms != null) searchParams.set('threshold_ms', String(params.threshold_ms))
     if (params?.limit != null) searchParams.set('limit', String(params.limit))
     const qs = searchParams.toString()
-    return apiClient.get(`/api/v1/db/slow-queries${qs ? `?${qs}` : ''}`)
+    return apiClient.get(`/db/slow-queries${qs ? `?${qs}` : ''}`)
   },
 
   async getOptimizationReport(): Promise<OptimizationReport> {
-    return apiClient.get('/api/v1/db/optimization-report')
+    return apiClient.get('/db/optimization-report')
   },
 
   async analyze(): Promise<DbActionResponse> {
-    return apiClient.post('/api/v1/db/analyze', {})
+    return apiClient.post('/db/analyze', {})
   },
 
   async getIndexUsage(table?: string): Promise<IndexUsageResponse> {
     const qs = table ? `?table=${encodeURIComponent(table)}` : ''
-    return apiClient.get(`/api/v1/db/index-usage${qs}`)
+    return apiClient.get(`/db/index-usage${qs}`)
   },
 
   async getConnectionPool(): Promise<ConnectionPoolResponse> {
-    return apiClient.get('/api/v1/db/connection-pool')
+    return apiClient.get('/db/connection-pool')
   },
 
   async resetMonitoring(): Promise<DbActionResponse> {
-    return apiClient.post('/api/v1/db/reset-monitoring', {})
+    return apiClient.post('/db/reset-monitoring', {})
   },
 
   async getHealth(): Promise<DbHealthResponse> {
-    return apiClient.get('/api/v1/db/health')
+    return apiClient.get('/db/health')
   },
 }
