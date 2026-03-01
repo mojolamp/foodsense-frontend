@@ -1,4 +1,4 @@
-import { apiClientV2V2 } from '../client'
+import { apiClientV2 } from '../client'
 import type {
   CollectResponse,
   PipelineRunResponse,
