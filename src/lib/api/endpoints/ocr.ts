@@ -1,4 +1,4 @@
-import { apiClient } from '../client'
+import { apiClient, apiClientV2 } from '../client'
 import type {
   OCRSmartNormalizeResponse,
   OCRV2Response,
@@ -27,8 +27,8 @@ export const ocrAPI = {
     if (options?.context) {
       formData.append('context', options.context)
     }
-    return apiClient.postFormData<OCRSmartNormalizeResponse>(
-      '/api/ocr/smart/process-and-normalize',
+    return apiClientV2.postFormData<OCRSmartNormalizeResponse>(
+      '/ocr/smart/process-and-normalize',
       formData
     )
   },
@@ -50,8 +50,8 @@ export const ocrAPI = {
     if (options?.enablePostprocessing != null) {
       formData.append('enable_postprocessing', String(options.enablePostprocessing))
     }
-    return apiClient.postFormData<OCRV2Response>(
-      '/api/ocr/v2/process',
+    return apiClientV2.postFormData<OCRV2Response>(
+      '/ocr/v2/process',
       formData
     )
   },
@@ -67,7 +67,7 @@ export const ingestionGateRunAPI = {
     trace_id?: string
   }): Promise<IngestionRunResponse> {
     return apiClient.post<IngestionRunResponse>(
-      '/api/v1/ingestion-gate/run',
+      '/ingestion-gate/run',
       {
         schema_version: payload.schema_version || '1.0',
         payload_schema_version: payload.payload_schema_version || '1.0',
@@ -80,20 +80,20 @@ export const ingestionGateRunAPI = {
 
   async getStatus(recordId: string): Promise<IngestionStatusResponse> {
     return apiClient.get<IngestionStatusResponse>(
-      `/api/v1/ingestion-gate/status/${recordId}`
+      `/ingestion-gate/status/${recordId}`
     )
   },
 
   async replay(recordId: string): Promise<{ success: boolean; record_id: string; status: string }> {
     return apiClient.post<{ success: boolean; record_id: string; status: string }>(
-      `/api/v1/ingestion-gate/replay/${recordId}`,
+      `/ingestion-gate/replay/${recordId}`,
       {}
     )
   },
 
   async getTrace(traceId: string): Promise<IngestionStatusResponse[]> {
     return apiClient.get<IngestionStatusResponse[]>(
-      `/api/v1/ingestion-gate/status/trace/${traceId}`
+      `/ingestion-gate/status/trace/${traceId}`
     )
   },
 }
